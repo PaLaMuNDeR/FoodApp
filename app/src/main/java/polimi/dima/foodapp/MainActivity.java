@@ -1,37 +1,47 @@
 package polimi.dima.foodapp;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.content.Context;
-import android.os.Build;
+import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.plus.Plus;
 
 
-public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MainActivity extends ActionBarActivity{
+//        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
     private String current_user = "current_user_username";
     private String current_name = "current_user_name";
     private Boolean logout = false;
     private GoogleApiClient mGoogleApiClient;
+
+    //First We Declare Titles And Icons For Our Navigation Drawer List View
+    //This Icons And Titles Are holded in an Array as you can see
+
+    String TITLES[] = {"Recent Meals","My Cook Book","Friends","Liked","Forum", "Logout"};
+    int ICONS[] = {R.drawable.cutlery,
+            R.drawable.open_book,R.drawable.forum,R.drawable.heart_dish,
+            R.drawable.group_button,R.drawable.logout};
+
+    String xx_name = "User Ivanov";
+    String xx_email = "user.ivanov@gmail.com";
+    int PROFILE = R.drawable.default_face;
+
+    private Toolbar toolbar; // Declaring the Toolbar Object
+    RecyclerView mRecyclerView;                           // Declaring RecyclerView
+    RecyclerView.Adapter mAdapter;                        // Declaring Adapter For Recycler View
+    RecyclerView.LayoutManager mLayoutManager;            // Declaring Layout Manager as a linear layout manager
+    DrawerLayout Drawer;                                  // Declaring DrawerLayout
+
+    ActionBarDrawerToggle mDrawerToggle;                  // Declaring Action Bar Drawer Toggle
+
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -39,8 +49,9 @@ public class MainActivity extends ActionBarActivity
     private NavigationDrawerFragment mNavigationDrawerFragment;
 
     /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
+     * Used to store the last screen title. For use in {@link # restoreActionBar()}.
      */
+
     private CharSequence mTitle;
 
     @Override
@@ -48,7 +59,51 @@ public class MainActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
+         /* Assinging the toolbar object ot the view
+    and setting the the Action bar to our toolbar
+     */
+        //toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        //setSupportActionBar(toolbar);
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.RecyclerView); // Assigning the RecyclerView Object to the xml View
+
+        mRecyclerView.setHasFixedSize(true);                            // Letting the system know that the list objects are of fixed size
+
+        mAdapter = new MyAdapter(TITLES,ICONS,xx_name,xx_email,PROFILE,MainActivity.this);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
+        // And passing the titles,icons,header view name, header view email,
+        // and header view profile picture
+
+        mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
+
+        mLayoutManager = new LinearLayoutManager(this);                 // Creating a layout Manager
+
+        mRecyclerView.setLayoutManager(mLayoutManager);                 // Setting the layout Manager
+
+        Drawer = (DrawerLayout) findViewById(R.id.DrawerLayout);        // Drawer object Assigned to the view
+        mDrawerToggle = new ActionBarDrawerToggle(this,Drawer,toolbar,R.string.openDrawer,R.string.closeDrawer){
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                // code here will execute once the drawer is opened( As I dont want anything happened whe drawer is
+                // open I am not going to put anything here)
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                // Code here will execute once drawer is closed
+            }
+
+
+
+        }; // Drawer Toggle Object Made
+        Drawer.setDrawerListener(mDrawerToggle); // Drawer Listener set to the Drawer toggle
+        mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
+
+    }
+    /*
+                mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
@@ -57,7 +112,30 @@ public class MainActivity extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
     }
+*/
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+     //  getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+}
+    /*
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
@@ -135,20 +213,12 @@ public class MainActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
+
     public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
+
         private static final String ARG_SECTION_NUMBER = "section_number";
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
+
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
@@ -176,3 +246,4 @@ public class MainActivity extends ActionBarActivity
     }
 
 }
+        */
