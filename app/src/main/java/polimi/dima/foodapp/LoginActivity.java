@@ -121,7 +121,9 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-        mGoogleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(Plus.API, Plus.PlusOptions.builder().build()).addScope(Plus.SCOPE_PLUS_LOGIN).build();
+        mGoogleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(this).
+                addOnConnectionFailedListener(this).addApi(Plus.API, Plus.PlusOptions.builder().
+                build()).addScope(Plus.SCOPE_PLUS_LOGIN).build();
 
         try {
 			// Loading whether there is logged-in user
@@ -506,7 +508,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                 Log.d("saved_username", saved_username);
                 edit.putString("username", name);
                 edit.putString("name", name);
-
+                edit.putBoolean("logout",false);
                 edit.commit();
 
                 new AutomaticCreateUser().execute();

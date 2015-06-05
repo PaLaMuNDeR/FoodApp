@@ -31,7 +31,5 @@
     <string name="logout">Logout</string>
     <string name="mail">Email:</string>
     <string name="input_email">Input email here</string>
-    <string name="openDrawer">Open Drawer</string>
-    <string name="closeDrawer">Closed Drawer</string>
 
 </resources>
