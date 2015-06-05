@@ -11,12 +11,14 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -29,6 +31,7 @@ import android.widget.Toast;
  */
 public class NavigationDrawerFragment extends Fragment {
 
+    private RecyclerView recyclerView;
     /**
      * Remember the position of the selected item.
      */
@@ -89,6 +92,11 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+    //    View layout=inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+     //   recyclerView=(RecyclerView) layout.findViewById(R.id.drawer_layout);
+
+
+//        return layout;
         mDrawerListView = (ListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -151,6 +159,8 @@ public class NavigationDrawerFragment extends Fragment {
 
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
             }
+
+
 
             @Override
             public void onDrawerOpened(View drawerView) {
