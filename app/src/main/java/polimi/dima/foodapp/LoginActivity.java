@@ -1,9 +1,16 @@
 package polimi.dima.foodapp;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
+import java.net.URL;
+import java.net.URLConnection;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
@@ -15,6 +22,7 @@ import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
+import android.os.Environment;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.app.Activity;
@@ -88,7 +96,9 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 	// "http://xxx.xxx.x.x:1234/webservice/login.php";
 
 	private static final String LOGIN_URL = "http://expox-milano.com/foodapp/login.php";
-	private static final String REGISTER_URL = "http://expox-milano.com/foodapp/register.php";
+	private static final String LOGINGP_URL = "http://expox-milano.com/foodapp/logingp.php";
+	private static final String REGISTER_URL = "http://expox-milano.com/foodapp/registergp.php";
+	//registergp is the file for registration with GooglePlus
 
 	// testing from a real server:
 	// private static final String LOGIN_URL =
@@ -97,8 +107,18 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 	// JSON element ids from repsonse of php script:
 	private static final String TAG_SUCCESS = "success";
 	private static final String TAG_MESSAGE = "message";
-	private static final String TAG_NAME = "name";
-	// username
+
+    private static final String TAG_NAME = "name";
+    private static final String TAG_USERNAME = "username";
+    private static final String TAG_VERSION = "version";
+    private static final String TAG_PHOTO = "photo";
+    private static final String TAG_COVER = "cover";
+    private static final String TAG_GENDER = "gender";
+    private static final String TAG_EMAIL = "email";
+
+
+
+    // username
 	private static String saved_username = "";
 
 	// Connection to Internet Boolean
@@ -488,6 +508,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 
             edit.putString("username", name);
             edit.putString("name", name);
+            edit.putString("email", email);
             edit.commit();
             //(After first run) If the user is signed in with Google Account,
             // but he has clicked Log out, we check the boolean loogout_bool and if it is true, we don't do anything,
@@ -515,10 +536,6 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 
                 new AutomaticLoginUser().execute();
 
-                Intent i = new Intent(LoginActivity.this,
-                        MainActivity.class);
-                finish();
-                startActivity(i);
             }
         } else {
             name="";
@@ -558,6 +575,15 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                 cover_url = personCoverUrl;
                 gender = g_gender;
 
+                SharedPreferences sp = PreferenceManager
+                        .getDefaultSharedPreferences(LoginActivity.this);
+                Editor edit = sp.edit();
+                edit.putString("username", google_username);
+                edit.putString("name", name);
+                edit.putString("email", email);
+                edit.putString("photo", image_url);
+                edit.putString("cover", cover_url);
+                edit.commit();
                 // update profile frame with new info about Google Account
                 // profile
                 updateProfile(true);
@@ -624,6 +650,10 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 			// Check for success and name tags
 			int success;
 			String name;
+			String username;
+			String email;
+			String photo;
+			String cover;
 
 			// input those strings
 			String u_username = user.getText().toString();
@@ -643,32 +673,60 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 				// check your log for json response
 				Log.d("Login attempt", json.toString());
 
-				// json success tag
-				success = json.getInt(TAG_SUCCESS);
-				if (success == 1) {
-					Log.d("Login Successful!", json.toString());
-					// save user data
-					name = json.getString(TAG_NAME);
-					Log.d("Name", "Taking name " + name);
 
-					SharedPreferences sp = PreferenceManager
-							.getDefaultSharedPreferences(LoginActivity.this);
-					Editor edit = sp.edit();
-					edit.putString("username", u_username);
-					edit.putString("name", name);
-					edit.commit();
-					saved_username = u_username;
-					Log.d("saved_username", saved_username);
+                // json success tag
+                success = json.getInt(TAG_SUCCESS);
+                if (success == 1) {
+                    Log.d("Login Successful!", json.toString());
+                    // save user data
+                    name = json.getString(TAG_NAME);
+                    username = json.getString(TAG_USERNAME);
+                    photo = json.getString(TAG_PHOTO);
+                    cover = json.getString(TAG_COVER);
+                    gender = json.getString(TAG_GENDER);
+                    email = json.getString(TAG_EMAIL);
+                    Log.d("Name", "Taking name " + name);
+                    String photo_save_name = "user_photo";
+                    String cover_save_name = "cover_photo";
 
-					Intent i = new Intent(LoginActivity.this,
-							MainActivity.class);
-					finish();
-					startActivity(i);
-					return json.getString(TAG_MESSAGE);
-				} else {
-					Log.d("Login Failure!", json.getString(TAG_MESSAGE));
-					return json.getString(TAG_MESSAGE);
-				}
+                    SharedPreferences sp = PreferenceManager
+                            .getDefaultSharedPreferences(LoginActivity.this);
+                    Editor edit = sp.edit();
+                    edit.putString("username", u_username);
+                    edit.putString("name", name);
+                    edit.commit();
+                    saved_username = u_username;
+                    Log.d("saved_username", saved_username);
+
+                    // gets the content of each tag
+                    Log.d("Download", "Downloading profile image...");
+                    Log.d("Download", "From " + photo);
+                    Log.d("Download", "To " + photo_save_name);
+                    DownloadFileFromURL(photo_save_name, photo);
+                    // gets the content of each tag
+                    Log.d("Download", "Downloading cover image...");
+                    Log.d("Download", "From " + cover);
+                    Log.d("Download", "To " + cover_save_name);
+                    DownloadFileFromURL(cover_save_name, cover);
+
+                    try {
+                        DatabaseHandler db = new DatabaseHandler(LoginActivity.this);
+
+                        Log.d("Database", "Inserting...");
+                        db.addProfile(new Profile(name, username, photo, cover, gender, email));
+                    } catch (Exception e) {
+                        Log.e("Error JSON Parser",
+                                "Error when parsing the JSON");
+                    }
+                    Intent i = new Intent(LoginActivity.this,
+                            MainActivity.class);
+                    finish();
+                    startActivity(i);
+                    return json.getString(TAG_MESSAGE);
+                } else {
+                    Log.d("Login Failure!", json.getString(TAG_MESSAGE));
+                    return json.getString(TAG_MESSAGE);
+                }
 			} catch (JSONException e) {
 
 				e.printStackTrace();
@@ -693,6 +751,9 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 		}
 
 	}
+
+
+
     class AutomaticLoginUser extends AsyncTask<String, String, String> {
 
         /**
@@ -722,31 +783,74 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
             try {
                 // Building Parameters
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
-                params.add(new BasicNameValuePair("username", google_username));
-                params.add(new BasicNameValuePair("name", name));
+               // params.add(new BasicNameValuePair("username", google_username));
+                //params.add(new BasicNameValuePair("name", name));
                 params.add(new BasicNameValuePair("email", email));
-                params.add(new BasicNameValuePair("password", password));
-                params.add(new BasicNameValuePair("gender", gender));
+               // params.add(new BasicNameValuePair("password", password));
+               // params.add(new BasicNameValuePair("gender", gender));
 
                 Log.d("request!", "starting");
 
                 // Posting user data to script
-                JSONObject json = jsonParser.makeHttpRequest(LOGIN_URL, "POST",
+                JSONObject json = jsonParser.makeHttpRequest(LOGINGP_URL, "POST",
                         params);
 
                 // full json response
                 Log.d("Login attempt", json.toString());
 
-                // json success element
+
+                // json success tag
                 success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
-                    Log.d("User Created!", json.toString());
-                    finish();
-                    return json.getString(TAG_MESSAGE);
-                } else {
-                    Log.d("Login Failure!", json.getString(TAG_MESSAGE));
-                    return json.getString(TAG_MESSAGE);
+                    Log.d("Login Successful!", json.toString());
+                    String username="";
+                    String photo="";
+                    String cover="";
+                    // save user data
+                    name = json.getString(TAG_NAME);
+                    username = json.getString(TAG_USERNAME);
+                    photo = json.getString(TAG_PHOTO);
+                    cover = json.getString(TAG_COVER);
+                    gender = json.getString(TAG_GENDER);
+                    email = json.getString(TAG_EMAIL);
+                    Log.d("Name", "Taking name " + name);
+                    String photo_save_name = "user_photo";
+                    String cover_save_name = "cover_photo";
 
+                    SharedPreferences sp = PreferenceManager
+                            .getDefaultSharedPreferences(LoginActivity.this);
+                    Editor edit = sp.edit();
+                    edit.putString("username", username);
+                    edit.putString("name", name);
+                    edit.commit();
+                    saved_username = username;
+                    Log.d("saved_username", saved_username);
+
+                    // gets the content of each tag
+                    Log.d("Download", "Downloading profile image...");
+                    Log.d("Download", "From " + photo);
+                    Log.d("Download", "To " + photo_save_name);
+                    DownloadFileFromURL(photo_save_name, photo);
+                    // gets the content of each tag
+                    Log.d("Download", "Downloading cover image...");
+                    Log.d("Download", "From " + cover);
+                    Log.d("Download", "To " + cover_save_name);
+                    DownloadFileFromURL(cover_save_name, cover);
+
+                    try {
+                        DatabaseHandler db = new DatabaseHandler(LoginActivity.this);
+
+                        Log.d("Database", "Inserting...");
+                        db.addProfile(new Profile(name, username, photo, cover, gender, email));
+                    } catch (Exception e) {
+                        Log.e("Error JSON Parser",
+                                "Error when parsing the JSON");
+                    }
+                    Intent i = new Intent(LoginActivity.this,
+                            MainActivity.class);
+                    finish();
+                    startActivity(i);
+                    return json.getString(TAG_MESSAGE);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -766,6 +870,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                 Toast.makeText(LoginActivity.this, file_url,
                         Toast.LENGTH_LONG).show();
             }
+
 
         }
 
@@ -817,16 +922,62 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                 // full json response
                 Log.d("Login attempt", json.toString());
 
-                // json success element
+
+                // json success tag
                 success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
-                    Log.d("User Created!", json.toString());
+                    Log.d("Login Successful!", json.toString());
+                    String username="";
+                    String photo="";
+                    String cover="";
+                    // save user data
+                    name = json.getString(TAG_NAME);
+                    username = json.getString(TAG_USERNAME);
+                    photo = json.getString(TAG_PHOTO);
+                    cover = json.getString(TAG_COVER);
+                    gender = json.getString(TAG_GENDER);
+                    email = json.getString(TAG_EMAIL);
+                    Log.d("Name", "Taking name " + name);
+                    String photo_save_name = "user_photo";
+                    String cover_save_name = "cover_photo";
+
+                    SharedPreferences sp = PreferenceManager
+                            .getDefaultSharedPreferences(LoginActivity.this);
+                    Editor edit = sp.edit();
+                    edit.putString("username", username);
+                    edit.putString("name", name);
+                    edit.commit();
+                    saved_username = username;
+                    Log.d("saved_username", saved_username);
+
+                    // gets the content of each tag
+                    Log.d("Download", "Downloading profile image...");
+                    Log.d("Download", "From " + photo);
+                    Log.d("Download", "To " + photo_save_name);
+                    DownloadFileFromURL(photo_save_name, photo);
+                    // gets the content of each tag
+                    Log.d("Download", "Downloading cover image...");
+                    Log.d("Download", "From " + cover);
+                    Log.d("Download", "To " + cover_save_name);
+                    DownloadFileFromURL(cover_save_name, cover);
+
+                    try {
+                        DatabaseHandler db = new DatabaseHandler(LoginActivity.this);
+
+                        Log.d("Database", "Inserting...");
+                        db.addProfile(new Profile(name, username, photo, cover, gender, email));
+                    } catch (Exception e) {
+                        Log.e("Error JSON Parser",
+                                "Error when parsing the JSON");
+                    }
+                    Intent i = new Intent(LoginActivity.this,
+                            MainActivity.class);
                     finish();
+                    startActivity(i);
                     return json.getString(TAG_MESSAGE);
                 } else {
                     Log.d("Login Failure!", json.getString(TAG_MESSAGE));
                     return json.getString(TAG_MESSAGE);
-
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -859,4 +1010,56 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
             return new BigInteger(130, random).toString(32);
         }
     }
+    protected String DownloadFileFromURL(String saved, String... f_url) {
+        int count;
+        try {
+
+            URL url = new URL(f_url[0]);
+            URLConnection connection = url.openConnection();
+            connection.connect();
+            // getting file length
+            int lenghtOfFile = connection.getContentLength();
+
+            // input stream to read file - with 8k buffer
+            InputStream input = new BufferedInputStream(url.openStream(), 8192);
+
+            //Check whether such folder already exists
+            File folder = new File(Environment.getExternalStorageDirectory() + "/FoodApp/profile");
+            boolean success = true;
+            if (!folder.exists()) {
+                success = folder.mkdirs();
+            }
+            // Output stream to write file
+            OutputStream output = new FileOutputStream("/sdcard/FoodApp/profile/"+saved+".jpg");
+
+            byte data[] = new byte[1024];
+
+            long total = 0;
+
+            while ((count = input.read(data)) != -1) {
+                total += count;
+                // publishing the progress....
+                // After this onProgressUpdate will be called
+                Log.d("Download","Progress..."+((100*total)/(total+count)));
+                // writing data to file
+                output.write(data, 0, count);
+
+            }
+
+            // flushing output
+            output.flush();
+
+            // closing streams
+            output.close();
+            input.close();
+            Log.d("Download", "Download was successful");
+        } catch (Exception e) {
+            Log.e("Error: ", e.getMessage());
+        }
+
+        return null;
+
+    }
+
+
 }
