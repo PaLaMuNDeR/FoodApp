@@ -147,20 +147,23 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 
         try {
 			// Loading whether there is logged-in user
-			Log.d("saved_username", saved_username);
+			Log.d("Username","saved_username: " + saved_username);
 			SharedPreferences sp = PreferenceManager
 					.getDefaultSharedPreferences(LoginActivity.this);
 			String post_username = sp.getString("username", "");
             logout_bool = sp.getBoolean("logout", false);
-			Log.d("We have username", post_username);
+            Log.d("Username", "Logout Bool: "+ logout_bool);
+			Log.d("Username", "Current username: " + post_username);
 			saved_username = post_username;
-			Log.d("saved_username", saved_username);
+			Log.d("Username", "saved_username: "+ saved_username);
 
             if(logout_bool){
                 saved_username="";
-
+                signedInUser=false;
+                Log.d("Username","signedInUser google bool: "+signedInUser);
+             //   sp.edit().putBoolean("logout", logout_bool);
             }
-			 if (saved_username != "") {
+			if (!saved_username.equals("")) {
 
                 Log.d("Login","Username is " + saved_username);
                 Intent i = new Intent(this, MainActivity.class);
@@ -513,6 +516,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
             //(After first run) If the user is signed in with Google Account,
             // but he has clicked Log out, we check the boolean loogout_bool and if it is true, we don't do anything,
             // otherwise we sign him in with Google Account
+            Log.d("Username","Logout Bool: "+logout_bool);
             if(logout_bool){
                 edit.putString("username", name);
                 edit.putString("name", name);
