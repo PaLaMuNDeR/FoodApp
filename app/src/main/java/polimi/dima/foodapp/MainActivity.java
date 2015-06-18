@@ -27,6 +27,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -259,6 +261,30 @@ public class MainActivity extends ActionBarActivity  {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
+        ListViewDemoFragment myFragment = (ListViewDemoFragment) getFragmentManager().findFragmentById(R.id.fragment1);
+        final ListView fragmentListView = myFragment.getListView();
+                fragmentListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+
+                    @Override
+                    public void onScrollStateChanged(AbsListView view, int scrollState) {
+                    }
+
+                    @Override
+                    public void onScroll(AbsListView view, int firstVisibleItem,
+                                         int visibleItemCount, int totalItemCount) {
+                        boolean enable = false;
+                        if (fragmentListView != null && fragmentListView.getChildCount() > 0) {
+                            // check if the first item of the list is visible
+                            boolean firstItemVisible = fragmentListView.getFirstVisiblePosition() == 0;
+                            // check if the top of the first item is visible
+                            boolean topOfFirstItemVisible = fragmentListView.getChildAt(0).getTop() == 0;
+                            // enabling or disabling the refresh layout
+                            enable = firstItemVisible && topOfFirstItemVisible;
+                        }
+                        swipeLayout.setEnabled(enable);
+                    }
+                });
+
     }
 
     @Override
