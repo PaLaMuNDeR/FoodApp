@@ -7,9 +7,13 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -73,6 +77,17 @@ public class MainActivity extends ActionBarActivity {
      */
 
     private CharSequence mTitle = "Recent Meals";
+
+    public static Boolean isWifiAvailable(Context context) {
+        ConnectivityManager connManager = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return networkInfo.isConnected();
+    }
+    private SwipeRefreshLayout swipeLayout;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -220,8 +235,42 @@ public class MainActivity extends ActionBarActivity {
         Drawer.setDrawerListener(mDrawerToggle);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
+
+
+        // Swipe for refresh
+        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeLayout.setRefreshing(false);
+                        onResume();
+                    }
+                }, 4000);
+            }
+
+        });
+        swipeLayout.setColorScheme(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
     }
 
+    @Override
+    public void onResume() {
+        // TODO Auto-generated method stub
+        super.onResume();
+        // loading the pois via AsyncTask
+        if (isWifiAvailable(MainActivity.this)) {
+            //  new LoadComments().execute();
+        } else {
+            Toast.makeText(MainActivity.this, R.string.no_connection,
+                    Toast.LENGTH_LONG).show();
+        }
+    }
 
 
     @Override

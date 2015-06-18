@@ -15,6 +15,11 @@
         android:id="@+id/swipe_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
+        <fragment
+            android:id="@+id/fragment1"
+            android:name="polimi.dima.foodapp.ListViewDemoFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
         <ListView
             android:id="@android:id/list"
@@ -25,13 +30,8 @@
             android:background="#fff"
             android:divider="@android:color/transparent"
             android:scrollbars="none" />
-        </android.support.v4.widget.SwipeRefreshLayout>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
-    <fragment
-        android:id="@+id/fragment1"
-        android:name="polimi.dima.foodapp.ListViewDemoFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/RecyclerView"
