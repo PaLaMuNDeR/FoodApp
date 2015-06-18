@@ -59,9 +59,9 @@ public class MainActivity extends ActionBarActivity {
     RecyclerView.Adapter mAdapter;                        // Declaring Adapter For Recycler View
     RecyclerView.LayoutManager mLayoutManager;            // Declaring Layout Manager as a linear layout manager
     DrawerLayout Drawer;                                  // Declaring DrawerLayout
-Bitmap profileBitmap;
+    Bitmap profileBitmap;
     ActionBarDrawerToggle mDrawerToggle;                  // Declaring Action Bar Drawer Toggle
-Context mContext;
+    Context mContext;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -102,25 +102,25 @@ Context mContext;
         String coverPath="";
         BitmapDrawable coverBitmap = null;
         try {
-                imagePath = Environment.getExternalStorageDirectory().toString() +"/sdcard/FoodApp/profile/user_photo.jpg";
-                coverPath = Environment.getExternalStorageDirectory().toString() +"/sdcard/FoodApp/profile/cover_photo.jpg";
-                File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
+            imagePath = Environment.getExternalStorageDirectory().toString() +"/sdcard/FoodApp/profile/user_photo.jpg";
+            coverPath = Environment.getExternalStorageDirectory().toString() +"/sdcard/FoodApp/profile/cover_photo.jpg";
+            File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
 
-                if(imgFile.exists()){
-                    Log.d("Download Image","Profile Image - yes");
-                    profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                }
-                imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
-                if(imgFile.exists()){
-                    Log.d("Download Image","Cover Image - yes");
-                    Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                    coverBitmap = new BitmapDrawable(getResources(), bitmap);
-                }
-
+            if(imgFile.exists()){
+                Log.d("Download Image","Profile Image - yes");
+                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
+            imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
+            if(imgFile.exists()){
+                Log.d("Download Image","Cover Image - yes");
+                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                coverBitmap = new BitmapDrawable(getResources(), bitmap);
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // Assinging the toolbar object ot the view
         //and setting the the Action bar to our toolbar

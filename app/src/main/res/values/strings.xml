@@ -31,5 +31,23 @@
     <string name="logout">Logout</string>
     <string name="mail">Email:</string>
     <string name="input_email">Input email here</string>
-
+    <string name="no_connection">No Internet connection. Swipe down to retry</string>
+    <string name="address">Address</string>
+    <string-array name="Planets">
+        <item>Sun</item>
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+        <item>Jupiter</item>
+        <item>Saturn</item>
+        <item>Uranus</item>
+        <item>Neptune</item>
+    </string-array>
+    <string-array name="Dogs">
+        <item>Dog 0</item>
+        <item>Dog 1</item>
+        <item>Dog 2</item>
+        <item>Dog 3</item>
+    </string-array>
 </resources>
