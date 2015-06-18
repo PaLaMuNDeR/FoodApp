@@ -19,7 +19,9 @@
             android:id="@+id/fragment1"
             android:name="polimi.dima.foodapp.ListViewDemoFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+
+        </fragment>
 
         <ListView
             android:id="@android:id/list"
@@ -31,7 +33,6 @@
             android:divider="@android:color/transparent"
             android:scrollbars="none" />
     </android.support.v4.widget.SwipeRefreshLayout>
-
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/RecyclerView"

@@ -1,5 +1,6 @@
 package polimi.dima.foodapp;
 
+import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.net.NetworkInfo;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -34,7 +36,7 @@ import org.json.JSONArray;
 import java.io.File;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity  {
 //        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private String current_user = "current_user_username";
@@ -261,11 +263,11 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public void onResume() {
-        // TODO Auto-generated method stub
         super.onResume();
         // loading the pois via AsyncTask
         if (isWifiAvailable(MainActivity.this)) {
-            //  new LoadComments().execute();
+            ListViewDemoFragment myFragment = (ListViewDemoFragment) getFragmentManager().findFragmentById(R.id.fragment1);
+            myFragment.new LoadComments().execute();
         } else {
             Toast.makeText(MainActivity.this, R.string.no_connection,
                     Toast.LENGTH_LONG).show();
