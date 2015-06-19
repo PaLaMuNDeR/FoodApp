@@ -33,6 +33,8 @@
     <string name="input_email">Input email here</string>
     <string name="no_connection">No Internet connection. Swipe down to retry</string>
     <string name="address">Address</string>
+    <string name="instructions">Instructions:</string>
+    <string name="add">Add to my Cookbook</string>
     <string-array name="Planets">
         <item>Sun</item>
         <item>Mercury</item>

@@ -1,7 +1,11 @@
 package polimi.dima.foodapp;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,16 +14,17 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,18 +45,20 @@ public class ListViewDemoFragment extends ListFragment {
     private List<ListViewItem> mItems;        // ListView items list
     ListViewAdapter adapter;
     private int id_click = 0;
+    JSONParser jsonParser = new JSONParser();
 
     // Progress Dialog
     private ProgressDialog pDialog;
     private ProgressDialog sDialog;
 
-    public List<ListViewItem> getmItems() {
-        return mItems;
-    }
-    private static final String READ_RECIPIES = "http://expox-milano.com/foodapp/recipies.php";
+
+    private static final String READ_RECIPES_URL = "http://expox-milano.com/foodapp/recipes.php";
+    private boolean downloaded_list = false;
     // JSON IDS:
     private static final String TAG_SUCCESS = "success";
+    private static final String TAG_MESSAGE = "message";
     private static final String TAG_POSTS = "posts";
+    private static final String TAG_R_ID = "r_id";
     private static final String TAG_NAME = "name";
     private static final String TAG_INSTRUCTIONS = "instructions";
     private static final String TAG_INGREDIENTS = "ingredients";
@@ -72,16 +79,8 @@ public class ListViewDemoFragment extends ListFragment {
         mItems = new ArrayList<ListViewItem>();
         Resources resources = getResources();
 
-        mItems.add(new ListViewItem(resources.getDrawable(R.drawable.ic_launcher), getString(R.string.address), getString(R.string.address)));
-        mItems.add(new ListViewItem(resources.getDrawable(R.drawable.ic_launcher), getString(R.string.address), getString(R.string.address)));
-
-        mItems.add(new ListViewItem(resources.getDrawable(R.drawable.ic_launcher), getString(R.string.address), getString(R.string.address)));
-
-        // initialize and set the list adapter
+             // initialize and set the list adapter
         setListAdapter(new ListViewAdapter(getActivity(), mItems));
-
-
-
 
     }
 
@@ -120,68 +119,65 @@ public class ListViewDemoFragment extends ListFragment {
         JSONParser jParser = new JSONParser();
         // Feed the beast our comments url, and it spits us
         // back a JSON object. Boo-yeah Jerome.
-        JSONObject json = jParser.getJSONFromUrl(READ_RECIPIES);
+        JSONObject json = jParser.getJSONFromUrl(READ_RECIPES_URL);
 
         // when parsing JSON stuff, we should probably
         // try to catch any exceptions:
-        try {
+        if(!downloaded_list) {
+            try {
 
-            // mPois will tell us how many "posts" are
-            // available
-            mPois = json.getJSONArray(TAG_POSTS);
+                // mPois will tell us how many "posts" are
+                // available
+                mPois = json.getJSONArray(TAG_POSTS);
 
-            // looping through all posts according to the json object
-            // returned
-            for (int i = 0; i < mPois.length(); i++) {
-                JSONObject c = mPois.getJSONObject(i);
+                // looping through all posts according to the json object
+                // returned
+                for (int i = 0; i < mPois.length(); i++) {
+                    JSONObject c = mPois.getJSONObject(i);
 
-                // gets the content of each tag
-                String name = c.getString(TAG_NAME);
-                String ingredients = c.getString(TAG_INGREDIENTS);
-                String instructions = c.getString(TAG_INSTRUCTIONS);
-                // String poi_id = c.getString(TAG_POI_ID);
-                String image_url = c.getString(TAG_IMAGE_URL);
+                    // gets the content of each tag
+                    String r_id = c.getString(TAG_R_ID);
+                    String name = c.getString(TAG_NAME);
+                    String ingredients = c.getString(TAG_INGREDIENTS);
+                    String instructions = c.getString(TAG_INSTRUCTIONS);
+                    // String poi_id = c.getString(TAG_POI_ID);
+                    String image_url = c.getString(TAG_IMAGE_URL);
 
-                // creating new HashMap
-                HashMap<String, String> map = new HashMap<String, String>();
+                    // creating new HashMap
+                    HashMap<String, String> map = new HashMap<String, String>();
 
-                // map.put(TAG_POI_ID, poi_id);
-                map.put(TAG_NAME, name);
-                map.put(TAG_INSTRUCTIONS, instructions);
-                map.put(TAG_INGREDIENTS, ingredients);
-                map.put(TAG_IMAGE_URL,image_url);
+                    // map.put(TAG_POI_ID, poi_id);
+                    map.put(TAG_R_ID, r_id);
+                    map.put(TAG_NAME, name);
+                    map.put(TAG_INSTRUCTIONS, instructions);
+                    map.put(TAG_INGREDIENTS, ingredients);
+                    map.put(TAG_IMAGE_URL, image_url);
 
-                // adding HashList to ArrayList
-                mPoiList.add(map);
-                Uri image_01_uri = Uri.parse(image_url);
-                Drawable draw_temp=null;
-                try {
-                    draw_temp = drawableFromUrl(image_url);
-                }
-                catch(Exception e){
-                    e.printStackTrace();
-                }
+                    // adding HashList to ArrayList
+                    mPoiList.add(map);
+                    Uri image_01_uri = Uri.parse(image_url);
+
+                    Drawable draw_temp = null;
+                    try {
+                        draw_temp = drawableFromUrl(image_url);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
 //                Drawable draw_temp= new DownloadImageTask(image_url);
-                
-                
-                mItems.add(new ListViewItem(draw_temp, name, instructions));
-                // annndddd, our JSON data is up to date same with our array
-                // list
+
+
+                    mItems.add(new ListViewItem(draw_temp, name, instructions));
+                    // annndddd, our JSON data is up to date same with our array
+                    // list
+
+                }
+                downloaded_list = true;
+            } catch (JSONException e) {
+                e.printStackTrace();
+
             }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-
         }
-        try{
-           
-        
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    
     }
 
     public static Drawable drawableFromUrl(String url) throws IOException {
@@ -260,8 +256,8 @@ public class ListViewDemoFragment extends ListFragment {
 
                 id_click = position;
 
-           //     new AttemptTakeOnePoi().execute();
-            //    new LoadRecommendation().execute();
+                new AttemptTakeOnePoi().execute();
+                new LoadRecipe().execute();
 
                 // This method is triggered if an item is click within our
                 // list. For our example we won't be using this, but
@@ -271,31 +267,199 @@ public class ListViewDemoFragment extends ListFragment {
         });
     }
 
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        Uri imageUri;
-        Drawable drawableImage;
+    class AttemptTakeOnePoi extends AsyncTask<String, String, String> {
 
-        public DownloadImageTask(Uri imageUri) {
-            this.imageUri = imageUri;
+        /**
+         * Before starting background thread Show Progress Dialog
+         * */
+        boolean failure = false;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            sDialog = new ProgressDialog(getActivity());
+            sDialog.setMessage("Taking all the info for the POI...");
+            sDialog.setIndeterminate(false);
+            sDialog.setCancelable(true);
+            sDialog.show();
         }
 
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
+        @Override
+        protected String doInBackground(String... args) {
+            // Check for success tag
+            int success;
+            SharedPreferences sp = PreferenceManager
+                    .getDefaultSharedPreferences(getActivity());
+            String username = sp.getString("username", "");
             try {
-                ;
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                drawableImage = Drawable.createFromStream(in, urldisplay);
-                mIcon11 = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
+                // Building Parameters
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
+                params.add(new BasicNameValuePair("username", username));
+
+                Log.d("request!", "starting");
+                // getting product details by making HTTP request
+                JSONObject json = jsonParser.makeHttpRequest(READ_RECIPES_URL,
+                        "POST", params);
+
+                // check your log for json response
+                Log.d("Login attempt", json.toString());
+
+                // json success tag
+                success = json.getInt(TAG_SUCCESS);
+                if (success == 1) {
+                    Log.d("Synchronization Successful!", json.toString());
+
+                    return json.getString(TAG_MESSAGE);
+                } else {
+                    Log.d("Synchronization failed!",
+                            json.getString(TAG_MESSAGE));
+                    return json.getString(TAG_MESSAGE);
+                }
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
-            return mIcon11;
+            return null;
+
         }
 
-        protected void onPostExecute(Boolean result) {
-        //    return ;
+        protected void onPostExecute(String file_url) {
+            // dismiss the dialog once product deleted
+            // sDialog.dismiss();
+            sDialog.dismiss();
+
+            if (file_url != null) {
+                Toast.makeText(getActivity(), file_url,
+                        Toast.LENGTH_SHORT).show();
+            }
+
         }
+
+    }
+
+    public class LoadRecipe extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // pDialog = new ProgressDialog(ActivityRecommendations.this);
+            // pDialog.setMessage("Loading your place..");
+            // pDialog.setIndeterminate(false);
+            // pDialog.setCancelable(true);
+            // pDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... arg0) {
+            updateJSONdataForOne();
+            return null;
+
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            // pDialog.dismiss();
+            updateList();
+
+            Log.d("Starting new activity", "SingleRecipeActivity");
+
+
+//            ListViewDemoFragment thisFragment = (ListViewDemoFragment) getActivity().getFragmentManager().findFragmentById(R.id.fragment1);
+
+
+
+
+/*
+            final Fragment srf = new Fragment();
+            ft.add(R.id.fragmentSingleRecipe,srf);
+            ft.commit();
+*/
+
+//            getActivity().getFragmentManager().findFragmentById(R.id.fragmentSingleRecipe).getView().setVisibility(View.VISIBLE);
+         /*   FragmentTransaction fragmentTransaction = getActivity().getFragmentManager().beginTransaction();
+            final Fragment fragmentC = new Fragment();
+            fragmentTransaction.add(R.id.fragmentSingleRecipe, fragmentC);
+            fragmentTransaction.commit();
+*/
+
+
+
+
+            Intent i = new Intent(getActivity(),
+                    SingleRecipeActivity.class);
+            //finish();
+            startActivity(i);
+
+        }
+    }
+
+    public void updateJSONdataForOne() {
+
+        // Instantiate the arraylist to contain all the JSON data.
+        // we are going to use a bunch of key-value pairs, referring
+        // to the json element name, and the content, for example,
+        // message it the tag, and "I'm awesome" as the content..
+
+        mPoiList = new ArrayList<HashMap<String, String>>();
+
+        // it's time to power up the J parser
+        JSONParser jParser = new JSONParser();
+        // Feed the beast our comments url, and it spits us
+        // back a JSON object. Boo-yeah Jerome.
+        JSONObject json = jParser.getJSONFromUrl(READ_RECIPES_URL);
+
+        // when parsing JSON stuff, we should probably
+        // try to catch any exceptions:
+        try {
+
+            // mPois will tell us how many "posts" are
+            // available
+            mPois = json.getJSONArray(TAG_POSTS);
+
+            // looping through all posts according to the json object
+            // returned
+
+            JSONObject c = mPois.getJSONObject(id_click);
+
+            // gets the content of each tag
+            String r_id = c.getString(TAG_R_ID);
+            String name = c.getString(TAG_NAME);
+            String ingredients = c.getString(TAG_INGREDIENTS);
+            String instructions = c.getString(TAG_INSTRUCTIONS);
+            String image_url = c.getString(TAG_IMAGE_URL);
+
+            // // creating new HashMap
+            HashMap<String, String> map = new HashMap<String, String>();
+
+            map.put(TAG_R_ID, r_id);
+            map.put(TAG_NAME, name);
+            map.put(TAG_INGREDIENTS, ingredients);
+            map.put(TAG_INSTRUCTIONS, instructions);
+            map.put(TAG_IMAGE_URL, image_url);
+            // adding HashList to ArrayList
+            mPoiList.add(map);
+
+            // annndddd, our JSON data is up to date same with our array
+            // list
+            // now we save the strings for the poi in the sharedresources
+            // to pass it to another activity
+
+            SharedPreferences sp = PreferenceManager
+                    .getDefaultSharedPreferences(getActivity());
+            SharedPreferences.Editor edit = sp.edit();
+            edit.putString("r_id", r_id);
+            edit.putString("name", name);
+            edit.putString("ingredients", ingredients);
+            edit.putString("instructions", instructions);
+            // edit.putString("visibility", visibility);
+            edit.putString("image_url", image_url);
+            edit.commit();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("Recipe name", "");
+
+        }
+
     }
 }
