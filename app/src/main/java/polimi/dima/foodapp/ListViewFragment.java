@@ -1,7 +1,5 @@
 package polimi.dima.foodapp;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -40,7 +38,7 @@ import java.util.List;
 /**
  * Created by Marti on 17/06/2015.
  */
-public class ListViewDemoFragment extends ListFragment {
+public class ListViewFragment extends ListFragment {
 
     private List<ListViewItem> mItems;        // ListView items list
     ListViewAdapter adapter;
@@ -53,16 +51,18 @@ public class ListViewDemoFragment extends ListFragment {
 
 
     private static final String READ_RECIPES_URL = "http://expox-milano.com/foodapp/recipes.php";
+    private static final String READ_COOKBOOK_URL = "http://expox-milano.com/foodapp/recipes.php";
     private boolean downloaded_list = false;
     // JSON IDS:
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
     private static final String TAG_POSTS = "posts";
-    private static final String TAG_R_ID = "r_id";
-    private static final String TAG_NAME = "name";
+    private static final String TAG_RECIPE_ID = "recipe_id";
+    private static final String TAG_RECIPE_NAME = "recipe_name";
     private static final String TAG_INSTRUCTIONS = "instructions";
     private static final String TAG_INGREDIENTS = "ingredients";
-    private static final String TAG_IMAGE_URL = "image_url";
+    private static final String TAG_RECIPE_IMAGE_URL = "recipe_image_url";
+    Boolean cookbook_choice=false;
 
     // An array of all of our pois
     private JSONArray mPois = null;
@@ -120,6 +120,13 @@ public class ListViewDemoFragment extends ListFragment {
         // Feed the beast our comments url, and it spits us
         // back a JSON object. Boo-yeah Jerome.
         JSONObject json = jParser.getJSONFromUrl(READ_RECIPES_URL);
+        if(cookbook_choice){
+            json = jParser.getJSONFromUrl(READ_COOKBOOK_URL);
+            Log.d("cookbook","READING FROM COOKBOOK");
+            Log.d("cookbook","READING FROM COOKBOOK");
+            Log.d("cookbook","READING FROM COOKBOOK");
+        }
+
 
         // when parsing JSON stuff, we should probably
         // try to catch any exceptions:
@@ -136,35 +143,35 @@ public class ListViewDemoFragment extends ListFragment {
                     JSONObject c = mPois.getJSONObject(i);
 
                     // gets the content of each tag
-                    String r_id = c.getString(TAG_R_ID);
-                    String name = c.getString(TAG_NAME);
+                    String recipe_id = c.getString(TAG_RECIPE_ID);
+                    String name = c.getString(TAG_RECIPE_NAME);
                     String ingredients = c.getString(TAG_INGREDIENTS);
                     String instructions = c.getString(TAG_INSTRUCTIONS);
                     // String poi_id = c.getString(TAG_POI_ID);
-                    String image_url = c.getString(TAG_IMAGE_URL);
+                    String recipe_image_url = c.getString(TAG_RECIPE_IMAGE_URL);
 
                     // creating new HashMap
                     HashMap<String, String> map = new HashMap<String, String>();
 
                     // map.put(TAG_POI_ID, poi_id);
-                    map.put(TAG_R_ID, r_id);
-                    map.put(TAG_NAME, name);
+                    map.put(TAG_RECIPE_ID, recipe_id);
+                    map.put(TAG_RECIPE_NAME, name);
                     map.put(TAG_INSTRUCTIONS, instructions);
                     map.put(TAG_INGREDIENTS, ingredients);
-                    map.put(TAG_IMAGE_URL, image_url);
+                    map.put(TAG_RECIPE_IMAGE_URL, recipe_image_url);
 
                     // adding HashList to ArrayList
                     mPoiList.add(map);
-                    Uri image_01_uri = Uri.parse(image_url);
+                    Uri image_01_uri = Uri.parse(recipe_image_url);
 
                     Drawable draw_temp = null;
                     try {
-                        draw_temp = drawableFromUrl(image_url);
+                        draw_temp = drawableFromUrl(recipe_image_url);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
 
-//                Drawable draw_temp= new DownloadImageTask(image_url);
+//                Drawable draw_temp= new DownloadImageTask(recipe_image_url);
 
 
                     mItems.add(new ListViewItem(draw_temp, name, instructions));
@@ -231,7 +238,7 @@ public class ListViewDemoFragment extends ListFragment {
         // and place the appropriate info from the list to the
         // correct GUI id. Order is important here.
         ListAdapter adapter = new SimpleAdapter(getActivity(), mPoiList,
-                R.layout.single_post, new String[] { TAG_NAME,
+                R.layout.single_post, new String[] {TAG_RECIPE_NAME,
                 TAG_INGREDIENTS,
                 // TAG_LONG_DESCRIPTION,
                 TAG_INSTRUCTIONS}, new int[] { R.id.poi_name,
@@ -298,6 +305,7 @@ public class ListViewDemoFragment extends ListFragment {
 
                 Log.d("request!", "starting");
                 // getting product details by making HTTP request
+
                 JSONObject json = jsonParser.makeHttpRequest(READ_RECIPES_URL,
                         "POST", params);
 
@@ -307,7 +315,7 @@ public class ListViewDemoFragment extends ListFragment {
                 // json success tag
                 success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
-                    Log.d("Synchronization Successful!", json.toString());
+                    Log.d("Synch Successful!", json.toString());
 
                     return json.getString(TAG_MESSAGE);
                 } else {
@@ -422,20 +430,20 @@ public class ListViewDemoFragment extends ListFragment {
             JSONObject c = mPois.getJSONObject(id_click);
 
             // gets the content of each tag
-            String r_id = c.getString(TAG_R_ID);
-            String name = c.getString(TAG_NAME);
+            String recipe_id = c.getString(TAG_RECIPE_ID);
+            String recipe_name = c.getString(TAG_RECIPE_NAME);
             String ingredients = c.getString(TAG_INGREDIENTS);
             String instructions = c.getString(TAG_INSTRUCTIONS);
-            String image_url = c.getString(TAG_IMAGE_URL);
+            String recipe_image_url = c.getString(TAG_RECIPE_IMAGE_URL);
 
             // // creating new HashMap
             HashMap<String, String> map = new HashMap<String, String>();
 
-            map.put(TAG_R_ID, r_id);
-            map.put(TAG_NAME, name);
+            map.put(TAG_RECIPE_ID, recipe_id);
+            map.put(TAG_RECIPE_NAME, recipe_name);
             map.put(TAG_INGREDIENTS, ingredients);
             map.put(TAG_INSTRUCTIONS, instructions);
-            map.put(TAG_IMAGE_URL, image_url);
+            map.put(TAG_RECIPE_IMAGE_URL, recipe_image_url);
             // adding HashList to ArrayList
             mPoiList.add(map);
 
@@ -447,12 +455,12 @@ public class ListViewDemoFragment extends ListFragment {
             SharedPreferences sp = PreferenceManager
                     .getDefaultSharedPreferences(getActivity());
             SharedPreferences.Editor edit = sp.edit();
-            edit.putString("r_id", r_id);
-            edit.putString("recipe_name", name);
+            edit.putString("recipe_id", recipe_id);
+            edit.putString("recipe_name", recipe_name);
             edit.putString("ingredients", ingredients);
             edit.putString("instructions", instructions);
             // edit.putString("visibility", visibility);
-            edit.putString("image_url", image_url);
+            edit.putString("recipe_image_url", recipe_image_url);
             edit.commit();
 
         } catch (JSONException e) {

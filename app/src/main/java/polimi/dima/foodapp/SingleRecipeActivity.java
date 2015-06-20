@@ -77,7 +77,6 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
     // JSON element ids from repsonse of php script:
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
-    private static String TAG_IMAGES = "images";
 
     public SingleRecipeActivity(){
 
@@ -258,22 +257,22 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
         TextView instructions = (TextView) findViewById(R.id.instructions);
         instructions.setText(instructions_value);
 
-        String image_url = sp.getString("image_url", "");
+        String recipe_image_url = sp.getString("recipe_image_url", "");
 
       /*  Drawable draw_temp = null;
         try {
-            draw_temp = drawableFromUrl(image_url);
+            draw_temp = drawableFromUrl(recipe_image_url);
         } catch (Exception e) {
             e.printStackTrace();
         }
 */
-//                Drawable draw_temp= new DownloadImageTask(image_url);
+//                Drawable draw_temp= new DownloadImageTask(recipe_image_url);
 
 
         // annndddd, our JSON data is up to date same with our array
         // list
         new DownloadImageTask((ImageView) findViewById(R.id.imageViewSingleRecipe))
-                .execute(image_url);
+                .execute(recipe_image_url);
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
@@ -331,8 +330,6 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
 
                 break;
             case R.id.imageView1:
-                Toast.makeText(SingleRecipeActivity.this, TAG_IMAGES,
-                        Toast.LENGTH_LONG).show();
                 break;
             default:
                 break;
@@ -403,8 +400,8 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
                         Toast.LENGTH_SHORT).show();
             }
             Log.d("Starting new activity", "ActivityOnePoi");
-           //TODO should be sending to the cookbook activity
-           // but for now it is sent to the Main
+            //TODO should be sending to the cookbook activity
+            // but for now it is sent to the Main
 
             Intent i = new Intent(SingleRecipeActivity.this,
                     MainActivity.class);

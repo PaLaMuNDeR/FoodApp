@@ -16,7 +16,7 @@
 
         <fragment
             android:id="@+id/fragment1"
-            android:name="polimi.dima.foodapp.ListViewDemoFragment"
+            android:name="polimi.dima.foodapp.ListViewFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             />

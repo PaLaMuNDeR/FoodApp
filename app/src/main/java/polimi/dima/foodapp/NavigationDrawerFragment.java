@@ -98,8 +98,8 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-    //    View layout=inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
-     //   recyclerView=(RecyclerView) layout.findViewById(R.id.drawer_layout);
+        //    View layout=inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+        //   recyclerView=(RecyclerView) layout.findViewById(R.id.drawer_layout);
 
 
 //        return layout;
@@ -268,7 +268,7 @@ public class NavigationDrawerFragment extends Fragment {
             Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
             if(item.getItemId()==2)
             {
-             cookbook_choice=true;
+                cookbook_choice=true;
                 SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 SharedPreferences.Editor edit = sp.edit();
                 edit.putBoolean("cookbook_choice", cookbook_choice);
