@@ -9,13 +9,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -35,8 +35,8 @@ import org.json.JSONArray;
 
 import java.io.File;
 
-
-public class CookbookActivity extends ActionBarActivity  {
+//AKA MainActivity
+public class ActivityRecentMeals extends ActionBarActivity  {
 //        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private String current_user = "current_user_username";
@@ -46,7 +46,6 @@ public class CookbookActivity extends ActionBarActivity  {
     private String photo = "photo";
     private String cover = "cover";
     private String gender = "gender";
-    private Boolean cookbook_choice = false;
     private Boolean logout = false;
     private GoogleApiClient mGoogleApiClient;
     ProgressDialog myPd_bar;
@@ -93,18 +92,17 @@ public class CookbookActivity extends ActionBarActivity  {
         setContentView(R.layout.activity_main);
 
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(CookbookActivity.this);
+                .getDefaultSharedPreferences(ActivityRecentMeals.this);
         current_user = sp.getString("username", "");
         name = sp.getString("name", "");
         email = sp.getString("email", "");
         photo = sp.getString("photo", "");
         cover = sp.getString("cover", "");
-        cookbook_choice = sp.getBoolean("cookbook_choice",false);
         SharedPreferences.Editor edit = sp.edit();
         edit.putBoolean("logout",false);
         edit.commit();
         Log.d("Username","LogoutBool in SP: "+sp.getBoolean("logout",false));
-        DatabaseHandler db = new DatabaseHandler(CookbookActivity.this);
+        DatabaseHandler db = new DatabaseHandler(ActivityRecentMeals.this);
         Profile pf =  db.getLastProfile();
         name = pf.name;
         username = pf.username;
@@ -162,7 +160,7 @@ public class CookbookActivity extends ActionBarActivity  {
 
         mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
 
-        final GestureDetector mGestureDetector = new GestureDetector(CookbookActivity.this, new GestureDetector.SimpleOnGestureListener() {
+        final GestureDetector mGestureDetector = new GestureDetector(ActivityRecentMeals.this, new GestureDetector.SimpleOnGestureListener() {
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
@@ -180,10 +178,17 @@ public class CookbookActivity extends ActionBarActivity  {
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
-                    Toast.makeText(CookbookActivity.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
-                    if (recyclerView.getChildPosition(child) == 6) {
+                    Toast.makeText(ActivityRecentMeals.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
+                    if (recyclerView.getChildPosition(child) == 1) {
+                    //Remain in Main
+                    }
+                    if (recyclerView.getChildPosition(child) == 2) {
+                        Intent i = new Intent(ActivityRecentMeals.this, ActivityCookbook.class);
+                        startActivity(i);
+                    }
+                        if (recyclerView.getChildPosition(child) == 6) {
                         SharedPreferences sp = PreferenceManager
-                                .getDefaultSharedPreferences(CookbookActivity.this);
+                                .getDefaultSharedPreferences(ActivityRecentMeals.this);
 
                         current_user = "";
                         name = "";
@@ -195,7 +200,7 @@ public class CookbookActivity extends ActionBarActivity  {
                         edit.commit();
                         Log.d("Log out - current_user", current_user);
                         Log.d("Log out - current name", name);
-                        Intent i = new Intent(CookbookActivity.this, LoginActivity.class);
+                        Intent i = new Intent(ActivityRecentMeals.this, LoginActivity.class);
                         startActivity(i);
                         finish();
 
@@ -290,10 +295,7 @@ public class CookbookActivity extends ActionBarActivity  {
                 swipeLayout.setEnabled(enable);
             }
         });
-        getSupportActionBar().setTitle(recent_meals);
-        if(cookbook_choice){
-            getSupportActionBar().setTitle(my_cook_book);
-        }
+            getSupportActionBar().setTitle(recent_meals);
 
     }
 
@@ -301,11 +303,11 @@ public class CookbookActivity extends ActionBarActivity  {
     public void onResume() {
         super.onResume();
         // loading the pois via AsyncTask
-        if (isWifiAvailable(CookbookActivity.this)) {
+        if (isWifiAvailable(ActivityRecentMeals.this)) {
             ListViewFragment myFragment = (ListViewFragment) getFragmentManager().findFragmentById(R.id.fragment1);
             myFragment.new LoadComments().execute();
         } else {
-            Toast.makeText(CookbookActivity.this, R.string.no_connection,
+            Toast.makeText(ActivityRecentMeals.this, R.string.no_connection,
                     Toast.LENGTH_LONG).show();
         }
     }

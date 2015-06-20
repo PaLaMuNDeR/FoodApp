@@ -37,7 +37,7 @@ import java.util.List;
  * Created by Marti on 19/06/2015.
  */
 
-public class SingleRecipeActivity extends ActionBarActivity implements View.OnClickListener{
+public class ActivitySingleRecipe extends ActionBarActivity implements View.OnClickListener{
     private String current_name = "current_user_name";
 
     // Progress Dialog
@@ -78,7 +78,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
 
-    public SingleRecipeActivity(){
+    public ActivitySingleRecipe(){
 
     }
 
@@ -87,7 +87,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_recipe);
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(SingleRecipeActivity.this);
+                .getDefaultSharedPreferences(ActivitySingleRecipe.this);
         String post_username = sp.getString("username", "");
         String post_name = sp.getString("recipe_name_view", "");
         Log.d("recipe_name_view", "Loading recipe_name_view " + post_name);
@@ -104,7 +104,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
         edit.putBoolean("logout",false);
         edit.commit();
         Log.d("Username","LogoutBool in SP: "+sp.getBoolean("logout",false));
-        DatabaseHandler db = new DatabaseHandler(SingleRecipeActivity.this);
+        DatabaseHandler db = new DatabaseHandler(ActivitySingleRecipe.this);
         Profile pf =  db.getLastProfile();
         name = pf.name;
         username = pf.username;
@@ -147,7 +147,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
 
         mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
 
-        final GestureDetector mGestureDetector = new GestureDetector(SingleRecipeActivity.this, new GestureDetector.SimpleOnGestureListener() {
+        final GestureDetector mGestureDetector = new GestureDetector(ActivitySingleRecipe.this, new GestureDetector.SimpleOnGestureListener() {
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
@@ -165,10 +165,20 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
-                    Toast.makeText(SingleRecipeActivity.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ActivitySingleRecipe.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
+                    if (recyclerView.getChildPosition(child) == 1) {
+                        //Go to Main
+                        Intent i = new Intent(ActivitySingleRecipe.this,ActivityRecentMeals.class);
+                        startActivity(i);
+                    }
+                    if (recyclerView.getChildPosition(child) == 2) {
+                        Intent i = new Intent(ActivitySingleRecipe.this,ActivityCookbook.class);
+                        startActivity(i);
+                    }
+
                     if (recyclerView.getChildPosition(child) == 6) {
                         SharedPreferences sp = PreferenceManager
-                                .getDefaultSharedPreferences(SingleRecipeActivity.this);
+                                .getDefaultSharedPreferences(ActivitySingleRecipe.this);
 
                         current_user = "";
                         name = "";
@@ -180,7 +190,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
                         edit.commit();
                         Log.d("Log out current_user:", current_user);
                         Log.d("Log out: ", name);
-                        Intent i = new Intent(SingleRecipeActivity.this, LoginActivity.class);
+                        Intent i = new Intent(ActivitySingleRecipe.this, LoginActivity.class);
                         startActivity(i);
                         finish();
 
@@ -344,7 +354,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            sDialog = new ProgressDialog(SingleRecipeActivity.this);
+            sDialog = new ProgressDialog(ActivitySingleRecipe.this);
             sDialog.setMessage("Adding it to your cookbook...");
             sDialog.setIndeterminate(false);
             sDialog.setCancelable(true);
@@ -396,15 +406,15 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
             Log.d("current_user", "current_user" + current_user);
             Log.d("current_user", "current_user" + current_user);
             if (file_url != null && current_user != "") {
-                Toast.makeText(SingleRecipeActivity.this, file_url,
+                Toast.makeText(ActivitySingleRecipe.this, file_url,
                         Toast.LENGTH_SHORT).show();
             }
             Log.d("Starting new activity", "ActivityOnePoi");
             //TODO should be sending to the cookbook activity
             // but for now it is sent to the Main
 
-            Intent i = new Intent(SingleRecipeActivity.this,
-                    MainActivity.class);
+            Intent i = new Intent(ActivitySingleRecipe.this,
+                    ActivityRecentMeals.class);
             finish();
             startActivity(i);
 
@@ -414,7 +424,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
 
     public void ClearPreferences() {
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(SingleRecipeActivity.this);
+                .getDefaultSharedPreferences(ActivitySingleRecipe.this);
         SharedPreferences.Editor edit = sp.edit();
         edit.putString("poi_id", "poi_id");
         edit.putString("poi_name", "poi_name");

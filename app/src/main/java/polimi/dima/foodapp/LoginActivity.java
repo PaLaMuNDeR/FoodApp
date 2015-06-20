@@ -10,7 +10,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
@@ -19,44 +18,33 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.IntentSender;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.os.Environment;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 //import polimi.dima.foodapp.ActivityOneFromRecPoi.DeleteRecommendation;
 //import com.example.expoxmilano.ActivityRecommendations.AttemptTakeOnePoi;
 //import com.example.expoxmilano.ActivityRecommendations.LoadRecommendation;
 //import com.example.expoxmilanomilano.R;
-
-import android.widget.AdapterView.OnItemClickListener;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -166,7 +154,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 			if (!saved_username.equals("")) {
 
                 Log.d("Login","Username is " + saved_username);
-                Intent i = new Intent(this, MainActivity.class);
+                Intent i = new Intent(this, ActivityRecentMeals.class);
                 startActivity(i);
                 finish();
             }
@@ -723,7 +711,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                                 "Error when parsing the JSON");
                     }
                     Intent i = new Intent(LoginActivity.this,
-                            MainActivity.class);
+                            ActivityRecentMeals.class);
                     finish();
                     startActivity(i);
                     return json.getString(TAG_MESSAGE);
@@ -851,7 +839,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                                 "Error when parsing the JSON");
                     }
                     Intent i = new Intent(LoginActivity.this,
-                            MainActivity.class);
+                            ActivityRecentMeals.class);
                     finish();
                     startActivity(i);
                     return json.getString(TAG_MESSAGE);
@@ -975,7 +963,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                                 "Error when parsing the JSON");
                     }
                     Intent i = new Intent(LoginActivity.this,
-                            MainActivity.class);
+                            ActivityRecentMeals.class);
                     finish();
                     startActivity(i);
                     return json.getString(TAG_MESSAGE);

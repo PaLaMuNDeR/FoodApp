@@ -19,10 +19,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -272,7 +270,7 @@ public class NavigationDrawerFragment extends Fragment {
                 SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 SharedPreferences.Editor edit = sp.edit();
                 edit.putBoolean("cookbook_choice", cookbook_choice);
-                Intent i = new Intent(getActivity(), MainActivity.class);
+                Intent i = new Intent(getActivity(), ActivityRecentMeals.class);
                 startActivity(i);
                 getActivity().finish();
 

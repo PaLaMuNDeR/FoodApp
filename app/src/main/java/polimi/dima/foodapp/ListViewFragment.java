@@ -120,13 +120,13 @@ public class ListViewFragment extends ListFragment {
         // Feed the beast our comments url, and it spits us
         // back a JSON object. Boo-yeah Jerome.
         JSONObject json = jParser.getJSONFromUrl(READ_RECIPES_URL);
-        if(cookbook_choice){
+     /*   if(cookbook_choice){
             json = jParser.getJSONFromUrl(READ_COOKBOOK_URL);
             Log.d("cookbook","READING FROM COOKBOOK");
             Log.d("cookbook","READING FROM COOKBOOK");
             Log.d("cookbook","READING FROM COOKBOOK");
         }
-
+*/
 
         // when parsing JSON stuff, we should probably
         // try to catch any exceptions:
@@ -394,7 +394,7 @@ public class ListViewFragment extends ListFragment {
 
 
             Intent i = new Intent(getActivity(),
-                    SingleRecipeActivity.class);
+                    ActivitySingleRecipe.class);
             //finish();
             startActivity(i);
 
