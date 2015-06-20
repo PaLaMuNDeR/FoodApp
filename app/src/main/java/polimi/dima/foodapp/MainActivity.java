@@ -61,7 +61,6 @@ public class MainActivity extends ActionBarActivity  {
             R.drawable.open_book, R.drawable.forum, R.drawable.heart_dish,
             R.drawable.group_button, R.drawable.logout};
 
-    int PROFILE = R.drawable.default_face;
     //private Toolbar toolbar; // Declaring the Toolbar Object
     RecyclerView mRecyclerView;                           // Declaring RecyclerView
     RecyclerView.Adapter mAdapter;                        // Declaring Adapter For Recycler View
@@ -85,10 +84,10 @@ public class MainActivity extends ActionBarActivity  {
     public static Boolean isWifiAvailable(Context context) {
         ConnectivityManager connManager = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connManager
-                .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        return networkInfo.isConnected();
-    }
+    NetworkInfo networkInfo = connManager
+            .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+    return networkInfo.isConnected();
+}
     private SwipeRefreshLayout swipeLayout;
 
 

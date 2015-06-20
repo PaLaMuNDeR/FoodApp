@@ -27,7 +27,8 @@
                 android:background="#fff"
                 android:divider="@android:color/transparent"
                 android:scrollbars="none"
-                android:drawSelectorOnTop="false"/>
+                android:drawSelectorOnTop="false"
+          />
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <android.support.v7.widget.RecyclerView

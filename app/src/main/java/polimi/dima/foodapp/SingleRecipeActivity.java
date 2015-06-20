@@ -1,50 +1,63 @@
 package polimi.dima.foodapp;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
+import java.io.File;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 /**
  * Created by Marti on 19/06/2015.
  */
 
-public class SingleRecipeActivity extends Activity implements View.OnClickListener{
-    private String current_user = "current_user_username";
+public class SingleRecipeActivity extends ActionBarActivity implements View.OnClickListener{
+  //  private String current_user = "current_user_username";
     private String current_name = "current_user_name";
     // Progress Dialog
     private ProgressDialog sDialog;
 
     // Drawer Layout
-    private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
-    private CharSequence mDrawerTitle;
-    private CharSequence mTitle;
-    private String[] mDrawerTitles;
+
+    RecyclerView mRecyclerView;                           // Declaring RecyclerView
+    RecyclerView.Adapter mAdapter;                        // Declaring Adapter For Recycler View
+    RecyclerView.LayoutManager mLayoutManager;            // Declaring Layout Manager as a linear layout manager
+    DrawerLayout Drawer;                                  // Declaring DrawerLayout
+    Bitmap profileBitmap;
+    ActionBarDrawerToggle mDrawerToggle;                  // Declaring Action Bar Drawer Toggle
+    private String current_user = "current_user_username";
+    private String name = "name";
+    private String username = "username";
+    private String email = "email";
+    private String photo = "photo";
+    private String cover = "cover";
+    private String gender = "gender";
+    private Boolean logout = false;
+    String TITLES[] = {"Recent Meals", "My Cook Book", "Friends", "Liked", "Forum", "Logout"};
+    int ICONS[] = {R.drawable.cutlery,
+            R.drawable.open_book, R.drawable.forum, R.drawable.heart_dish,
+            R.drawable.group_button, R.drawable.logout};
+
 
     Button
             //btnAllPoi,
@@ -69,14 +82,161 @@ public class SingleRecipeActivity extends Activity implements View.OnClickListen
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.single_recipe);
+        setContentView(R.layout.activity_single_recipe);
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(SingleRecipeActivity.this);
         String post_username = sp.getString("username", "");
-        String post_name = sp.getString("name", "");
-        Log.d("name", "Loading name " + post_name);
+        String post_name = sp.getString("recipe_name_view", "");
+        Log.d("recipe_name_view", "Loading recipe_name_view " + post_name);
         current_name = post_name;
-        Log.d("name", "current_name" + current_name);
+        Log.d("recipe_name_view", "current_name" + current_name);
+
+        //Same part for every activity for making the navigation drawer
+        current_user = sp.getString("username", "");
+        name = sp.getString("recipe_name_view", "");
+        email = sp.getString("email", "");
+        photo = sp.getString("photo", "");
+        cover = sp.getString("cover", "");
+        SharedPreferences.Editor edit = sp.edit();
+        edit.putBoolean("logout",false);
+        edit.commit();
+        Log.d("Username","LogoutBool in SP: "+sp.getBoolean("logout",false));
+        DatabaseHandler db = new DatabaseHandler(SingleRecipeActivity.this);
+        Profile pf =  db.getLastProfile();
+        name = pf.name;
+        username = pf.username;
+        photo = pf.photo;
+        cover = pf.cover;
+        gender = pf.gender;
+        email = pf.email;
+        String imagePath="";
+        String coverPath="";
+        BitmapDrawable coverBitmap = null;
+        try {
+            imagePath = Environment.getExternalStorageDirectory().toString() +"/sdcard/FoodApp/profile/user_photo.jpg";
+            coverPath = Environment.getExternalStorageDirectory().toString() +"/sdcard/FoodApp/profile/cover_photo.jpg";
+            File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
+
+            if(imgFile.exists()){
+                Log.d("Download Image","Profile Image - yes");
+                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            }
+            imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
+            if(imgFile.exists()){
+                Log.d("Download Image","Cover Image - yes");
+                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                coverBitmap = new BitmapDrawable(getResources(), bitmap);
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Assinging the toolbar object ot the view
+        //and setting the the Action bar to our toolbar
+        //
+        //   toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        //   setSupportActionBar(toolbar);
+        mRecyclerView = (RecyclerView) findViewById(R.id.RecyclerView); // Assigning the RecyclerView Object to the xml View
+
+        mRecyclerView.setHasFixedSize(true);                            // Letting the system know that the list objects are of fixed size
+
+        mAdapter = new MyAdapter(TITLES, ICONS, name, email, profileBitmap, coverBitmap,  this);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
+        // And passing the titles,icons,header view recipe_name_view, header view email,
+        // and header view profile picture
+
+        mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
+
+        final GestureDetector mGestureDetector = new GestureDetector(SingleRecipeActivity.this, new GestureDetector.SimpleOnGestureListener() {
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return true;
+            }
+
+        });
+
+
+        mRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent motionEvent) {
+                View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
+
+
+                if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
+                    Drawer.closeDrawers();
+                    Toast.makeText(SingleRecipeActivity.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
+                    if (recyclerView.getChildPosition(child) == 6) {
+                        SharedPreferences sp = PreferenceManager
+                                .getDefaultSharedPreferences(SingleRecipeActivity.this);
+
+                        current_user = "";
+                        name = "";
+                        logout = true;
+                        SharedPreferences.Editor edit = sp.edit();
+                        edit.putString("username", current_user);
+                        edit.putString("recipe_name_view", name);
+                        edit.putBoolean("logout", true);
+                        edit.commit();
+                        Log.d("Log out - current_user", current_user);
+                        Log.d("Log out - current recipe_name_view", name);
+                        Intent i = new Intent(SingleRecipeActivity.this, LoginActivity.class);
+                        startActivity(i);
+                        finish();
+
+                    }
+                    return true;
+
+                }
+
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(RecyclerView recyclerView, MotionEvent motionEvent) {
+
+            }
+        });
+
+
+        mLayoutManager = new LinearLayoutManager(this);                 // Creating a layout Manager
+
+        mRecyclerView.setLayoutManager(mLayoutManager);                 // Setting the layout Manager
+
+
+        Drawer = (DrawerLayout) findViewById(R.id.DrawerLayout);        // Drawer object Assigned to the view
+        mDrawerToggle = new ActionBarDrawerToggle(this, Drawer,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                // code here will execute once the drawer is opened( As I dont want anything happened whe drawer is
+                // open I am not going to put anything here)
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                // Code here will execute once drawer is closed
+            }
+
+        };
+
+        // Drawer Toggle Object Made
+        //    Drawer.setDrawerListener(mDrawerToggle); // Drawer Listener set to the Drawer toggle
+        //  mDrawerToggle = new ActionBarDrawerToggle(this, Drawer, 0, 0);
+        Drawer.setDrawerListener(mDrawerToggle);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
+
+
+
+
+
+
 
         current_user = post_username;
         btnAdd = (Button) findViewById(R.id.btn_add);
@@ -86,10 +246,9 @@ public class SingleRecipeActivity extends Activity implements View.OnClickListen
         p_id = sp.getString("poi_id", "");
 
         String r_name_value = sp.getString("recipe_name", "");
-        TextView name = (TextView) findViewById(R.id.r_name);
-        TextView name2 = (TextView) findViewById(R.id.recipe_name);
-        name.setText(r_name_value);
-        name2.setText(r_name_value);
+        TextView recipe_name_view2 = (TextView) findViewById(R.id.recipe_name);
+        recipe_name_view2.setText(r_name_value);
+        getSupportActionBar().setTitle(r_name_value);
 
         String ingredients_value = sp.getString("ingredients", "");
         TextView ingredients = (TextView) findViewById(R.id.ingredients);

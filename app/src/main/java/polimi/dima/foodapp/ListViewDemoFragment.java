@@ -448,7 +448,7 @@ public class ListViewDemoFragment extends ListFragment {
                     .getDefaultSharedPreferences(getActivity());
             SharedPreferences.Editor edit = sp.edit();
             edit.putString("r_id", r_id);
-            edit.putString("name", name);
+            edit.putString("recipe_name", name);
             edit.putString("ingredients", ingredients);
             edit.putString("instructions", instructions);
             // edit.putString("visibility", visibility);
