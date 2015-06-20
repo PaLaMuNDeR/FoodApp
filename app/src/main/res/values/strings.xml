@@ -1,15 +1,8 @@
 <resources>
     <string name="app_name">FoodApp</string>
-
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
     <string name="action_example">Example action</string>
-
     <string name="action_settings">Settings</string>
     <string name="login">Login</string>
     <string name="moto">Food</string>
@@ -35,21 +28,10 @@
     <string name="address">Address</string>
     <string name="instructions">Instructions:</string>
     <string name="add">Add to my Cookbook</string>
-    <string-array name="Planets">
-        <item>Sun</item>
-        <item>Mercury</item>
-        <item>Venus</item>
-        <item>Earth</item>
-        <item>Mars</item>
-        <item>Jupiter</item>
-        <item>Saturn</item>
-        <item>Uranus</item>
-        <item>Neptune</item>
-    </string-array>
-    <string-array name="Dogs">
-        <item>Dog 0</item>
-        <item>Dog 1</item>
-        <item>Dog 2</item>
-        <item>Dog 3</item>
-    </string-array>
+    <string name="recent_meals">Recent Meals</string>
+    <string name="my_cook_book">My Cookbook</string>
+    <string name="friends">Friends</string>
+    <string name="liked">Liked</string>
+    <string name="forum">Forum</string>
+
 </resources>

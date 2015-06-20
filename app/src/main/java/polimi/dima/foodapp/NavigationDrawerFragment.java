@@ -1,5 +1,6 @@
 package polimi.dima.foodapp;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.support.v7.app.ActionBar;
@@ -62,6 +63,10 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
+    //If cookbook_choice=true, then the MainActivity should adapt.
+    // If false, it is the list with the recipes
+    private boolean cookbook_choice = false;
+
     public NavigationDrawerFragment() {
     }
 
@@ -112,9 +117,7 @@ public class NavigationDrawerFragment extends Fragment {
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 new String[]{
-                        getString(R.string.title_section1),
-                        getString(R.string.title_section2),
-                        getString(R.string.title_section3),
+                        getString(R.string.my_cook_book),
                         getString(R.string.logout)
                 }));
 
@@ -263,6 +266,17 @@ public class NavigationDrawerFragment extends Fragment {
 
         if (item.getItemId() == R.id.action_example) {
             Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
+            if(item.getItemId()==2)
+            {
+             cookbook_choice=true;
+                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                SharedPreferences.Editor edit = sp.edit();
+                edit.putBoolean("cookbook_choice", cookbook_choice);
+                Intent i = new Intent(getActivity(), MainActivity.class);
+                startActivity(i);
+                getActivity().finish();
+
+            }
             return true;
         }
 

@@ -8,7 +8,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -24,21 +23,27 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Marti on 19/06/2015.
  */
 
 public class SingleRecipeActivity extends ActionBarActivity implements View.OnClickListener{
-  //  private String current_user = "current_user_username";
     private String current_name = "current_user_name";
+
     // Progress Dialog
     private ProgressDialog sDialog;
 
     // Drawer Layout
-
     RecyclerView mRecyclerView;                           // Declaring RecyclerView
     RecyclerView.Adapter mAdapter;                        // Declaring Adapter For Recycler View
     RecyclerView.LayoutManager mLayoutManager;            // Declaring Layout Manager as a linear layout manager
@@ -64,7 +69,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
             //btnLogout,
             btnAdd;
 
-    private static String p_id = "";
+    private static String r_id = "";
 
     JSONParser jsonParser = new JSONParser();
     private static final String ADD_REC_URL = "http://expox-milano.com/foodapp/add_rec.php";
@@ -73,7 +78,6 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
     private static String TAG_IMAGES = "images";
-    public View mFragment;
 
     public SingleRecipeActivity(){
 
@@ -109,12 +113,8 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
         cover = pf.cover;
         gender = pf.gender;
         email = pf.email;
-        String imagePath="";
-        String coverPath="";
         BitmapDrawable coverBitmap = null;
         try {
-            imagePath = Environment.getExternalStorageDirectory().toString() +"/sdcard/FoodApp/profile/user_photo.jpg";
-            coverPath = Environment.getExternalStorageDirectory().toString() +"/sdcard/FoodApp/profile/cover_photo.jpg";
             File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
 
             if(imgFile.exists()){
@@ -179,8 +179,8 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
                         edit.putString("recipe_name_view", name);
                         edit.putBoolean("logout", true);
                         edit.commit();
-                        Log.d("Log out - current_user", current_user);
-                        Log.d("Log out - current recipe_name_view", name);
+                        Log.d("Log out current_user:", current_user);
+                        Log.d("Log out: ", name);
                         Intent i = new Intent(SingleRecipeActivity.this, LoginActivity.class);
                         startActivity(i);
                         finish();
@@ -243,7 +243,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
 
         btnAdd.setOnClickListener(this);
         // parsing the data from the shared preferences
-        p_id = sp.getString("poi_id", "");
+        r_id = sp.getString("r_id", "");
 
         String r_name_value = sp.getString("recipe_name", "");
         TextView recipe_name_view2 = (TextView) findViewById(R.id.recipe_name);
@@ -327,7 +327,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
 //			finish();
 //			break;
             case R.id.btn_add:
-              //  new AddRecommendation().execute();
+                new AddRecommendation().execute();
 
                 break;
             case R.id.imageView1:
@@ -338,7 +338,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
                 break;
         }
     }
-/*
+
     class AddRecommendation extends AsyncTask<String, String, String> {
 
 
@@ -348,7 +348,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
         protected void onPreExecute() {
             super.onPreExecute();
             sDialog = new ProgressDialog(SingleRecipeActivity.this);
-            sDialog.setMessage("Adding it to your recommendations...");
+            sDialog.setMessage("Adding it to your cookbook...");
             sDialog.setIndeterminate(false);
             sDialog.setCancelable(true);
             sDialog.show();
@@ -363,7 +363,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
                 // Building Parameters
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
                 params.add(new BasicNameValuePair("username", username));
-                params.add(new BasicNameValuePair("poi_id", p_id));
+                params.add(new BasicNameValuePair("recipe_id", r_id));
 
                 Log.d("request!", "starting");
                 // getting product details by making HTTP request
@@ -376,7 +376,7 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
                 // json success tag
                 success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
-                    Log.d("Synchronization Successful!", json.toString());
+                    Log.d("Synch Successful!", json.toString());
 
                     return json.getString(TAG_MESSAGE);
                 } else {
@@ -399,12 +399,15 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
             Log.d("current_user", "current_user" + current_user);
             Log.d("current_user", "current_user" + current_user);
             if (file_url != null && current_user != "") {
-                Toast.makeText(ActivityOneFromAllPoi.this, file_url,
+                Toast.makeText(SingleRecipeActivity.this, file_url,
                         Toast.LENGTH_SHORT).show();
             }
             Log.d("Starting new activity", "ActivityOnePoi");
-            Intent i = new Intent(ActivityOneFromAllPoi.this,
-                    ActivityLogin.class);
+           //TODO should be sending to the cookbook activity
+           // but for now it is sent to the Main
+
+            Intent i = new Intent(SingleRecipeActivity.this,
+                    MainActivity.class);
             finish();
             startActivity(i);
 
@@ -414,8 +417,8 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
 
     public void ClearPreferences() {
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(ActivityOneFromAllPoi.this);
-        Editor edit = sp.edit();
+                .getDefaultSharedPreferences(SingleRecipeActivity.this);
+        SharedPreferences.Editor edit = sp.edit();
         edit.putString("poi_id", "poi_id");
         edit.putString("poi_name", "poi_name");
         edit.putString("short_description", "short_description");
@@ -427,5 +430,5 @@ public class SingleRecipeActivity extends ActionBarActivity implements View.OnCl
         edit.commit();
 
     }
-*/
+
 }

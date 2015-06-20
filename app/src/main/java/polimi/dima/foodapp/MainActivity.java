@@ -48,6 +48,7 @@ public class MainActivity extends ActionBarActivity  {
     private String photo = "photo";
     private String cover = "cover";
     private String gender = "gender";
+    private Boolean cookbook_choice = false;
     private Boolean logout = false;
     private GoogleApiClient mGoogleApiClient;
     ProgressDialog myPd_bar;
@@ -56,10 +57,6 @@ public class MainActivity extends ActionBarActivity  {
     //First We Declare Titles And Icons For Our Navigation Drawer List View
     //This Icons And Titles Are holded in an Array as you can see
 
-    String TITLES[] = {"Recent Meals", "My Cook Book", "Friends", "Liked", "Forum", "Logout"};
-    int ICONS[] = {R.drawable.cutlery,
-            R.drawable.open_book, R.drawable.forum, R.drawable.heart_dish,
-            R.drawable.group_button, R.drawable.logout};
 
     //private Toolbar toolbar; // Declaring the Toolbar Object
     RecyclerView mRecyclerView;                           // Declaring RecyclerView
@@ -104,6 +101,7 @@ public class MainActivity extends ActionBarActivity  {
         email = sp.getString("email", "");
         photo = sp.getString("photo", "");
         cover = sp.getString("cover", "");
+        cookbook_choice = sp.getBoolean("cookbook_choice",false);
         SharedPreferences.Editor edit = sp.edit();
         edit.putBoolean("logout",false);
         edit.commit();
@@ -145,6 +143,17 @@ public class MainActivity extends ActionBarActivity  {
         //
         //   toolbar = (Toolbar) findViewById(R.id.tool_bar);
         //   setSupportActionBar(toolbar);
+
+        String recent_meals = getResources().getString(R.string.recent_meals);
+        String my_cook_book = getResources().getString(R.string.my_cook_book);
+        String friends = getResources().getString(R.string.friends);
+        String liked = getResources().getString(R.string.liked);
+        String forum = getResources().getString(R.string.forum);
+        String logout_string = getResources().getString(R.string.logout);
+        String TITLES[] = {recent_meals,my_cook_book,friends,liked,forum,logout_string};
+        int ICONS[] = {R.drawable.cutlery,
+                R.drawable.open_book, R.drawable.forum, R.drawable.heart_dish,
+                R.drawable.group_button, R.drawable.logout};
         mRecyclerView = (RecyclerView) findViewById(R.id.RecyclerView); // Assigning the RecyclerView Object to the xml View
 
         mRecyclerView.setHasFixedSize(true);                            // Letting the system know that the list objects are of fixed size
@@ -283,6 +292,10 @@ public class MainActivity extends ActionBarActivity  {
                         swipeLayout.setEnabled(enable);
                     }
                 });
+        getSupportActionBar().setTitle(recent_meals);
+        if(cookbook_choice){
+            getSupportActionBar().setTitle(my_cook_book);
+        }
 
     }
 
