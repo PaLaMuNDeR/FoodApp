@@ -16,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -37,7 +38,7 @@ import java.util.List;
  * Created by Marti on 19/06/2015.
  */
 
-public class ActivitySingleRecipe extends ActionBarActivity implements View.OnClickListener{
+public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implements View.OnClickListener{
     private String current_name = "current_user_name";
 
     // Progress Dialog
@@ -67,18 +68,18 @@ public class ActivitySingleRecipe extends ActionBarActivity implements View.OnCl
     Button
             //btnAllPoi,
             //btnLogout,
-            btnAdd;
+            btnDelete;
 
-    private static String r_id = "";
+    private static String recipe_id = "";
 
     JSONParser jsonParser = new JSONParser();
-    private static final String ADD_REC_URL = "http://expox-milano.com/foodapp/add_rec.php";
+    private static final String DELETE_REC_URL = "http://expox-milano.com/foodapp/delete_rec.php";
 
     // JSON element ids from repsonse of php script:
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
 
-    public ActivitySingleRecipe(){
+    public ActivitySingleRecipeFromCookbook(){
 
     }
 
@@ -87,7 +88,7 @@ public class ActivitySingleRecipe extends ActionBarActivity implements View.OnCl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_recipe);
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(ActivitySingleRecipe.this);
+                .getDefaultSharedPreferences(ActivitySingleRecipeFromCookbook.this);
         String post_username = sp.getString("username", "");
         String post_name = sp.getString("recipe_name_view", "");
         Log.d("recipe_name_view", "Loading recipe_name_view " + post_name);
@@ -104,7 +105,7 @@ public class ActivitySingleRecipe extends ActionBarActivity implements View.OnCl
         edit.putBoolean("logout",false);
         edit.commit();
         Log.d("Username","LogoutBool in SP: "+sp.getBoolean("logout",false));
-        DatabaseHandler db = new DatabaseHandler(ActivitySingleRecipe.this);
+        DatabaseHandler db = new DatabaseHandler(ActivitySingleRecipeFromCookbook.this);
         Profile pf =  db.getLastProfile();
         name = pf.name;
         username = pf.username;
@@ -147,7 +148,7 @@ public class ActivitySingleRecipe extends ActionBarActivity implements View.OnCl
 
         mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
 
-        final GestureDetector mGestureDetector = new GestureDetector(ActivitySingleRecipe.this, new GestureDetector.SimpleOnGestureListener() {
+        final GestureDetector mGestureDetector = new GestureDetector(ActivitySingleRecipeFromCookbook.this, new GestureDetector.SimpleOnGestureListener() {
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
@@ -165,20 +166,20 @@ public class ActivitySingleRecipe extends ActionBarActivity implements View.OnCl
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
-                    Toast.makeText(ActivitySingleRecipe.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ActivitySingleRecipeFromCookbook.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
                     if (recyclerView.getChildPosition(child) == 1) {
                         //Go to Main
-                        Intent i = new Intent(ActivitySingleRecipe.this,ActivityRecentMeals.class);
+                        Intent i = new Intent(ActivitySingleRecipeFromCookbook.this,ActivityRecentMeals.class);
                         startActivity(i);
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
-                        Intent i = new Intent(ActivitySingleRecipe.this,ActivityCookbook.class);
+                        Intent i = new Intent(ActivitySingleRecipeFromCookbook.this,ActivityCookbook.class);
                         startActivity(i);
                     }
 
                     if (recyclerView.getChildPosition(child) == 6) {
                         SharedPreferences sp = PreferenceManager
-                                .getDefaultSharedPreferences(ActivitySingleRecipe.this);
+                                .getDefaultSharedPreferences(ActivitySingleRecipeFromCookbook.this);
 
                         current_user = "";
                         name = "";
@@ -190,7 +191,7 @@ public class ActivitySingleRecipe extends ActionBarActivity implements View.OnCl
                         edit.commit();
                         Log.d("Log out current_user:", current_user);
                         Log.d("Log out: ", name);
-                        Intent i = new Intent(ActivitySingleRecipe.this, LoginActivity.class);
+                        Intent i = new Intent(ActivitySingleRecipeFromCookbook.this, LoginActivity.class);
                         startActivity(i);
                         finish();
 
@@ -241,18 +242,12 @@ public class ActivitySingleRecipe extends ActionBarActivity implements View.OnCl
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
 
-
-
-
-
-
-
         current_user = post_username;
-        btnAdd = (Button) findViewById(R.id.btn_add);
-
-        btnAdd.setOnClickListener(this);
+        btnDelete = (Button) findViewById(R.id.btn_add);
+        btnDelete.setText(R.string.delete);
+        btnDelete.setOnClickListener(this);
         // parsing the data from the shared preferences
-        r_id = sp.getString("r_id", "");
+        recipe_id = sp.getString("recipe_id", "");
 
         String r_name_value = sp.getString("recipe_name", "");
         TextView recipe_name_view2 = (TextView) findViewById(R.id.recipe_name);
@@ -283,6 +278,19 @@ public class ActivitySingleRecipe extends ActionBarActivity implements View.OnCl
         // list
         new DownloadImageTask((ImageView) findViewById(R.id.imageViewSingleRecipe))
                 .execute(recipe_image_url);
+    }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
+
+        return super.onOptionsItemSelected(item);
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
@@ -354,7 +362,7 @@ public class ActivitySingleRecipe extends ActionBarActivity implements View.OnCl
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            sDialog = new ProgressDialog(ActivitySingleRecipe.this);
+            sDialog = new ProgressDialog(ActivitySingleRecipeFromCookbook.this);
             sDialog.setMessage("Adding it to your cookbook...");
             sDialog.setIndeterminate(false);
             sDialog.setCancelable(true);
@@ -370,11 +378,11 @@ public class ActivitySingleRecipe extends ActionBarActivity implements View.OnCl
                 // Building Parameters
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
                 params.add(new BasicNameValuePair("username", username));
-                params.add(new BasicNameValuePair("recipe_id", r_id));
+                params.add(new BasicNameValuePair("recipe_id", recipe_id));
 
                 Log.d("request!", "starting");
                 // getting product details by making HTTP request
-                JSONObject json = jsonParser.makeHttpRequest(ADD_REC_URL,
+                JSONObject json = jsonParser.makeHttpRequest(DELETE_REC_URL,
                         "POST", params);
 
                 // check your log for json response
@@ -406,15 +414,12 @@ public class ActivitySingleRecipe extends ActionBarActivity implements View.OnCl
             Log.d("current_user", "current_user" + current_user);
             Log.d("current_user", "current_user" + current_user);
             if (file_url != null && current_user != "") {
-                Toast.makeText(ActivitySingleRecipe.this, file_url,
+                Toast.makeText(ActivitySingleRecipeFromCookbook.this, R.string.opening_your_cookbook,
                         Toast.LENGTH_SHORT).show();
             }
-            Log.d("Starting new activity", "ActivityOnePoi");
-            //TODO should be sending to the cookbook activity
-            // but for now it is sent to the Main
-
-            Intent i = new Intent(ActivitySingleRecipe.this,
-                    ActivityRecentMeals.class);
+            Log.d("Starting new activity", "ActivityCookbook");
+            Intent i = new Intent(ActivitySingleRecipeFromCookbook.this,
+                    ActivityCookbook.class);
             finish();
             startActivity(i);
 
@@ -424,7 +429,7 @@ public class ActivitySingleRecipe extends ActionBarActivity implements View.OnCl
 
     public void ClearPreferences() {
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(ActivitySingleRecipe.this);
+                .getDefaultSharedPreferences(ActivitySingleRecipeFromCookbook.this);
         SharedPreferences.Editor edit = sp.edit();
         edit.putString("poi_id", "poi_id");
         edit.putString("poi_name", "poi_name");

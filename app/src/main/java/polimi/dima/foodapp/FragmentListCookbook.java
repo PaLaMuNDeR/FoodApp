@@ -9,16 +9,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
@@ -38,20 +35,19 @@ import java.util.List;
 /**
  * Created by Marti on 17/06/2015.
  */
-public class ListViewFragment extends ListFragment {
+public class FragmentListCookbook extends ListFragment {
 
     private List<ListViewItem> mItems;        // ListView items list
     ListViewAdapter adapter;
     private int id_click = 0;
     JSONParser jsonParser = new JSONParser();
-
+    JSONObject json;
     // Progress Dialog
     private ProgressDialog pDialog;
     private ProgressDialog sDialog;
 
 
-    private static final String READ_RECIPES_URL = "http://expox-milano.com/foodapp/recipes.php";
-    private static final String READ_COOKBOOK_URL = "http://expox-milano.com/foodapp/recipes.php";
+    private static final String READ_RECIPES_URL = "http://expox-milano.com/foodapp/cookbook.php";
     private boolean downloaded_list = false;
     // JSON IDS:
     private static final String TAG_SUCCESS = "success";
@@ -62,7 +58,6 @@ public class ListViewFragment extends ListFragment {
     private static final String TAG_INSTRUCTIONS = "instructions";
     private static final String TAG_INGREDIENTS = "ingredients";
     private static final String TAG_RECIPE_IMAGE_URL = "recipe_image_url";
-    Boolean cookbook_choice=false;
 
     // An array of all of our pois
     private JSONArray mPois = null;
@@ -79,6 +74,7 @@ public class ListViewFragment extends ListFragment {
         mItems = new ArrayList<ListViewItem>();
         Resources resources = getResources();
 
+        new LoadRecipes().execute();
              // initialize and set the list adapter
         setListAdapter(new ListViewAdapter(getActivity(), mItems));
 
@@ -103,6 +99,47 @@ public class ListViewFragment extends ListFragment {
         Toast.makeText(getActivity(), item.title, Toast.LENGTH_SHORT).show();
     }
 
+
+
+    public static Drawable drawableFromUrl(String url) throws IOException {
+        Bitmap x;
+
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        connection.connect();
+        InputStream input = connection.getInputStream();
+
+        x = BitmapFactory.decodeStream(input);
+        return new BitmapDrawable(x);
+    }
+
+    public class LoadRecipes extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog = new ProgressDialog(getActivity());
+            pDialog.setMessage("Loading all delicious things...");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(true);
+            pDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... arg0) {
+            updateJSONdata();
+            return null;
+
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            pDialog.dismiss();
+            updateList();
+        }
+
+    }
+
     /**
      * Retrieves recent post data from the server.
      */
@@ -119,14 +156,17 @@ public class ListViewFragment extends ListFragment {
         JSONParser jParser = new JSONParser();
         // Feed the beast our comments url, and it spits us
         // back a JSON object. Boo-yeah Jerome.
-        JSONObject json = jParser.getJSONFromUrl(READ_RECIPES_URL);
-     /*   if(cookbook_choice){
-            json = jParser.getJSONFromUrl(READ_COOKBOOK_URL);
-            Log.d("cookbook","READING FROM COOKBOOK");
-            Log.d("cookbook","READING FROM COOKBOOK");
-            Log.d("cookbook","READING FROM COOKBOOK");
-        }
-*/
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String username = sp.getString("username","");
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("username", username));
+
+        Log.d("request!", "starting");
+        // getting product details by making HTTP request
+
+        json = jsonParser.makeHttpRequest(READ_RECIPES_URL,
+                "POST", params);
+        //json = jParser.getJSONFromUrl(READ_RECIPES_URL);
 
         // when parsing JSON stuff, we should probably
         // try to catch any exceptions:
@@ -162,7 +202,6 @@ public class ListViewFragment extends ListFragment {
 
                     // adding HashList to ArrayList
                     mPoiList.add(map);
-                    Uri image_01_uri = Uri.parse(recipe_image_url);
 
                     Drawable draw_temp = null;
                     try {
@@ -170,9 +209,6 @@ public class ListViewFragment extends ListFragment {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
-//                Drawable draw_temp= new DownloadImageTask(recipe_image_url);
-
 
                     mItems.add(new ListViewItem(draw_temp, name, instructions));
                     // annndddd, our JSON data is up to date same with our array
@@ -187,105 +223,19 @@ public class ListViewFragment extends ListFragment {
         }
     }
 
-    public static Drawable drawableFromUrl(String url) throws IOException {
-        Bitmap x;
 
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.connect();
-        InputStream input = connection.getInputStream();
-
-        x = BitmapFactory.decodeStream(input);
-        return new BitmapDrawable(x);
-    }
-
-
-    public class LoadComments extends AsyncTask<Void, Void, Boolean> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pDialog = new ProgressDialog(getActivity());
-            pDialog.setMessage("Loading all points of interest...");
-            pDialog.setIndeterminate(false);
-            pDialog.setCancelable(true);
-            pDialog.show();
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... arg0) {
-            updateJSONdata();
-            return null;
-
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            super.onPostExecute(result);
-            pDialog.dismiss();
-            updateList();
-        }
-
-    }
-    /**
-     * Inserts the parsed data into the listview.
-     */
-    private void updateList() {
-        // For a ListActivity we need to set the List Adapter, and in order to
-        // do
-        // that, we need to create a ListAdapter. This SimpleAdapter,
-        // will utilize our updated Hashmapped ArrayList,
-        // use our single_post xml template for each item in our list,
-        // and place the appropriate info from the list to the
-        // correct GUI id. Order is important here.
-        ListAdapter adapter = new SimpleAdapter(getActivity(), mPoiList,
-                R.layout.single_post, new String[] {TAG_RECIPE_NAME,
-                TAG_INGREDIENTS,
-                // TAG_LONG_DESCRIPTION,
-                TAG_INSTRUCTIONS}, new int[] { R.id.poi_name,
-                R.id.description, R.id.address });
-
-        // I shouldn't have to comment on this one:
-        setListAdapter(adapter);
-
-        setListAdapter(new ListViewAdapter(getActivity(), mItems));
-        // Optional: when the user clicks a list item we
-        // could do something. However, we will choose
-        // to do nothing...
-        ListView lv = getListView();
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-
-                Log.e("poi_name", "The position is '" + position
-                        + "' the id is '" + id + "'");
-
-                id_click = position;
-
-                new AttemptTakeOnePoi().execute();
-                new LoadRecipe().execute();
-
-                // This method is triggered if an item is click within our
-                // list. For our example we won't be using this, but
-                // it is useful to know in real life applications.
-
-            }
-        });
-    }
-
+/*
     class AttemptTakeOnePoi extends AsyncTask<String, String, String> {
 
-        /**
+        *//**
          * Before starting background thread Show Progress Dialog
-         * */
-        boolean failure = false;
+         * *//*
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             sDialog = new ProgressDialog(getActivity());
-            sDialog.setMessage("Taking all the info for the POI...");
+            sDialog.setMessage("Taking all the info for the Recipe...");
             sDialog.setIndeterminate(false);
             sDialog.setCancelable(true);
             sDialog.show();
@@ -343,6 +293,56 @@ public class ListViewFragment extends ListFragment {
         }
 
     }
+    */
+    /**
+     * Inserts the parsed data into the listview.
+     */
+    private void updateList() {
+        // For a ListActivity we need to set the List Adapter, and in order to
+        // do
+        // that, we need to create a ListAdapter. This SimpleAdapter,
+        // will utilize our updated Hashmapped ArrayList,
+        // use our single_post xml template for each item in our list,
+        // and place the appropriate info from the list to the
+        // correct GUI id. Order is important here.
+/*
+        ListAdapter adapter = new SimpleAdapter(getActivity(), mPoiList,
+                R.layout.single_post, new String[] {TAG_RECIPE_NAME,
+                TAG_INGREDIENTS,
+                // TAG_LONG_DESCRIPTION,
+                TAG_INSTRUCTIONS}, new int[] { R.id.poi_name,
+                R.id.description, R.id.address });
+
+        // I shouldn't have to comment on this one:
+        setListAdapter(adapter);
+*/
+
+        setListAdapter(new ListViewAdapter(getActivity(), mItems));
+        // Optional: when the user clicks a list item we
+        // could do something. However, we will choose
+        // to do nothing...
+        ListView lv = getListView();
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+
+                Log.e("poi_name", "The position is '" + position
+                        + "' the id is '" + id + "'");
+
+                id_click = position;
+
+              //  new AttemptTakeOnePoi().execute();
+                new LoadRecipe().execute();
+
+                // This method is triggered if an item is click within our
+                // list. For our example we won't be using this, but
+                // it is useful to know in real life applications.
+
+            }
+        });
+    }
 
     public class LoadRecipe extends AsyncTask<Void, Void, Boolean> {
 
@@ -394,7 +394,7 @@ public class ListViewFragment extends ListFragment {
 
 
             Intent i = new Intent(getActivity(),
-                    ActivitySingleRecipe.class);
+                    ActivitySingleRecipeFromCookbook.class);
             //finish();
             startActivity(i);
 
@@ -414,7 +414,9 @@ public class ListViewFragment extends ListFragment {
         JSONParser jParser = new JSONParser();
         // Feed the beast our comments url, and it spits us
         // back a JSON object. Boo-yeah Jerome.
-        JSONObject json = jParser.getJSONFromUrl(READ_RECIPES_URL);
+       //
+       //
+       // JSONObject json = jParser.getJSONFromUrl(READ_RECIPES_URL);
 
         // when parsing JSON stuff, we should probably
         // try to catch any exceptions:

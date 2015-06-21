@@ -46,7 +46,6 @@ public class ActivityCookbook extends ActionBarActivity  {
     private String photo = "photo";
     private String cover = "cover";
     private String gender = "gender";
-    private Boolean cookbook_choice = false;
     private Boolean logout = false;
     private GoogleApiClient mGoogleApiClient;
     ProgressDialog myPd_bar;
@@ -90,7 +89,7 @@ public class ActivityCookbook extends ActionBarActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_cookbook);
 
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(ActivityCookbook.this);
@@ -99,7 +98,6 @@ public class ActivityCookbook extends ActionBarActivity  {
         email = sp.getString("email", "");
         photo = sp.getString("photo", "");
         cover = sp.getString("cover", "");
-        cookbook_choice = sp.getBoolean("cookbook_choice",false);
         SharedPreferences.Editor edit = sp.edit();
         edit.putBoolean("logout",false);
         edit.commit();
@@ -177,6 +175,8 @@ public class ActivityCookbook extends ActionBarActivity  {
             public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent motionEvent) {
                 View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
 
+                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ActivityCookbook.this);
+                SharedPreferences.Editor edit = sp.edit();
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
@@ -190,13 +190,9 @@ public class ActivityCookbook extends ActionBarActivity  {
                     //Remain in Cookbook
                     }
                     if (recyclerView.getChildPosition(child) == 6) {
-                        SharedPreferences sp = PreferenceManager
-                                .getDefaultSharedPreferences(ActivityCookbook.this);
-
                         current_user = "";
                         name = "";
                         logout = true;
-                        SharedPreferences.Editor edit = sp.edit();
                         edit.putString("username", current_user);
                         edit.putString("name", name);
                         edit.putBoolean("logout", true);
@@ -265,7 +261,7 @@ public class ActivityCookbook extends ActionBarActivity  {
                     @Override
                     public void run() {
                         swipeLayout.setRefreshing(false);
-                        onResume();
+                        recreate();
                     }
                 }, 4000);
             }
@@ -275,7 +271,7 @@ public class ActivityCookbook extends ActionBarActivity  {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        ListViewFragment myFragment = (ListViewFragment) getFragmentManager().findFragmentById(R.id.fragment1);
+        FragmentListCookbook myFragment = (FragmentListCookbook) getFragmentManager().findFragmentById(R.id.fragmentListCookbook);
         final ListView fragmentListView = myFragment.getListView();
         fragmentListView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
@@ -307,15 +303,13 @@ public class ActivityCookbook extends ActionBarActivity  {
     public void onResume() {
         super.onResume();
         // loading the pois via AsyncTask
-        if (isWifiAvailable(ActivityCookbook.this)) {
-            ListViewFragment myFragment = (ListViewFragment) getFragmentManager().findFragmentById(R.id.fragment1);
-            myFragment.new LoadComments().execute();
-        } else {
+        if (!isWifiAvailable(ActivityCookbook.this)) {
+
+
             Toast.makeText(ActivityCookbook.this, R.string.no_connection,
                     Toast.LENGTH_LONG).show();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

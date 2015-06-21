@@ -1,5 +1,6 @@
 package polimi.dima.foodapp;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -50,7 +51,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
     private GoogleApiClient mGoogleApiClient;
     ProgressDialog myPd_bar;
     private JSONArray mProfile = null;
-
+Intent startIntent;
     //First We Declare Titles And Icons For Our Navigation Drawer List View
     //This Icons And Titles Are holded in an Array as you can see
 
@@ -90,7 +91,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        startIntent = getIntent();
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(ActivityRecentMeals.this);
         current_user = sp.getString("username", "");
@@ -114,14 +115,13 @@ public class ActivityRecentMeals extends ActionBarActivity  {
         String coverPath="";
         BitmapDrawable coverBitmap = null;
         try {
-            imagePath = Environment.getExternalStorageDirectory().toString() +"/sdcard/FoodApp/profile/user_photo.jpg";
-            coverPath = Environment.getExternalStorageDirectory().toString() +"/sdcard/FoodApp/profile/cover_photo.jpg";
             File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
 
             if(imgFile.exists()){
                 Log.d("Download Image","Profile Image - yes");
                 profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             }
+
             imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
             if(imgFile.exists()){
                 Log.d("Download Image","Cover Image - yes");
@@ -262,7 +262,8 @@ public class ActivityRecentMeals extends ActionBarActivity  {
                     @Override
                     public void run() {
                         swipeLayout.setRefreshing(false);
-                        onResume();
+                       recreate();
+                        //            getFragmentManager().beginTransaction().attach(myFragment).commit();
                     }
                 }, 4000);
             }
@@ -272,7 +273,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        ListViewFragment myFragment = (ListViewFragment) getFragmentManager().findFragmentById(R.id.fragment1);
+        FragmentListView myFragment = (FragmentListView) getFragmentManager().findFragmentById(R.id.fragment1);
         final ListView fragmentListView = myFragment.getListView();
         fragmentListView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
@@ -303,10 +304,9 @@ public class ActivityRecentMeals extends ActionBarActivity  {
     public void onResume() {
         super.onResume();
         // loading the pois via AsyncTask
-        if (isWifiAvailable(ActivityRecentMeals.this)) {
-            ListViewFragment myFragment = (ListViewFragment) getFragmentManager().findFragmentById(R.id.fragment1);
-            myFragment.new LoadComments().execute();
-        } else {
+        if (!isWifiAvailable(ActivityRecentMeals.this)) {
+
+
             Toast.makeText(ActivityRecentMeals.this, R.string.no_connection,
                     Toast.LENGTH_LONG).show();
         }

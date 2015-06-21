@@ -33,5 +33,7 @@
     <string name="friends">Friends</string>
     <string name="liked">Liked</string>
     <string name="forum">Forum</string>
+    <string name="opening_your_cookbook">Opening your cookbook</string>
+    <string name="delete">Delete from my cookbook</string>
 
 </resources>

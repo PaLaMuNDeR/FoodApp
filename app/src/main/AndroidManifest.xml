@@ -31,7 +31,11 @@
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name=".ActivitySingleRecipe"
+            android:name=".ActivitySingleRecipeFromAll"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".ActivitySingleRecipeFromCookbook"
             android:label="@string/app_name" >
         </activity>
         <activity
