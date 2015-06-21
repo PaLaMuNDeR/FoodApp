@@ -127,7 +127,6 @@ public class FragmentListView extends ListFragment {
         protected Boolean doInBackground(Void... arg0) {
             updateJSONdata();
             return null;
-
         }
 
         @Override
