@@ -64,16 +64,13 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
             R.drawable.open_book, R.drawable.forum, R.drawable.heart_dish,
             R.drawable.group_button, R.drawable.logout};
 
-
     Button
-            //btnAllPoi,
-            //btnLogout,
-            btnDelete;
+            btnSave;
 
     private static String recipe_id = "";
 
     JSONParser jsonParser = new JSONParser();
-    private static final String DELETE_REC_URL = "http://expox-milano.com/foodapp/delete_rec.php";
+    private static final String EDIT_REC_URL = "http://expox-milano.com/foodapp/delete_rec.php";
 
     // JSON element ids from repsonse of php script:
     private static final String TAG_SUCCESS = "success";
@@ -243,9 +240,9 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
         mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
 
         current_user = post_username;
-        btnDelete = (Button) findViewById(R.id.btn_add);
-        btnDelete.setText(R.string.delete);
-        btnDelete.setOnClickListener(this);
+        btnSave = (Button) findViewById(R.id.btn_add);
+        btnSave.setText(R.string.delete);
+        btnSave.setOnClickListener(this);
         // parsing the data from the shared preferences
         recipe_id = sp.getString("recipe_id", "");
 
@@ -320,32 +317,8 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
     }
     public void onClick(View v) {
         switch (v.getId()) {
-//		case R.id.btn_logout: {
-//			SharedPreferences sp = PreferenceManager
-//					.getDefaultSharedPreferences(ActivityOneFromAllPoi.this);
-//			// saves the logout user data
-//			current_user = "";
-//
-//			Editor edit = sp.edit();
-//			edit.putString("username", current_user);
-//			edit.putString("name", current_name);
-//			edit.commit();
-//			Log.d("Log out - current_user", current_user);
-//			Log.d("Log out - current name", current_name);
-//			ClearPreferences();
-//			Intent i = new Intent(v.getContext(), ActivityLogin.class);
-//			startActivity(i);
-//			finish();
-//		}
-//			break;
-//		case R.id.btn_poi_2:
-//			Intent p = new Intent(this, ActivityAllPoi.class);
-//			startActivity(p);
-//			finish();
-//			break;
             case R.id.btn_add:
                 new AddRecommendation().execute();
-
                 break;
             case R.id.imageView1:
                 break;
@@ -382,7 +355,7 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
 
                 Log.d("request!", "starting");
                 // getting product details by making HTTP request
-                JSONObject json = jsonParser.makeHttpRequest(DELETE_REC_URL,
+                JSONObject json = jsonParser.makeHttpRequest(EDIT_REC_URL,
                         "POST", params);
 
                 // check your log for json response

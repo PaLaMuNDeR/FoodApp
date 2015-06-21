@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/DrawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:elevation="7dp">
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragmentSingle"
+        android:background="#fff" >
+
+
+        <RelativeLayout
+            android:id="@+id/box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:background="@drawable/post_background_style"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:id="@+id/imageViewSingleRecipe"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:paddingLeft="5dp"
+                android:src="@drawable/ic_launcher" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/imageViewSingleRecipe"
+                android:layout_toEndOf="@+id/imageViewSingleRecipe"
+                android:background="@drawable/post_background_style"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/recipe_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:paddingBottom="2dip"
+                    android:paddingLeft="5dp"
+                    android:paddingTop="6dip"
+                    android:text="poi_name"
+                    android:textColor="#333"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/ingredients"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/recipe_name"
+                    android:paddingBottom="2dip"
+                    android:paddingLeft="8dp"
+                    android:text="description"
+                    android:textColor="#888" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/instructions_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ingredients"
+                    android:gravity="left"
+                    android:paddingLeft="5dp"
+                    android:text="@string/instructions"
+                    android:textColor="#5d5d5d"
+                    android:textStyle="bold" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/instructions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ingredients"
+                    android:layout_toRightOf="@+id/instructions_label"
+                    android:layout_toEndOf="@+id/instructions_label"
+                    android:gravity="left"
+                    android:text="instructions_value"
+                    android:textColor="#acacac"
+                    android:textStyle="bold" >
+                </TextView>
+
+
+
+            </RelativeLayout>
+        </RelativeLayout>
+
+    <Button
+        android:id="@+id/btn_del"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/box"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/post_border_style"
+        android:text="@string/delete"
+        android:textColor="#333"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+    <Button
+        android:id="@+id/btn_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/box"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/post_border_style"
+        android:text="@string/personalize"
+        android:textColor="#333"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+
+
+</RelativeLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/RecyclerView"
+        android:layout_width="320dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:background="@color/primaryColor"
+        android:scrollbars="vertical"/>
+
+</android.support.v4.widget.DrawerLayout>

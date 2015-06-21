@@ -65,10 +65,8 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
             R.drawable.group_button, R.drawable.logout};
 
 
-    Button
-            //btnAllPoi,
-            //btnLogout,
-            btnDelete;
+    Button btnDelete,
+           btnEdit;
 
     private static String recipe_id = "";
 
@@ -86,7 +84,7 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_single_recipe);
+        setContentView(R.layout.activity_single_recipe_from_cookbook);
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(ActivitySingleRecipeFromCookbook.this);
         String post_username = sp.getString("username", "");
@@ -243,9 +241,12 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
         mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
 
         current_user = post_username;
-        btnDelete = (Button) findViewById(R.id.btn_add);
+        btnDelete = (Button) findViewById(R.id.btn_del);
         btnDelete.setText(R.string.delete);
         btnDelete.setOnClickListener(this);
+        btnEdit = (Button) findViewById(R.id.btn_edit);
+        btnEdit.setText(R.string.personalize);
+        btnEdit.setOnClickListener(this);
         // parsing the data from the shared preferences
         recipe_id = sp.getString("recipe_id", "");
 
@@ -320,32 +321,15 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
     }
     public void onClick(View v) {
         switch (v.getId()) {
-//		case R.id.btn_logout: {
-//			SharedPreferences sp = PreferenceManager
-//					.getDefaultSharedPreferences(ActivityOneFromAllPoi.this);
-//			// saves the logout user data
-//			current_user = "";
-//
-//			Editor edit = sp.edit();
-//			edit.putString("username", current_user);
-//			edit.putString("name", current_name);
-//			edit.commit();
-//			Log.d("Log out - current_user", current_user);
-//			Log.d("Log out - current name", current_name);
-//			ClearPreferences();
-//			Intent i = new Intent(v.getContext(), ActivityLogin.class);
-//			startActivity(i);
-//			finish();
-//		}
-//			break;
-//		case R.id.btn_poi_2:
-//			Intent p = new Intent(this, ActivityAllPoi.class);
-//			startActivity(p);
-//			finish();
-//			break;
-            case R.id.btn_add:
-                new AddRecommendation().execute();
-
+            case R.id.btn_del:
+                new DelRecipe().execute();
+                break;
+            case R.id.btn_edit:
+                Intent i = new Intent(ActivitySingleRecipeFromCookbook.this,
+                        ActivitySingleRecipeEdit.class);
+                finish();
+                startActivity(i);
+                new DelRecipe().execute();
                 break;
             case R.id.imageView1:
                 break;
@@ -354,7 +338,7 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
         }
     }
 
-    class AddRecommendation extends AsyncTask<String, String, String> {
+    class DelRecipe extends AsyncTask<String, String, String> {
 
 
         boolean failure = false;

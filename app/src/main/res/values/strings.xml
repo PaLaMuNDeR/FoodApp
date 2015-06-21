@@ -27,7 +27,7 @@
     <string name="no_connection">No Internet connection. Swipe down to retry</string>
     <string name="address">Address</string>
     <string name="instructions">Instructions:</string>
-    <string name="add">Add to my Cookbook</string>
+    <string name="add">Create and add to my Cookbook</string>
     <string name="recent_meals">Recent Meals</string>
     <string name="my_cook_book">My Cookbook</string>
     <string name="friends">Friends</string>
@@ -35,5 +35,13 @@
     <string name="forum">Forum</string>
     <string name="opening_your_cookbook">Opening your cookbook</string>
     <string name="delete">Delete from my cookbook</string>
+    <string name="personalize">Personalize</string>
+    <string name="create_recipe">Create Recipe</string>
+    <string name="create_recipe_name_label">Recipe Name:</string>
+    <string name="create_recipe_name">Input the name of the recipe here</string>
+    <string name="create_recipe_ingredients_label">Ingredients:</string>
+    <string name="create_recipe_ingredients">Input the ingredients here</string>
+    <string name="create_recipe_instructions_label">Instructions:</string>
+    <string name="create_recipe_instructions">Input the instructions here</string>
 
 </resources>

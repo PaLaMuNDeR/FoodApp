@@ -20,8 +20,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
@@ -38,11 +38,18 @@ import java.util.List;
  * Created by Marti on 19/06/2015.
  */
 
-public class ActivitySingleRecipeFromAll extends ActionBarActivity implements View.OnClickListener{
+public class ActivityCreateRecipe extends ActionBarActivity implements View.OnClickListener{
     private String current_name = "current_user_name";
 
     // Progress Dialog
     private ProgressDialog sDialog;
+    private EditText recipe_name, ingredients, instructions;//, age_value;
+    private ImageView recipe_image;
+    private Button btnCreate;
+
+    // Progress Dialog
+    private ProgressDialog pDialog;
+
 
     // Drawer Layout
     RecyclerView mRecyclerView;                           // Declaring RecyclerView
@@ -64,31 +71,21 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
             R.drawable.open_book, R.drawable.forum, R.drawable.heart_dish,
             R.drawable.group_button, R.drawable.logout};
 
-
-    Button
-            //btnAllPoi,
-            //btnLogout,
-            btnAdd;
-
     private static String recipe_id = "";
 
     JSONParser jsonParser = new JSONParser();
-    private static final String ADD_REC_URL = "http://expox-milano.com/foodapp/add_rec.php";
+    private static final String CREATE_REC_URL = "http://expox-milano.com/foodapp/create_rec.php";
 
     // JSON element ids from repsonse of php script:
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
 
-    public ActivitySingleRecipeFromAll(){
-
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_single_recipe);
+        setContentView(R.layout.activity_create_recipe);
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(ActivitySingleRecipeFromAll.this);
+                .getDefaultSharedPreferences(ActivityCreateRecipe.this);
         String post_username = sp.getString("username", "");
         String post_name = sp.getString("recipe_name_view", "");
         Log.d("recipe_name_view", "Loading recipe_name_view " + post_name);
@@ -102,10 +99,10 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         photo = sp.getString("photo", "");
         cover = sp.getString("cover", "");
         SharedPreferences.Editor edit = sp.edit();
-        edit.putBoolean("logout",false);
+        edit.putBoolean("logout", false);
         edit.commit();
-        Log.d("Username","LogoutBool in SP: "+sp.getBoolean("logout",false));
-        DatabaseHandler db = new DatabaseHandler(ActivitySingleRecipeFromAll.this);
+        Log.d("Username", "LogoutBool in SP: " + sp.getBoolean("logout", false));
+        DatabaseHandler db = new DatabaseHandler(ActivityCreateRecipe.this);
         Profile pf =  db.getLastProfile();
         name = pf.name;
         username = pf.username;
@@ -118,12 +115,10 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
             File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
 
             if(imgFile.exists()){
-                Log.d("Download Image","Profile Image - yes");
                 profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             }
             imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
             if(imgFile.exists()){
-                Log.d("Download Image","Cover Image - yes");
                 Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 coverBitmap = new BitmapDrawable(getResources(), bitmap);
             }
@@ -148,7 +143,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
         mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
 
-        final GestureDetector mGestureDetector = new GestureDetector(ActivitySingleRecipeFromAll.this, new GestureDetector.SimpleOnGestureListener() {
+        final GestureDetector mGestureDetector = new GestureDetector(ActivityCreateRecipe.this, new GestureDetector.SimpleOnGestureListener() {
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
@@ -166,20 +161,20 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
-                    Toast.makeText(ActivitySingleRecipeFromAll.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ActivityCreateRecipe.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
                     if (recyclerView.getChildPosition(child) == 1) {
                         //Go to Main
-                        Intent i = new Intent(ActivitySingleRecipeFromAll.this,ActivityRecentMeals.class);
+                        Intent i = new Intent(ActivityCreateRecipe.this,ActivityRecentMeals.class);
                         startActivity(i);
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
-                        Intent i = new Intent(ActivitySingleRecipeFromAll.this,ActivityCookbook.class);
+                        Intent i = new Intent(ActivityCreateRecipe.this,ActivityCookbook.class);
                         startActivity(i);
                     }
 
                     if (recyclerView.getChildPosition(child) == 6) {
                         SharedPreferences sp = PreferenceManager
-                                .getDefaultSharedPreferences(ActivitySingleRecipeFromAll.this);
+                                .getDefaultSharedPreferences(ActivityCreateRecipe.this);
 
                         current_user = "";
                         name = "";
@@ -191,7 +186,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                         edit.commit();
                         Log.d("Log out current_user:", current_user);
                         Log.d("Log out: ", name);
-                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, LoginActivity.class);
+                        Intent i = new Intent(ActivityCreateRecipe.this, LoginActivity.class);
                         startActivity(i);
                         finish();
 
@@ -243,11 +238,9 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
 
         current_user = post_username;
-        btnAdd = (Button) findViewById(R.id.btn_add);
-
-        btnAdd.setOnClickListener(this);
         // parsing the data from the shared preferences
-        recipe_id = sp.getString("recipe_id", "");
+//        recipe_id = sp.getString("recipe_id", "");
+/*
 
         String r_name_value = sp.getString("recipe_name", "");
         TextView recipe_name_view2 = (TextView) findViewById(R.id.recipe_name);
@@ -263,30 +256,23 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         instructions.setText(instructions_value);
 
         String recipe_image_url = sp.getString("recipe_image_url", "");
-
-      /*  Drawable draw_temp = null;
-        try {
-            draw_temp = drawableFromUrl(recipe_image_url);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-*/
-//                Drawable draw_temp= new DownloadImageTask(recipe_image_url);
-
-
-        // annndddd, our JSON data is up to date same with our array
-        // list
         new DownloadImageTask((ImageView) findViewById(R.id.imageViewSingleRecipe))
                 .execute(recipe_image_url);
-    }
 
+*/
+        recipe_image = (ImageView) findViewById(R.id.recipe_image);
+        recipe_name = (EditText) findViewById(R.id.create_recipe_name);
+        ingredients = (EditText) findViewById(R.id.create_recipe_ingredients);
+        instructions = (EditText) findViewById(R.id.create_recipe_instructions);
+
+        btnCreate = (Button) findViewById(R.id.btn_create);
+        btnCreate.setOnClickListener(this);
+    }
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
 
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
@@ -323,31 +309,8 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
     }
     public void onClick(View v) {
         switch (v.getId()) {
-//		case R.id.btn_logout: {
-//			SharedPreferences sp = PreferenceManager
-//					.getDefaultSharedPreferences(ActivityOneFromAllPoi.this);
-//			// saves the logout user data
-//			current_user = "";
-//
-//			Editor edit = sp.edit();
-//			edit.putString("username", current_user);
-//			edit.putString("name", current_name);
-//			edit.commit();
-//			Log.d("Log out - current_user", current_user);
-//			Log.d("Log out - current name", current_name);
-//			ClearPreferences();
-//			Intent i = new Intent(v.getContext(), ActivityLogin.class);
-//			startActivity(i);
-//			finish();
-//		}
-//			break;
-//		case R.id.btn_poi_2:
-//			Intent p = new Intent(this, ActivityAllPoi.class);
-//			startActivity(p);
-//			finish();
-//			break;
-            case R.id.btn_add:
-                new AddRecipe().execute();
+            case R.id.btn_create:
+                new CreateRecipe().execute();
 
                 break;
             case R.id.imageView1:
@@ -356,50 +319,58 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                 break;
         }
     }
+    class CreateRecipe extends AsyncTask<String, String, String> {
 
-    class AddRecipe extends AsyncTask<String, String, String> {
+        /**
+         * Before starting background thread Show Progress Dialog
+         * */
 
-
-        boolean failure = false;
-
+    Boolean bool_success=false;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            sDialog = new ProgressDialog(ActivitySingleRecipeFromAll.this);
-            sDialog.setMessage("Adding it to your cookbook...");
-            sDialog.setIndeterminate(false);
-            sDialog.setCancelable(true);
-            sDialog.show();
+            pDialog = new ProgressDialog(ActivityCreateRecipe.this);
+            pDialog.setMessage("Creating Recipe...");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(true);
+            pDialog.show();
         }
 
         @Override
         protected String doInBackground(String... args) {
-            // Check for success tag
+            // Checks for success tag
             int success;
-            String username = current_user;
+            String string_recipe_name = recipe_name.getText().toString();
+            String string_ingredients = ingredients.getText().toString();
+            String string_instructions = instructions.getText().toString();
+
             try {
                 // Building Parameters
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
-                params.add(new BasicNameValuePair("username", username));
-                params.add(new BasicNameValuePair("recipe_id", recipe_id));
+                params.add(new BasicNameValuePair("creator_username", current_user));
+                params.add(new BasicNameValuePair("recipe_name", string_recipe_name));
+                params.add(new BasicNameValuePair("ingredients", string_ingredients));
+                params.add(new BasicNameValuePair("instructions", string_instructions));
 
                 Log.d("request!", "starting");
-                // getting product details by making HTTP request
-                JSONObject json = jsonParser.makeHttpRequest(ADD_REC_URL,
-                        "POST", params);
 
-                // check your log for json response
-                Log.d("Login attempt", json.toString());
+                // Posting user data to script
+                JSONObject json = jsonParser.makeHttpRequest(CREATE_REC_URL, "POST",
+                        params);
 
-                // json success tag
+
+                // full json response
+                Log.d("Creating recipe attempt", json.toString());
+
+                // json success element
                 success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
-                    Log.d("Synch Successful!", json.toString());
-
+                    Log.d("Recipe Created!", json.toString());
+                    bool_success=true;
                     return json.getString(TAG_MESSAGE);
                 } else {
-                    Log.d("Synchronization failed!",
-                            json.getString(TAG_MESSAGE));
+                    Log.d("Creation Failure!", json.getString(TAG_MESSAGE));
+                    bool_success=false;
                     return json.getString(TAG_MESSAGE);
                 }
             } catch (JSONException e) {
@@ -410,39 +381,23 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
         }
 
+        /**
+         * After completing background task Dismiss the progress dialog
+         * **/
         protected void onPostExecute(String file_url) {
-            // dismiss the dialog once product is added
-            sDialog.dismiss();
-            Log.d("current_user", "current_user" + current_user);
-            Log.d("current_user", "current_user" + current_user);
-            Log.d("current_user", "current_user" + current_user);
-            if (file_url != null && current_user != "") {
-                Toast.makeText(ActivitySingleRecipeFromAll.this, R.string.opening_your_cookbook,
-                        Toast.LENGTH_SHORT).show();
+            // dismiss the dialog once product deleted
+            pDialog.dismiss();
+            if (file_url != null) {
+                Toast.makeText(ActivityCreateRecipe.this, file_url,
+                        Toast.LENGTH_LONG).show();
+                if(bool_success){
+                    Intent i = new Intent(ActivityCreateRecipe.this, ActivityCookbook.class);
+                    finish();
+                    startActivity(i);
+                }
             }
-            Log.d("Starting new activity", "ActivityCookbook");
-            Intent i = new Intent(ActivitySingleRecipeFromAll.this,
-                    ActivityCookbook.class);
-            finish();
-            startActivity(i);
 
         }
-
-    }
-
-    public void ClearPreferences() {
-        SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(ActivitySingleRecipeFromAll.this);
-        SharedPreferences.Editor edit = sp.edit();
-        edit.putString("poi_id", "poi_id");
-        edit.putString("poi_name", "poi_name");
-        edit.putString("short_description", "short_description");
-        edit.putString("address", "address");
-        edit.putString("visibility", "visibility");
-        edit.putString("region", "region");
-        edit.putString("web_page", "web_page");
-        edit.putString("vote", "vote");
-        edit.commit();
 
     }
 

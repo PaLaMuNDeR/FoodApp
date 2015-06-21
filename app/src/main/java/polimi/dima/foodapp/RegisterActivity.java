@@ -13,7 +13,6 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -25,7 +24,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -35,8 +33,8 @@ import android.widget.Toast;
 public class RegisterActivity extends Activity implements OnClickListener {
 
 	private EditText user, name, pass, mail;//, age_value;
-    private String gend = "NULL";
     private Button mRegister;
+    private String gend = "NULL";
 	private RadioButton rbutton1, rbutton2, rbuttonOver14, rbuttonUnder14;
 
 	// Progress Dialog
@@ -79,8 +77,8 @@ public class RegisterActivity extends Activity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        user = (EditText) findViewById(R.id.username);
-        name = (EditText) findViewById(R.id.name);
+        user = (EditText) findViewById(R.id.create_recipe_name);
+        name = (EditText) findViewById(R.id.create_recipe_ingredients);
         pass = (EditText) findViewById(R.id.password);
         mail = (EditText) findViewById(R.id.email);
         //  age_value = (EditText) findViewById(R.id.age);

@@ -1,6 +1,5 @@
 package polimi.dima.foodapp;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
@@ -27,6 +25,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -51,7 +50,9 @@ public class ActivityRecentMeals extends ActionBarActivity  {
     private GoogleApiClient mGoogleApiClient;
     ProgressDialog myPd_bar;
     private JSONArray mProfile = null;
-Intent startIntent;
+
+    Button btnCreateRecipe;
+
     //First We Declare Titles And Icons For Our Navigation Drawer List View
     //This Icons And Titles Are holded in an Array as you can see
 
@@ -91,7 +92,6 @@ Intent startIntent;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        startIntent = getIntent();
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(ActivityRecentMeals.this);
         current_user = sp.getString("username", "");
@@ -298,6 +298,14 @@ Intent startIntent;
         });
             getSupportActionBar().setTitle(recent_meals);
 
+        btnCreateRecipe = (Button) findViewById(R.id.btn_create_recipe);
+        btnCreateRecipe.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                Intent i = new Intent(ActivityRecentMeals.this,ActivityCreateRecipe.class);
+                finish();
+                startActivity(i);
+            }
+        });
     }
 
     @Override

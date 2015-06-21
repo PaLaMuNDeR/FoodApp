@@ -117,7 +117,7 @@ public class FragmentListView extends ListFragment {
         protected void onPreExecute() {
             super.onPreExecute();
             pDialog = new ProgressDialog(getActivity());
-            pDialog.setMessage("Loading all points of interest...");
+            pDialog.setMessage("Loading all recipes...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(true);
             pDialog.show();
