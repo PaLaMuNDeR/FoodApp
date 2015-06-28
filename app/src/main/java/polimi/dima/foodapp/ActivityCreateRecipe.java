@@ -3,17 +3,24 @@ package polimi.dima.foodapp;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
@@ -21,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -29,26 +37,35 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 /**
  * Created by Marti on 19/06/2015.
  */
 
-public class ActivityCreateRecipe extends ActionBarActivity implements View.OnClickListener{
+public class ActivityCreateRecipe extends ActionBarActivity implements View.OnClickListener {
     private String current_name = "current_user_name";
 
     // Progress Dialog
     private ProgressDialog sDialog;
     private EditText recipe_name, ingredients, instructions;//, age_value;
-    private ImageView recipe_image;
+    private ImageButton recipe_image_button;
     private Button btnCreate;
 
     // Progress Dialog
     private ProgressDialog pDialog;
+    private ProgressDialog qDialog;
 
 
     // Drawer Layout
@@ -75,10 +92,37 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
     JSONParser jsonParser = new JSONParser();
     private static final String CREATE_REC_URL = "http://expox-milano.com/foodapp/create_rec.php";
+    private static final String UPLOAD_IMAGE_URL = "http://expox-milano.com/foodapp/imgupload/upload_image.php";
+    private String uploaded_image_url;
 
     // JSON element ids from repsonse of php script:
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
+
+    //taking image from the gallery
+    private static int RESULT_LOAD_IMG = 1;
+    ProgressDialog prgDialog;
+    String encodedString;
+    RequestParams image_params = new RequestParams();
+    String imgPath, fileName;
+    Bitmap bitmap;
+
+
+    //for uploading from camera
+    private static final String TAG = ActivityCreateRecipe.class.getSimpleName();
+
+
+    // Camera activity request codes
+    private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
+    private static final int CAMERA_CAPTURE_VIDEO_REQUEST_CODE = 200;
+
+    public static final int MEDIA_TYPE_IMAGE = 1;
+    public static final int MEDIA_TYPE_VIDEO = 2;
+
+    private Uri fileUri; // file url to store image
+
+    private Button btnCapturePicture;
+    boolean camera_bool=false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -103,7 +147,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
         edit.commit();
         Log.d("Username", "LogoutBool in SP: " + sp.getBoolean("logout", false));
         DatabaseHandler db = new DatabaseHandler(ActivityCreateRecipe.this);
-        Profile pf =  db.getLastProfile();
+        Profile pf = db.getLastProfile();
         name = pf.name;
         username = pf.username;
         photo = pf.photo;
@@ -114,17 +158,16 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
         try {
             File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
 
-            if(imgFile.exists()){
+            if (imgFile.exists()) {
                 profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             }
             imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
-            if(imgFile.exists()){
+            if (imgFile.exists()) {
                 Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 coverBitmap = new BitmapDrawable(getResources(), bitmap);
             }
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -137,11 +180,12 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
         mRecyclerView.setHasFixedSize(true);                            // Letting the system know that the list objects are of fixed size
 
-        mAdapter = new MyAdapter(TITLES, ICONS, name, email, profileBitmap, coverBitmap,  this);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
+        mAdapter = new MyAdapter(TITLES, ICONS, name, email, profileBitmap, coverBitmap, this);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
         // And passing the titles,icons,header view recipe_name_view, header view email,
         // and header view profile picture
 
-        mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
+        // Setting the adapter to RecyclerView
+        mRecyclerView.setAdapter(mAdapter);
 
         final GestureDetector mGestureDetector = new GestureDetector(ActivityCreateRecipe.this, new GestureDetector.SimpleOnGestureListener() {
 
@@ -161,14 +205,15 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
-                    Toast.makeText(ActivityCreateRecipe.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ActivityCreateRecipe.this, "The Item Clicked is: " +
+                            recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
                     if (recyclerView.getChildPosition(child) == 1) {
                         //Go to Main
-                        Intent i = new Intent(ActivityCreateRecipe.this,ActivityRecentMeals.class);
+                        Intent i = new Intent(ActivityCreateRecipe.this, ActivityRecentMeals.class);
                         startActivity(i);
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
-                        Intent i = new Intent(ActivityCreateRecipe.this,ActivityCookbook.class);
+                        Intent i = new Intent(ActivityCreateRecipe.this, ActivityCookbook.class);
                         startActivity(i);
                     }
 
@@ -205,12 +250,15 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
         });
 
 
-        mLayoutManager = new LinearLayoutManager(this);                 // Creating a layout Manager
+        // Creating a layout Manager
+        mLayoutManager = new LinearLayoutManager(this);
 
-        mRecyclerView.setLayoutManager(mLayoutManager);                 // Setting the layout Manager
+        // Setting the layout Manager
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
 
-        Drawer = (DrawerLayout) findViewById(R.id.DrawerLayout);        // Drawer object Assigned to the view
+        // Drawer object Assigned to the view
+        Drawer = (DrawerLayout) findViewById(R.id.DrawerLayout);
         mDrawerToggle = new ActionBarDrawerToggle(this, Drawer,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
 
@@ -260,14 +308,71 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
                 .execute(recipe_image_url);
 
 */
-        recipe_image = (ImageView) findViewById(R.id.recipe_image);
+        recipe_image_button = (ImageButton) findViewById(R.id.recipe_image_button);
         recipe_name = (EditText) findViewById(R.id.create_recipe_name);
         ingredients = (EditText) findViewById(R.id.create_recipe_ingredients);
         instructions = (EditText) findViewById(R.id.create_recipe_instructions);
 
         btnCreate = (Button) findViewById(R.id.btn_create);
         btnCreate.setOnClickListener(this);
+        prgDialog = new ProgressDialog(this);
+        recipe_image_button.setOnClickListener(this);
+
+
+        //for taking image from camera
+        btnCapturePicture = (Button) findViewById(R.id.btnCapturePicture);
+
+        /**
+         * Capture image button click event
+         */
+        btnCapturePicture.setOnClickListener(this);
+
+        if (!isDeviceSupportCamera()) {
+            Toast.makeText(getApplicationContext(),
+                    "Sorry! Your device doesn't support camera",
+                    Toast.LENGTH_LONG).show();
+            // will close the app if the device does't have camera
+            finish();
+        }
+        //This check is needed when the app is returning from the Camera activity.
+        //We set here the image on the button to be the one from the camera.
+        camera_bool = sp.getBoolean("camera_bool",false);
+        if(camera_bool) {
+            imgPath = sp.getString("imgPath", imgPath);
+            // bimatp factory
+            BitmapFactory.Options options = new BitmapFactory.Options();
+
+            // down sizing image as it throws OutOfMemory Exception for larger
+            // images
+            options.inSampleSize = 8;
+            final Bitmap pre_bitmap = BitmapFactory.decodeFile(imgPath, options);
+            Bitmap bitmap = Bitmap.createScaledBitmap(pre_bitmap, 330, 330, true);
+
+            recipe_image_button.setImageBitmap(bitmap);
+            // Get the Image's file name
+            String fileNameSegments[] = imgPath.split("/");
+            fileName = fileNameSegments[fileNameSegments.length - 1];
+            // Put file name in Async Http Post Param which will used in Php web app
+            image_params.put("filename", fileName);
+        }
     }
+        /**
+         * Checking device has camera hardware or not
+         * */
+    private boolean isDeviceSupportCamera() {
+        if (getApplicationContext().getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_CAMERA)) {
+            // this device has a camera
+            return true;
+        } else {
+            // no camera on this device
+            return false;
+        }
+
+    }
+
+
+
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -307,25 +412,31 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
             bmImage.setImageBitmap(result);
         }
     }
+
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_create:
-                new CreateRecipe().execute();
-
+                uploadImage(recipe_image_button);
                 break;
-            case R.id.imageView1:
+            case R.id.recipe_image_button:
+                loadImagefromGallery(recipe_image_button);
+                break;
+            case R.id.btnCapturePicture:
+                captureImage();
                 break;
             default:
                 break;
         }
     }
+
     class CreateRecipe extends AsyncTask<String, String, String> {
 
         /**
          * Before starting background thread Show Progress Dialog
-         * */
+         */
 
-    Boolean bool_success=false;
+        Boolean bool_success = false;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -351,6 +462,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
                 params.add(new BasicNameValuePair("recipe_name", string_recipe_name));
                 params.add(new BasicNameValuePair("ingredients", string_ingredients));
                 params.add(new BasicNameValuePair("instructions", string_instructions));
+                params.add(new BasicNameValuePair("image_url", uploaded_image_url));
 
                 Log.d("request!", "starting");
 
@@ -366,11 +478,11 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
                 success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
                     Log.d("Recipe Created!", json.toString());
-                    bool_success=true;
+                    bool_success = true;
                     return json.getString(TAG_MESSAGE);
                 } else {
                     Log.d("Creation Failure!", json.getString(TAG_MESSAGE));
-                    bool_success=false;
+                    bool_success = false;
                     return json.getString(TAG_MESSAGE);
                 }
             } catch (JSONException e) {
@@ -383,14 +495,15 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
         /**
          * After completing background task Dismiss the progress dialog
-         * **/
+         * *
+         */
         protected void onPostExecute(String file_url) {
             // dismiss the dialog once product deleted
             pDialog.dismiss();
             if (file_url != null) {
                 Toast.makeText(ActivityCreateRecipe.this, file_url,
                         Toast.LENGTH_LONG).show();
-                if(bool_success){
+                if (bool_success) {
                     Intent i = new Intent(ActivityCreateRecipe.this, ActivityCookbook.class);
                     finish();
                     startActivity(i);
@@ -401,4 +514,357 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
     }
 
+
+    public void loadImagefromGallery(View view) {
+        // Create intent to Open Image applications like Gallery, Google Photos
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        // Start the Intent
+        startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
+    }
+    // When Image is selected from Gallery
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        try {
+            // When an Image is picked
+            if (requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK
+            && null != data)
+            {
+                // Get the Image from data
+
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+                // Get the cursor
+                Cursor cursor = getContentResolver().query(selectedImage,
+                        filePathColumn, null, null, null);
+                // Move to first row
+                cursor.moveToFirst();
+
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                imgPath = cursor.getString(columnIndex);
+                cursor.close();
+
+                    ImageButton imgView = (ImageButton) findViewById(R.id.recipe_image_button);
+                // Set the Image in ImageView
+                // bimatp factory
+                BitmapFactory.Options options = new BitmapFactory.Options();
+
+                // down sizing image as it throws OutOfMemory Exception for larger
+                // images
+                options.inSampleSize = 8;
+                final Bitmap bitmap = BitmapFactory.decodeFile(imgPath, options);
+
+                imgView.setImageBitmap(bitmap);
+                // Get the Image's file name
+                String fileNameSegments[] = imgPath.split("/");
+                fileName = fileNameSegments[fileNameSegments.length - 1];
+                // Put file name in Async Http Post Param which will used in Php web app
+                image_params.put("filename", fileName);
+
+            }
+            } catch (Exception e) {
+            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
+            .show();
+            }
+
+        //for image form camera
+        // if the result is capturing Image
+        if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                camera_bool=true;
+                // successfully captured the image
+                // launching upload activity
+                //TODO remove it
+                //launchUploadActivity(true);
+                imgPath=fileUri.getPath();
+                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ActivityCreateRecipe.this);
+                SharedPreferences.Editor edit = sp.edit();
+                edit.putBoolean("camera_bool",camera_bool);
+                edit.putString("imgPath",imgPath);
+                edit.commit();
+                ImageButton imgView = (ImageButton) findViewById(R.id.recipe_image_button);
+                // Set the Image in ImageView
+                // bimatp factory
+                BitmapFactory.Options options = new BitmapFactory.Options();
+
+                // down sizing image as it throws OutOfMemory Exception for larger
+                // images
+                options.inSampleSize = 8;
+                final Bitmap bitmap = BitmapFactory.decodeFile(imgPath, options);
+
+                imgView.setImageBitmap(bitmap);
+                // Get the Image's file name
+                String fileNameSegments[] = imgPath.split("/");
+                fileName = fileNameSegments[fileNameSegments.length - 1];
+                // Put file name in Async Http Post Param which will used in Php web app
+                image_params.put("filename", fileName);
+              /*  SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ActivityCreateRecipe.this);
+                SharedPreferences.Editor edit = sp.edit();
+                edit.putBoolean("camera_bool",true);
+                edit.commit();*/
+            } else if (resultCode == RESULT_CANCELED) {
+
+                // user cancelled Image capture
+                Toast.makeText(getApplicationContext(),
+                        "User cancelled image capture", Toast.LENGTH_SHORT)
+                        .show();
+
+            } else {
+                // failed to capture image
+                Toast.makeText(getApplicationContext(),
+                        "Sorry! Failed to capture image", Toast.LENGTH_SHORT)
+                        .show();
+            }
+
+        } else if (requestCode == CAMERA_CAPTURE_VIDEO_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+
+                // video successfully recorded
+                // launching upload activity
+                launchUploadActivity(false);
+
+            } else if (resultCode == RESULT_CANCELED) {
+
+                // user cancelled recording
+                Toast.makeText(getApplicationContext(),
+                        "User cancelled video recording", Toast.LENGTH_SHORT)
+                        .show();
+
+            } else {
+                // failed to record video
+                Toast.makeText(getApplicationContext(),
+                        "Sorry! Failed to record video", Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }
+
+
+        }
+
+        // When Upload button is clicked
+            public void uploadImage(View v) {
+        // When Image is selected from Gallery
+        if (imgPath != null && !imgPath.isEmpty()) {
+            prgDialog.setMessage("Converting Image to Binary Data");
+            prgDialog.show();
+            // Convert image to String using Base64
+            encodeImagetoString();
+            // When Image is not selected from Gallery
+            } else {
+            Toast.makeText(
+                    getApplicationContext(),
+                    "You must select image from gallery before you try to upload",
+                    Toast.LENGTH_LONG).show();
+            }
+        }
+
+            // AsyncTask - To convert Image to String
+            public void encodeImagetoString() {
+        new AsyncTask<Void, Void, String>() {
+
+                    protected void onPreExecute() {
+
+                };
+
+                    @Override
+            protected String doInBackground(Void... params) {
+                BitmapFactory.Options options = null;
+                options = new BitmapFactory.Options();
+                options.inSampleSize = 8;
+                bitmap = BitmapFactory.decodeFile(imgPath,
+                        options);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                // Must compress the Image to reduce image size to make upload easy
+                bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream);
+                byte[] byte_arr = stream.toByteArray();
+                // Encode Image to String
+                encodedString = Base64.encodeToString(byte_arr, 0);
+                return "";
+                }
+
+                    @Override
+            protected void onPostExecute(String msg) {
+                prgDialog.setMessage("Calling Upload");
+                // Put converted Image string into Async Http Post param
+                image_params.put("image", encodedString);
+                // Trigger Image upload
+               triggerImageUpload();
+                }
+            }.execute(null, null, null);
+        }
+
+          void triggerImageUpload(){
+            makeHTTPCall();
+
+        }
+
+
+
+            // Make Http call to upload Image to Php server
+            public void makeHTTPCall() {
+        prgDialog.setMessage("Invoking Php");
+        AsyncHttpClient client = new AsyncHttpClient();
+        // Don't forget to change the IP address to your LAN address. Port no as well.
+        client.post(UPLOAD_IMAGE_URL,
+                image_params, new AsyncHttpResponseHandler() {
+            // When the response returned by REST has Http
+                    // response code '200'
+                    @Override
+            public void onSuccess(String response) {
+                // Hide Progress Dialog
+                prgDialog.hide();
+                Toast.makeText(getApplicationContext(), response,
+                        Toast.LENGTH_LONG).show();
+                        uploaded_image_url=response;
+                        new CreateRecipe().execute();
+
+                    }
+
+                    // When the response returned by REST has Http
+                    // response code other than '200' such as '404',
+                    // '500' or '403' etc
+                    @Override
+            public void onFailure(int statusCode, Throwable error,
+                                                      String content) {
+                // Hide Progress Dialog
+                prgDialog.hide();
+                // When Http response code is '404'
+                if (statusCode == 404) {
+                    Toast.makeText(getApplicationContext(),
+                            "Requested resource not found",
+                            Toast.LENGTH_LONG).show();
+                    }
+                // When Http response code is '500'
+                else if (statusCode == 500) {
+                    Toast.makeText(getApplicationContext(),
+                            "Something went wrong at server end",
+                            Toast.LENGTH_LONG).show();
+                    }
+                // When Http response code other than 404, 500
+                else {
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
+                            + statusCode, Toast.LENGTH_LONG)
+                    .show();
+                    }
+                }
+            });
+        }
+
+    /**
+     * Launching camera app to capture image
+     */
+    private void captureImage() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
+
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+
+        // start the image capture Intent
+        startActivityForResult(intent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
+    }
+    /**
+     * Here we store the file url as it will be null after returning from camera
+     * app
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // save file url in bundle as it will be null on screen orientation
+        // changes
+        outState.putParcelable("file_uri", fileUri);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // get the file url
+        fileUri = savedInstanceState.getParcelable("file_uri");
+    }
+
+
+    private void launchUploadActivity(boolean isImage){
+        Intent i = new Intent(ActivityCreateRecipe.this, UploadActivity.class);
+        i.putExtra("filePath", fileUri.getPath());
+        i.putExtra("isImage", isImage);
+        startActivity(i);
+    }
+
+/**
+ * ------------ Helper Methods ----------------------
+ * */
+
+    /**
+     * Creating file uri to store image/video
+     */
+    public Uri getOutputMediaFileUri(int type) {
+        return Uri.fromFile(getOutputMediaFile(type));
+    }
+
+    /**
+     * returning image / video
+     */
+    private static File getOutputMediaFile(int type) {
+
+        // External sdcard location
+        File mediaStorageDir = new File(
+                Environment
+                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                Config.IMAGE_DIRECTORY_NAME);
+
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                Log.d(TAG, "Oops! Failed create "
+                        + Config.IMAGE_DIRECTORY_NAME + " directory");
+                return null;
+            }
+        }
+
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+                Locale.getDefault()).format(new Date());
+        File mediaFile;
+        if (type == MEDIA_TYPE_IMAGE) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                    + "IMG_" + timeStamp + ".jpg");
+        } else if (type == MEDIA_TYPE_VIDEO) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                    + "VID_" + timeStamp + ".mp4");
+        } else {
+            return null;
+        }
+
+        return mediaFile;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Override
+    protected void onDestroy() {
+        // TODO Auto-generated method stub
+        super.onDestroy();
+        // Dismiss the progress bar when application is closed
+        if (prgDialog != null) {
+            prgDialog.dismiss();
+            }
+        }
 }

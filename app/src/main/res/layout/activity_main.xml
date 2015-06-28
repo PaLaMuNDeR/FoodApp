@@ -7,13 +7,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:elevation="7dp">
-
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_create_recipe"
+        android:text="@string/create_recipe"
+        android:layout_marginTop="5dp" />
 
     <android.support.v4.widget.SwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/swipe_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btn_create_recipe">
 
         <fragment
             android:id="@+id/fragment1"
@@ -32,12 +41,7 @@
                 android:drawSelectorOnTop="false"
           />
     </android.support.v4.widget.SwipeRefreshLayout>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_create_recipe"
-        android:text="@string/create_recipe"
-        android:layout_below="@+id/swipe_container"/>
+    </RelativeLayout>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/RecyclerView"
         android:layout_width="320dp"
