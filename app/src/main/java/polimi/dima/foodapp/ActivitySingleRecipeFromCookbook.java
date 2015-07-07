@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -329,7 +330,6 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
                         ActivitySingleRecipeEdit.class);
                 finish();
                 startActivity(i);
-                new DelRecipe().execute();
                 break;
             case R.id.imageView1:
                 break;

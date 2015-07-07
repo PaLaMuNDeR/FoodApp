@@ -91,18 +91,7 @@
             </RelativeLayout>
         </RelativeLayout>
 
-    <Button
-        android:id="@+id/btn_del"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/box"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="14dp"
-        android:background="@drawable/post_border_style"
-        android:text="@string/delete"
-        android:textColor="#333"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+
     <Button
         android:id="@+id/btn_edit"
         android:layout_width="wrap_content"
@@ -116,7 +105,19 @@
         android:textSize="16sp"
         android:textStyle="bold" />
 
-
+    <Button
+        android:id="@+id/btn_del"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/post_border_style"
+        android:text="@string/delete"
+        android:textColor="#333"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
 </RelativeLayout>
     <android.support.v7.widget.RecyclerView
