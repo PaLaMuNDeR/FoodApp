@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.widget.DrawerLayout;
@@ -27,9 +26,11 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
@@ -59,8 +60,10 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
 
     // Progress Dialog
     private ProgressDialog sDialog;
-    private EditText recipe_name, ingredients, instructions;//, age_value;
+    private EditText recipe_name, ingredients, instructions;
+    private CheckBox keep_image;
     private ImageButton recipe_image_button;
+    private ImageView original_image;
     private Button btnCreate;
 
     // Progress Dialog
@@ -106,7 +109,8 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
     RequestParams image_params = new RequestParams();
     String imgPath, fileName;
     Bitmap bitmap;
-
+    boolean pressed_keep_image;
+    String recipe_image_url;
 
     //for uploading from camera
     private static final String TAG = ActivitySingleRecipeEdit.class.getSimpleName();
@@ -127,7 +131,7 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_recipe);
+        setContentView(R.layout.activity_edit_recipe);
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(ActivitySingleRecipeEdit.this);
         String post_username = sp.getString("username", "");
@@ -293,6 +297,8 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
         String r_name_value = sp.getString("recipe_name", "");
         recipe_name = (EditText) findViewById(R.id.create_recipe_name);
         recipe_name.setText(r_name_value);
+        TextView moto = (TextView) findViewById(R.id.textViewMoto);
+        moto.setText(r_name_value);
         getSupportActionBar().setTitle(r_name_value);
 
         String ingredients_value = sp.getString("ingredients", "");
@@ -303,15 +309,12 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
         instructions = (EditText) findViewById(R.id.create_recipe_instructions);
         instructions.setText(instructions_value);
 
-        String recipe_image_url = sp.getString("recipe_image_url", "");
-
+        recipe_image_url = sp.getString("recipe_image_url", "");
+        //TODO fix
 
 
         recipe_image_button = (ImageButton) findViewById(R.id.recipe_image_button);
-       /* recipe_name = (EditText) findViewById(R.id.create_recipe_name);
-        ingredients = (EditText) findViewById(R.id.create_recipe_ingredients);
-        instructions = (EditText) findViewById(R.id.create_recipe_instructions);
-*/
+
         btnCreate = (Button) findViewById(R.id.btn_create);
         btnCreate.setOnClickListener(this);
         prgDialog = new ProgressDialog(this);
@@ -354,6 +357,32 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
             // Put file name in Async Http Post Param which will used in Php web app
             image_params.put("filename", fileName);
         }
+
+        recipe_image_button.setVisibility(View.GONE);
+        btnCapturePicture.setVisibility(View.GONE);
+        original_image = (ImageView) findViewById(R.id.old_image);
+
+        keep_image = (CheckBox) findViewById(R.id.keepImageCheck);
+        new DownloadImageTask((ImageView) findViewById(R.id.old_image))
+                .execute(recipe_image_url);
+
+        keep_image.setOnClickListener(new View.OnClickListener() {  // checkbox listener
+            public void onClick(View v) {
+                // Perform action on clicks, depending on whether it is checked
+                if (((CheckBox) v).isChecked()) {
+                    pressed_keep_image=true;
+                    recipe_image_button.setVisibility(View.GONE);
+                    btnCapturePicture.setVisibility(View.GONE);
+                    original_image.setVisibility(View.VISIBLE);
+                } else if (((CheckBox) v).isChecked() == false) {
+                    pressed_keep_image=false;
+                    recipe_image_button.setVisibility(View.VISIBLE);
+                    btnCapturePicture.setVisibility(View.VISIBLE);
+                    original_image.setVisibility(View.GONE);
+                }
+            }
+        });
+
     }
     /**
      * Checking device has camera hardware or not
@@ -415,13 +444,31 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_create:
-                uploadImage(recipe_image_button);
+                if(pressed_keep_image){
+                    uploaded_image_url=recipe_image_url;
+                    new CreateRecipe().execute();
+                }
+                else{
+                    uploadImageAndCreateRecipe(recipe_image_button);
+                }
                 break;
             case R.id.recipe_image_button:
                 loadImagefromGallery(recipe_image_button);
                 break;
             case R.id.btnCapturePicture:
                 captureImage();
+                break;
+            case R.id.keepImageCheck:
+                pressed_keep_image = keep_image.isChecked();
+                if(pressed_keep_image)
+                {
+                    recipe_image_button.setVisibility(View.GONE);
+                    btnCapturePicture.setVisibility(View.GONE);
+                }
+                else{
+                    recipe_image_button.setVisibility(View.VISIBLE);
+                    btnCapturePicture.setVisibility(View.VISIBLE);
+                }
                 break;
             default:
                 break;
@@ -643,7 +690,7 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
     }
 
     // When Upload button is clicked
-    public void uploadImage(View v) {
+    public void uploadImageAndCreateRecipe(View v) {
         // When Image is selected from Gallery
         if (imgPath != null && !imgPath.isEmpty()) {
             prgDialog.setMessage("Converting Image to Binary Data");
@@ -859,7 +906,6 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
 
     @Override
     protected void onDestroy() {
-        // TODO Auto-generated method stub
         super.onDestroy();
         // Dismiss the progress bar when application is closed
         if (prgDialog != null) {
