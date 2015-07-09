@@ -49,5 +49,6 @@
     <string name="keep_image">Keep Image</string>
     <string name="follow">Follow</string>
     <string name="followed_chiefs">Followed Chiefs</string>
+    <string name="chiefs">Chiefs</string>
 
 </resources>

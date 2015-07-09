@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- the parent view - provides the gray listfragment background color -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:gravity="center_vertical"
+    android:background="@drawable/post_background_style"
+    android:padding="5dp" >
+
+    <!-- the innner view - provides the white rectangle -->
+    <RelativeLayout android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFF" >
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/creatorImage"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/default_face"
+            android:layout_marginLeft="1dp"
+            android:clickable="true"
+            />
+        <TextView
+            android:id="@+id/creatorName"
+            android:layout_toRightOf="@id/creatorImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@android:style/TextAppearance.Small"
+            android:text="Creator Name"
+            android:layout_marginTop="6dp"
+            android:clickable="true"/>
+        <ImageView
+            android:id="@+id/imageFollow"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_toLeftOf="@+id/followTop"
+            android:src="@drawable/follow"
+            android:clickable="true"
+            />
+        <TextView
+            android:id="@+id/followTop"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@android:style/TextAppearance.Small"
+            android:text="@string/follow"
+            android:layout_marginTop="6dp"
+            android:clickable="true"/>
+
+        </RelativeLayout>
+
+</RelativeLayout>

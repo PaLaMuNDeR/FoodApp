@@ -12,14 +12,15 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,7 +36,8 @@ import java.util.List;
 /**
  * Created by Marti on 17/06/2015.
  */
-public class FragmentRecentMealsListView extends ListFragment {
+//TODO onBack
+public class FragmentFollowRecipesListView extends ListFragment {
 
     private List<ListViewItem> mItems;        // ListView items list
     ListViewAdapter adapter;
@@ -47,7 +49,8 @@ public class FragmentRecentMealsListView extends ListFragment {
     private ProgressDialog sDialog;
 
 
-    private static final String READ_RECIPES_URL = "http://expox-milano.com/foodapp/recipes.php";
+    private static final String READ_RECIPES_URL = "http://expox-milano.com/foodapp/user_follow_recipes.php";
+    private static final String READ_ONE_USER_RECIPES_URL = "http://expox-milano.com/foodapp/user_recipes.php";
     private boolean downloaded_list = false;
     // JSON IDS:
     private static final String TAG_SUCCESS = "success";
@@ -68,8 +71,6 @@ public class FragmentRecentMealsListView extends ListFragment {
     private ArrayList<HashMap<String, String>> mPoiList;
     // Checks whether there is internet
 
-    Drawable draw_temp_2;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,6 +79,7 @@ public class FragmentRecentMealsListView extends ListFragment {
         // initialize the items list
         mItems = new ArrayList<ListViewItem>();
         Resources resources = getResources();
+
         new LoadRecipes().execute();
              // initialize and set the list adapter
         setListAdapter(new ListViewAdapter(getActivity(), mItems));
@@ -92,7 +94,6 @@ public class FragmentRecentMealsListView extends ListFragment {
         super.onViewCreated(view, savedInstanceState);
         // remove the dividers from the ListView of the ListFragment
         getListView().setDivider(null);
-
     }
 
     @Override
@@ -123,7 +124,7 @@ public class FragmentRecentMealsListView extends ListFragment {
         protected void onPreExecute() {
             super.onPreExecute();
             pDialog = new ProgressDialog(getActivity());
-            pDialog.setMessage("Loading all recipes...");
+            pDialog.setMessage("Loading all delicious things...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(true);
             pDialog.show();
@@ -133,6 +134,7 @@ public class FragmentRecentMealsListView extends ListFragment {
         protected Boolean doInBackground(Void... arg0) {
             updateJSONdata();
             return null;
+
         }
 
         @Override
@@ -148,7 +150,7 @@ public class FragmentRecentMealsListView extends ListFragment {
      * Retrieves recent post data from the server.
      */
     public void updateJSONdata() {
-        mPoiList = null;
+
         // Instantiate the arraylist to contain all the JSON data.
         // we are going to use a bunch of key-value pairs, referring
         // to the json element name, and the content, for example,
@@ -160,7 +162,26 @@ public class FragmentRecentMealsListView extends ListFragment {
         JSONParser jParser = new JSONParser();
         // Feed the beast our comments url, and it spits us
         // back a JSON object. Boo-yeah Jerome.
-        json = jParser.getJSONFromUrl(READ_RECIPES_URL);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String username = sp.getString("username", "");
+        Boolean one_user_recipes = sp.getBoolean("one_user_recipes", false);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+
+        Log.d("request!", "starting");
+        // getting product details by making HTTP request
+
+        if(one_user_recipes){
+            String creator_id = sp.getString("creator_id","0");
+            params.add(new BasicNameValuePair("creator_id",creator_id));
+            json = jsonParser.makeHttpRequest(READ_ONE_USER_RECIPES_URL,
+                    "POST", params);
+        }
+        else {
+            params.add(new BasicNameValuePair("username", username));
+            json = jsonParser.makeHttpRequest(READ_RECIPES_URL,
+                    "POST", params);
+        }
+        //json = jParser.getJSONFromUrl(READ_RECIPES_URL);
 
         // when parsing JSON stuff, we should probably
         // try to catch any exceptions:
@@ -209,26 +230,25 @@ public class FragmentRecentMealsListView extends ListFragment {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                   // Drawable draw_temp_2 = null;
+
+                    Drawable draw_temp_2 = null;
                     try {
                         draw_temp_2 = drawableFromUrl(creator_photo);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                   // Drawable draw_temp_2=null;
-                       /*    new DrawableFromUrl2()
-                            .execute(creator_photo);*/
-
-                    mItems.add(new ListViewItem(draw_temp, name, instructions, creator_username, draw_temp_2));
+                    mItems.add(new ListViewItem(draw_temp, name, instructions,creator_username, draw_temp_2));
                     // annndddd, our JSON data is up to date same with our array
                     // list
-
                 }
                 downloaded_list = true;
+
             } catch (JSONException e) {
                 e.printStackTrace();
 
             }
+
+
         }
     }
 
@@ -379,31 +399,12 @@ public class FragmentRecentMealsListView extends ListFragment {
             updateList();
 
             Log.d("Starting new activity", "SingleRecipeActivity");
-
-
-//            ListViewDemoFragment thisFragment = (ListViewDemoFragment) getActivity().getFragmentManager().findFragmentById(R.id.fragment1);
-
-
-
-
-/*
-            final Fragment srf = new Fragment();
-            ft.add(R.id.fragmentSingleRecipe,srf);
-            ft.commit();
-*/
-
-//            getActivity().getFragmentManager().findFragmentById(R.id.fragmentSingleRecipe).getView().setVisibility(View.VISIBLE);
-         /*   FragmentTransaction fragmentTransaction = getActivity().getFragmentManager().beginTransaction();
-            final Fragment fragmentC = new Fragment();
-            fragmentTransaction.add(R.id.fragmentSingleRecipe, fragmentC);
-            fragmentTransaction.commit();
-*/
-
-
-
-
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            SharedPreferences.Editor edit = sp.edit();
+            edit.putBoolean("one_user_recipes", false);
+            edit.commit();
             Intent i = new Intent(getActivity(),
-                    ActivitySingleRecipeFromAll.class);
+                    ActivitySingleRecipeFromCookbook.class);
             getActivity().finish();
             startActivity(i);
 
@@ -450,7 +451,6 @@ public class FragmentRecentMealsListView extends ListFragment {
             String creator_username = c.getString(TAG_CREATOR_USERNAME);
             String creator_photo = c.getString(TAG_CREATOR_PHOTO);
 
-
             // // creating new HashMap
             HashMap<String, String> map = new HashMap<String, String>();
 
@@ -462,6 +462,7 @@ public class FragmentRecentMealsListView extends ListFragment {
             map.put(TAG_CREATOR_ID, creator_id);
             map.put(TAG_CREATOR_USERNAME, creator_username);
             map.put(TAG_CREATOR_PHOTO, creator_photo);
+
             // adding HashList to ArrayList
             mPoiList.add(map);
 

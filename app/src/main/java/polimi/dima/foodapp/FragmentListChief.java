@@ -35,10 +35,10 @@ import java.util.List;
 /**
  * Created by Marti on 17/06/2015.
  */
-public class FragmentUserRecipesListView extends ListFragment {
+public class FragmentListChief extends ListFragment {
 
     private List<ListViewItem> mItems;        // ListView items list
-    ListViewAdapter adapter;
+    ListViewSimpleAdapter adapter;
     private int id_click = 0;
     JSONParser jsonParser = new JSONParser();
     JSONObject json;
@@ -47,7 +47,7 @@ public class FragmentUserRecipesListView extends ListFragment {
     private ProgressDialog sDialog;
 
 
-    private static final String READ_RECIPES_URL = "http://expox-milano.com/foodapp/user_follow_recipes.php";
+    private static final String READ_USERS_URL = "http://expox-milano.com/foodapp/user_follow.php";
     private boolean downloaded_list = false;
     // JSON IDS:
     private static final String TAG_SUCCESS = "success";
@@ -58,7 +58,7 @@ public class FragmentUserRecipesListView extends ListFragment {
     private static final String TAG_INSTRUCTIONS = "instructions";
     private static final String TAG_INGREDIENTS = "ingredients";
     private static final String TAG_RECIPE_IMAGE_URL = "recipe_image_url";
-    private static final String TAG_CREATOR_ID = "creator_id";
+    private static final String TAG_CREATOR_ID = "user_id";
     private static final String TAG_CREATOR_USERNAME = "creator_username";
     private static final String TAG_CREATOR_PHOTO = "creator_photo";
 
@@ -77,9 +77,9 @@ public class FragmentUserRecipesListView extends ListFragment {
         mItems = new ArrayList<ListViewItem>();
         Resources resources = getResources();
 
-        new LoadRecipes().execute();
+        new loadChiefs().execute();
              // initialize and set the list adapter
-        setListAdapter(new ListViewAdapter(getActivity(), mItems));
+        setListAdapter(new ListViewSimpleAdapter(getActivity(), mItems));
 
     }
 
@@ -115,13 +115,13 @@ public class FragmentUserRecipesListView extends ListFragment {
         return new BitmapDrawable(x);
     }
 
-    public class LoadRecipes extends AsyncTask<Void, Void, Boolean> {
+    public class loadChiefs extends AsyncTask<Void, Void, Boolean> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             pDialog = new ProgressDialog(getActivity());
-            pDialog.setMessage("Loading all delicious things...");
+            pDialog.setMessage("Loading their secrets...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(true);
             pDialog.show();
@@ -167,9 +167,8 @@ public class FragmentUserRecipesListView extends ListFragment {
         Log.d("request!", "starting");
         // getting product details by making HTTP request
 
-        json = jsonParser.makeHttpRequest(READ_RECIPES_URL,
+        json = jsonParser.makeHttpRequest(READ_USERS_URL,
                 "POST", params);
-        //json = jParser.getJSONFromUrl(READ_RECIPES_URL);
 
         // when parsing JSON stuff, we should probably
         // try to catch any exceptions:
@@ -186,12 +185,6 @@ public class FragmentUserRecipesListView extends ListFragment {
                     JSONObject c = mPois.getJSONObject(i);
 
                     // gets the content of each tag
-                    String recipe_id = c.getString(TAG_RECIPE_ID);
-                    String name = c.getString(TAG_RECIPE_NAME);
-                    String ingredients = c.getString(TAG_INGREDIENTS);
-                    String instructions = c.getString(TAG_INSTRUCTIONS);
-                    // String poi_id = c.getString(TAG_POI_ID);
-                    String recipe_image_url = c.getString(TAG_RECIPE_IMAGE_URL);
                     String creator_id = c.getString(TAG_CREATOR_ID);
                     String creator_username = c.getString(TAG_CREATOR_USERNAME);
                     String creator_photo = c.getString(TAG_CREATOR_PHOTO);
@@ -200,11 +193,6 @@ public class FragmentUserRecipesListView extends ListFragment {
                     HashMap<String, String> map = new HashMap<String, String>();
 
                     // map.put(TAG_POI_ID, poi_id);
-                    map.put(TAG_RECIPE_ID, recipe_id);
-                    map.put(TAG_RECIPE_NAME, name);
-                    map.put(TAG_INSTRUCTIONS, instructions);
-                    map.put(TAG_INGREDIENTS, ingredients);
-                    map.put(TAG_RECIPE_IMAGE_URL, recipe_image_url);
                     map.put(TAG_CREATOR_ID, creator_id);
                     map.put(TAG_CREATOR_USERNAME, creator_username);
                     map.put(TAG_CREATOR_PHOTO, creator_photo);
@@ -212,20 +200,13 @@ public class FragmentUserRecipesListView extends ListFragment {
                     // adding HashList to ArrayList
                     mPoiList.add(map);
 
-                    Drawable draw_temp = null;
-                    try {
-                        draw_temp = drawableFromUrl(recipe_image_url);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
                     Drawable draw_temp_2 = null;
                     try {
                         draw_temp_2 = drawableFromUrl(creator_photo);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    mItems.add(new ListViewItem(draw_temp, name, instructions,creator_username, draw_temp_2));
+                    mItems.add(new ListViewItem(creator_id, creator_username, draw_temp_2));
                     // annndddd, our JSON data is up to date same with our array
                     // list
 
@@ -332,7 +313,7 @@ public class FragmentUserRecipesListView extends ListFragment {
         setListAdapter(adapter);
 */
 
-        setListAdapter(new ListViewAdapter(getActivity(), mItems));
+        setListAdapter(new ListViewSimpleAdapter(getActivity(), mItems));
         // Optional: when the user clicks a list item we
         // could do something. However, we will choose
         // to do nothing...
@@ -348,18 +329,13 @@ public class FragmentUserRecipesListView extends ListFragment {
 
                 id_click = position;
 
-              //  new AttemptTakeOnePoi().execute();
-                new LoadRecipe().execute();
-
-                // This method is triggered if an item is click within our
-                // list. For our example we won't be using this, but
-                // it is useful to know in real life applications.
+                new LoadRecipes().execute();
 
             }
         });
     }
 
-    public class LoadRecipe extends AsyncTask<Void, Void, Boolean> {
+    public class LoadRecipes extends AsyncTask<Void, Void, Boolean> {
 
         @Override
         protected void onPreExecute() {
@@ -373,7 +349,7 @@ public class FragmentUserRecipesListView extends ListFragment {
 
         @Override
         protected Boolean doInBackground(Void... arg0) {
-            updateJSONdataForOne();
+            updateJSONdataForTheChief();
             return null;
 
         }
@@ -386,37 +362,15 @@ public class FragmentUserRecipesListView extends ListFragment {
 
             Log.d("Starting new activity", "SingleRecipeActivity");
 
-
-//            ListViewDemoFragment thisFragment = (ListViewDemoFragment) getActivity().getFragmentManager().findFragmentById(R.id.fragment1);
-
-
-
-
-/*
-            final Fragment srf = new Fragment();
-            ft.add(R.id.fragmentSingleRecipe,srf);
-            ft.commit();
-*/
-
-//            getActivity().getFragmentManager().findFragmentById(R.id.fragmentSingleRecipe).getView().setVisibility(View.VISIBLE);
-         /*   FragmentTransaction fragmentTransaction = getActivity().getFragmentManager().beginTransaction();
-            final Fragment fragmentC = new Fragment();
-            fragmentTransaction.add(R.id.fragmentSingleRecipe, fragmentC);
-            fragmentTransaction.commit();
-*/
-
-
-
-
             Intent i = new Intent(getActivity(),
-                    ActivitySingleRecipeFromCookbook.class);
+                    ActivityFollowRecipes.class);
             getActivity().finish();
             startActivity(i);
 
         }
     }
 
-    public void updateJSONdataForOne() {
+    public void updateJSONdataForTheChief() {
 
         // Instantiate the arraylist to contain all the JSON data.
         // we are going to use a bunch of key-value pairs, referring
@@ -447,23 +401,12 @@ public class FragmentUserRecipesListView extends ListFragment {
             JSONObject c = mPois.getJSONObject(id_click);
 
             // gets the content of each tag
-            String recipe_id = c.getString(TAG_RECIPE_ID);
-            String recipe_name = c.getString(TAG_RECIPE_NAME);
-            String ingredients = c.getString(TAG_INGREDIENTS);
-            String instructions = c.getString(TAG_INSTRUCTIONS);
-            String recipe_image_url = c.getString(TAG_RECIPE_IMAGE_URL);
             String creator_id = c.getString(TAG_CREATOR_ID);
             String creator_username = c.getString(TAG_CREATOR_USERNAME);
             String creator_photo = c.getString(TAG_CREATOR_PHOTO);
 
             // // creating new HashMap
             HashMap<String, String> map = new HashMap<String, String>();
-
-            map.put(TAG_RECIPE_ID, recipe_id);
-            map.put(TAG_RECIPE_NAME, recipe_name);
-            map.put(TAG_INGREDIENTS, ingredients);
-            map.put(TAG_INSTRUCTIONS, instructions);
-            map.put(TAG_RECIPE_IMAGE_URL, recipe_image_url);
             map.put(TAG_CREATOR_ID, creator_id);
             map.put(TAG_CREATOR_USERNAME, creator_username);
             map.put(TAG_CREATOR_PHOTO, creator_photo);
@@ -479,15 +422,10 @@ public class FragmentUserRecipesListView extends ListFragment {
             SharedPreferences sp = PreferenceManager
                     .getDefaultSharedPreferences(getActivity());
             SharedPreferences.Editor edit = sp.edit();
-            edit.putString("recipe_id", recipe_id);
-            edit.putString("recipe_name", recipe_name);
-            edit.putString("ingredients", ingredients);
-            edit.putString("instructions", instructions);
-            // edit.putString("visibility", visibility);
-            edit.putString("recipe_image_url", recipe_image_url);
             edit.putString("creator_id", creator_id);
             edit.putString("creator_username", creator_username);
             edit.putString("creator_photo", creator_photo);
+            edit.putBoolean("one_user_recipes", true);
             edit.commit();
 
         } catch (JSONException e) {

@@ -13,7 +13,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/btn_create_recipe"
+        android:id="@+id/btn_chiefs"
         android:text="@string/create_recipe"
         android:layout_marginTop="5dp" />
 
@@ -22,7 +22,7 @@
         android:id="@+id/swipe_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btn_create_recipe">
+        android:layout_below="@+id/btn_chiefs">
 
         <fragment
             android:id="@+id/fragment1"

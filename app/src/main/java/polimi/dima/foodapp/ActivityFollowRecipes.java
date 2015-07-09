@@ -36,7 +36,7 @@ import org.json.JSONArray;
 import java.io.File;
 
 //AKA MainActivity
-public class ActivityUserRecipes extends ActionBarActivity  {
+public class ActivityFollowRecipes extends ActionBarActivity  {
 //        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private String current_user = "current_user_username";
@@ -51,7 +51,7 @@ public class ActivityUserRecipes extends ActionBarActivity  {
     ProgressDialog myPd_bar;
     private JSONArray mProfile = null;
 
-    Button btnCreateRecipe;
+    Button btnChiefs;
 
     //First We Declare Titles And Icons For Our Navigation Drawer List View
     //This Icons And Titles Are holded in an Array as you can see
@@ -101,7 +101,7 @@ public class ActivityUserRecipes extends ActionBarActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_recipes);
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(ActivityUserRecipes.this);
+                .getDefaultSharedPreferences(ActivityFollowRecipes.this);
         current_user = sp.getString("username", "");
         name = sp.getString("name", "");
         email = sp.getString("email", "");
@@ -111,7 +111,7 @@ public class ActivityUserRecipes extends ActionBarActivity  {
         edit.putBoolean("logout",false);
         edit.commit();
         Log.d("Username","LogoutBool in SP: "+sp.getBoolean("logout",false));
-        DatabaseHandler db = new DatabaseHandler(ActivityUserRecipes.this);
+        DatabaseHandler db = new DatabaseHandler(ActivityFollowRecipes.this);
         Profile pf =  db.getLastProfile();
         name = pf.name;
         username = pf.username;
@@ -168,7 +168,7 @@ public class ActivityUserRecipes extends ActionBarActivity  {
 
         mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
 
-        final GestureDetector mGestureDetector = new GestureDetector(ActivityUserRecipes.this, new GestureDetector.SimpleOnGestureListener() {
+        final GestureDetector mGestureDetector = new GestureDetector(ActivityFollowRecipes.this, new GestureDetector.SimpleOnGestureListener() {
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
@@ -186,14 +186,20 @@ public class ActivityUserRecipes extends ActionBarActivity  {
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
-                    Toast.makeText(ActivityUserRecipes.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ActivityFollowRecipes.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
+                    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ActivityFollowRecipes.this);
+                    SharedPreferences.Editor edit = sp.edit();
                     if (recyclerView.getChildPosition(child) == 1) {
-                        Intent i = new Intent(ActivityUserRecipes.this, ActivityRecentMeals.class);
+                        edit.putBoolean("one_user_recipes", false);
+                        edit.commit();
+                        Intent i = new Intent(ActivityFollowRecipes.this, ActivityRecentMeals.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
-                        Intent i = new Intent(ActivityUserRecipes.this, ActivityCookbook.class);
+                        edit.putBoolean("one_user_recipes", false);
+                        edit.commit();
+                        Intent i = new Intent(ActivityFollowRecipes.this, ActivityCookbook.class);
                         startActivity(i);
                         finish();
                     }
@@ -201,25 +207,26 @@ public class ActivityUserRecipes extends ActionBarActivity  {
                         //Remain here
                     }
                     if (recyclerView.getChildPosition(child) == 4) {
-                        Intent i = new Intent(ActivityUserRecipes.this, ActivityLiked.class);
+                        edit.putBoolean("one_user_recipes", false);
+                        edit.commit();
+                        Intent i = new Intent(ActivityFollowRecipes.this, ActivityLiked.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 6) {
-                    SharedPreferences sp = PreferenceManager
-                            .getDefaultSharedPreferences(ActivityUserRecipes.this);
 
                     current_user = "";
                     name = "";
                     logout = true;
-                    SharedPreferences.Editor edit = sp.edit();
                     edit.putString("username", current_user);
                     edit.putString("name", name);
                     edit.putBoolean("logout", true);
-                    edit.commit();
                     Log.d("Log out - current_user", current_user);
                     Log.d("Log out - current name", name);
-                    Intent i = new Intent(ActivityUserRecipes.this, ActivityLogin.class);
+                        edit.putBoolean("one_user_recipes", false);
+                        edit.commit();
+
+                        Intent i = new Intent(ActivityFollowRecipes.this, ActivityLogin.class);
                     startActivity(i);
                     finish();
                     }
@@ -291,7 +298,7 @@ public class ActivityUserRecipes extends ActionBarActivity  {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        FragmentUserRecipesListView myFragment = (FragmentUserRecipesListView) getFragmentManager().findFragmentById(R.id.fragment1);
+        FragmentFollowRecipesListView myFragment = (FragmentFollowRecipesListView) getFragmentManager().findFragmentById(R.id.fragment1);
         final ListView fragmentListView = myFragment.getListView();
         fragmentListView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
@@ -316,10 +323,15 @@ public class ActivityUserRecipes extends ActionBarActivity  {
         });
             getSupportActionBar().setTitle(followed_chiefs);
 
-        btnCreateRecipe = (Button) findViewById(R.id.btn_create_recipe);
-        btnCreateRecipe.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                Intent i = new Intent(ActivityUserRecipes.this,ActivityCreateRecipe.class);
+        btnChiefs = (Button) findViewById(R.id.btn_chiefs);
+        btnChiefs.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                SharedPreferences sp = PreferenceManager
+                        .getDefaultSharedPreferences(ActivityFollowRecipes.this);
+                SharedPreferences.Editor edit = sp.edit();
+                edit.putBoolean("one_user_recipes", false);
+                edit.commit();
+                Intent i = new Intent(ActivityFollowRecipes.this, ActivityChiefs.class);
                 startActivity(i);
                 finish();
             }
@@ -329,10 +341,10 @@ public class ActivityUserRecipes extends ActionBarActivity  {
     @Override
     public void onResume() {
         super.onResume();
-        if (!isWifiAvailable(ActivityUserRecipes.this)) {
+        if (!isWifiAvailable(ActivityFollowRecipes.this)) {
 
 
-            Toast.makeText(ActivityUserRecipes.this, R.string.no_connection,
+            Toast.makeText(ActivityFollowRecipes.this, R.string.no_connection,
                     Toast.LENGTH_LONG).show();
         }
     }

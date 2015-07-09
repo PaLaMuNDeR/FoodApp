@@ -9,12 +9,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,8 +25,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -34,9 +36,11 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import org.json.JSONArray;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 //AKA MainActivity
-public class ActivityRecentMeals extends ActionBarActivity  {
+public class ActivityChiefs extends ActionBarActivity  {
 //        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private String current_user = "current_user_username";
@@ -51,7 +55,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
     ProgressDialog myPd_bar;
     private JSONArray mProfile = null;
 
-    Button btnCreateRecipe;
+    Button btnDelete;
 
     //First We Declare Titles And Icons For Our Navigation Drawer List View
     //This Icons And Titles Are holded in an Array as you can see
@@ -65,6 +69,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
     Bitmap profileBitmap;
     ActionBarDrawerToggle mDrawerToggle;                  // Declaring Action Bar Drawer Toggle
     Context mContext;
+    List<String> ChiefList;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -93,52 +98,54 @@ public class ActivityRecentMeals extends ActionBarActivity  {
         return networkInfo.isConnected();
     }
     private SwipeRefreshLayout swipeLayout;
+    static final String[] Android =
+            new String[] { "CupCake", "Donut", "Froyo", "GingerBread",
+                    "HoneyComb","Ice-Cream Sandwich","Jelly-Bean"};
 
-
+//TODO onBack to return to the big list
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_chiefs);
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(ActivityRecentMeals.this);
+                .getDefaultSharedPreferences(ActivityChiefs.this);
         current_user = sp.getString("username", "");
         name = sp.getString("name", "");
         email = sp.getString("email", "");
         photo = sp.getString("photo", "");
         cover = sp.getString("cover", "");
         SharedPreferences.Editor edit = sp.edit();
-        edit.putBoolean("logout",false);
+        edit.putBoolean("logout", false);
         edit.commit();
-        Log.d("Username","LogoutBool in SP: "+sp.getBoolean("logout",false));
-        DatabaseHandler db = new DatabaseHandler(ActivityRecentMeals.this);
-        Profile pf =  db.getLastProfile();
+        Log.d("Username", "LogoutBool in SP: " + sp.getBoolean("logout", false));
+        DatabaseHandler db = new DatabaseHandler(ActivityChiefs.this);
+        Profile pf = db.getLastProfile();
         name = pf.name;
         username = pf.username;
         photo = pf.photo;
         cover = pf.cover;
         gender = pf.gender;
         email = pf.email;
-        String imagePath="";
-        String coverPath="";
+        String imagePath = "";
+        String coverPath = "";
         BitmapDrawable coverBitmap = null;
         try {
             File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
 
-            if(imgFile.exists()){
-                Log.d("Download Image","Profile Image - yes");
+            if (imgFile.exists()) {
+                Log.d("Download Image", "Profile Image - yes");
                 profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             }
 
             imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
-            if(imgFile.exists()){
-                Log.d("Download Image","Cover Image - yes");
+            if (imgFile.exists()) {
+                Log.d("Download Image", "Cover Image - yes");
                 Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 coverBitmap = new BitmapDrawable(getResources(), bitmap);
             }
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -150,11 +157,11 @@ public class ActivityRecentMeals extends ActionBarActivity  {
 
         String recent_meals = getResources().getString(R.string.recent_meals);
         String my_cook_book = getResources().getString(R.string.my_cook_book);
-        String friends = getResources().getString(R.string.friends);
+        String followed_chiefs = getResources().getString(R.string.followed_chiefs);
         String liked = getResources().getString(R.string.liked);
         String forum = getResources().getString(R.string.forum);
         String logout_string = getResources().getString(R.string.logout);
-        String TITLES[] = {recent_meals,my_cook_book,friends,liked,forum,logout_string};
+        String TITLES[] = {recent_meals, my_cook_book, followed_chiefs, liked, forum, logout_string};
         int ICONS[] = {R.drawable.cutlery,
                 R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish,
                 R.drawable.group_button, R.drawable.logout};
@@ -162,13 +169,13 @@ public class ActivityRecentMeals extends ActionBarActivity  {
 
         mRecyclerView.setHasFixedSize(true);                            // Letting the system know that the list objects are of fixed size
 
-        mAdapter = new MyAdapter(TITLES, ICONS, name, email, profileBitmap, coverBitmap,  this);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
+        mAdapter = new MyAdapter(TITLES, ICONS, name, email, profileBitmap, coverBitmap, this);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
         // And passing the titles,icons,header view name, header view email,
         // and header view profile picture
 
         mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
 
-        final GestureDetector mGestureDetector = new GestureDetector(ActivityRecentMeals.this, new GestureDetector.SimpleOnGestureListener() {
+        final GestureDetector mGestureDetector = new GestureDetector(ActivityChiefs.this, new GestureDetector.SimpleOnGestureListener() {
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
@@ -186,43 +193,42 @@ public class ActivityRecentMeals extends ActionBarActivity  {
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
-                    Toast.makeText(ActivityRecentMeals.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ActivityChiefs.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
                     if (recyclerView.getChildPosition(child) == 1) {
-                    //Remain in Main
+                        Intent i = new Intent(ActivityChiefs.this, ActivityRecentMeals.class);
+                        startActivity(i);
+                        finish();
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
-                        Intent i = new Intent(ActivityRecentMeals.this, ActivityCookbook.class);
+                        Intent i = new Intent(ActivityChiefs.this, ActivityCookbook.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 3) {
-                        Intent i = new Intent(ActivityRecentMeals.this, ActivityFollowRecipes.class);
-                        startActivity(i);
-                        finish();
+                        //Remain here
                     }
                     if (recyclerView.getChildPosition(child) == 4) {
-                        Intent i = new Intent(ActivityRecentMeals.this, ActivityLiked.class);
+                        Intent i = new Intent(ActivityChiefs.this, ActivityLiked.class);
                         startActivity(i);
                         finish();
-
                     }
                     if (recyclerView.getChildPosition(child) == 6) {
-                    SharedPreferences sp = PreferenceManager
-                            .getDefaultSharedPreferences(ActivityRecentMeals.this);
+                        SharedPreferences sp = PreferenceManager
+                                .getDefaultSharedPreferences(ActivityChiefs.this);
 
-                    current_user = "";
-                    name = "";
-                    logout = true;
-                    SharedPreferences.Editor edit = sp.edit();
-                    edit.putString("username", current_user);
-                    edit.putString("name", name);
-                    edit.putBoolean("logout", true);
-                    edit.commit();
-                    Log.d("Log out - current_user", current_user);
-                    Log.d("Log out - current name", name);
-                    Intent i = new Intent(ActivityRecentMeals.this, ActivityLogin.class);
-                    startActivity(i);
-                    finish();
+                        current_user = "";
+                        name = "";
+                        logout = true;
+                        SharedPreferences.Editor edit = sp.edit();
+                        edit.putString("username", current_user);
+                        edit.putString("name", name);
+                        edit.putBoolean("logout", true);
+                        edit.commit();
+                        Log.d("Log out - current_user", current_user);
+                        Log.d("Log out - current name", name);
+                        Intent i = new Intent(ActivityChiefs.this, ActivityLogin.class);
+                        startActivity(i);
+                        finish();
                     }
                     return true;
 
@@ -271,6 +277,18 @@ public class ActivityRecentMeals extends ActionBarActivity  {
         mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
 
 
+        getSupportActionBar().setTitle(getResources().getString(R.string.chiefs));
+
+
+       /* btnDelete = (Button) findViewById(R.id.button1);
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Intent i = new Intent(ActivityChiefs.this, ActivityChiefs.class);
+                // startActivity(i);
+                finish();
+            }
+        });*/
+
         // Swipe for refresh
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -281,8 +299,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
                     @Override
                     public void run() {
                         swipeLayout.setRefreshing(false);
-                       recreate();
-                        //            getFragmentManager().beginTransaction().attach(myFragment).commit();
+                        recreate();
                     }
                 }, 4000);
             }
@@ -292,7 +309,8 @@ public class ActivityRecentMeals extends ActionBarActivity  {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        FragmentRecentMealsListView myFragment = (FragmentRecentMealsListView) getFragmentManager().findFragmentById(R.id.fragment1);
+
+        FragmentListChief myFragment = (FragmentListChief) getFragmentManager().findFragmentById(R.id.fragmentListChief);
         final ListView fragmentListView = myFragment.getListView();
         fragmentListView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
@@ -315,25 +333,15 @@ public class ActivityRecentMeals extends ActionBarActivity  {
                 swipeLayout.setEnabled(enable);
             }
         });
-            getSupportActionBar().setTitle(recent_meals);
-
-        btnCreateRecipe = (Button) findViewById(R.id.btn_chiefs);
-        btnCreateRecipe.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                Intent i = new Intent(ActivityRecentMeals.this,ActivityCreateRecipe.class);
-                startActivity(i);
-                finish();
-            }
-        });
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (!isWifiAvailable(ActivityRecentMeals.this)) {
+        if (!isWifiAvailable(ActivityChiefs.this)) {
 
 
-            Toast.makeText(ActivityRecentMeals.this, R.string.no_connection,
+            Toast.makeText(ActivityChiefs.this, R.string.no_connection,
                     Toast.LENGTH_LONG).show();
         }
     }
@@ -347,16 +355,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
         return true;
     }
 
-    /*
-
-        public void restoreActionBar() {
-            ActionBar actionBar = getSupportActionBar();
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setTitle(mTitle);
-
-        }
-    */
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
