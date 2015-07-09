@@ -195,7 +195,11 @@ public class ActivityRecentMeals extends ActionBarActivity  {
                         startActivity(i);
                         finish();
                     }
-
+                    if (recyclerView.getChildPosition(child) == 3) {
+                        Intent i = new Intent(ActivityRecentMeals.this, ActivityUserRecipes.class);
+                        startActivity(i);
+                        finish();
+                    }
                     if (recyclerView.getChildPosition(child) == 4) {
                         Intent i = new Intent(ActivityRecentMeals.this, ActivityLiked.class);
                         startActivity(i);

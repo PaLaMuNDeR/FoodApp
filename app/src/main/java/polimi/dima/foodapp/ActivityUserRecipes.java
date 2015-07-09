@@ -99,7 +99,7 @@ public class ActivityUserRecipes extends ActionBarActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_user_recipes);
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(ActivityUserRecipes.this);
         current_user = sp.getString("username", "");
@@ -150,11 +150,11 @@ public class ActivityUserRecipes extends ActionBarActivity  {
 
         String recent_meals = getResources().getString(R.string.recent_meals);
         String my_cook_book = getResources().getString(R.string.my_cook_book);
-        String friends = getResources().getString(R.string.friends);
+        String followed_chiefs = getResources().getString(R.string.followed_chiefs);
         String liked = getResources().getString(R.string.liked);
         String forum = getResources().getString(R.string.forum);
         String logout_string = getResources().getString(R.string.logout);
-        String TITLES[] = {recent_meals,my_cook_book,friends,liked,forum,logout_string};
+        String TITLES[] = {recent_meals,my_cook_book,followed_chiefs,liked,forum,logout_string};
         int ICONS[] = {R.drawable.cutlery,
                 R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish,
                 R.drawable.group_button, R.drawable.logout};
@@ -188,19 +188,22 @@ public class ActivityUserRecipes extends ActionBarActivity  {
                     Drawer.closeDrawers();
                     Toast.makeText(ActivityUserRecipes.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
                     if (recyclerView.getChildPosition(child) == 1) {
-                    //Remain in Main
+                        Intent i = new Intent(ActivityUserRecipes.this, ActivityRecentMeals.class);
+                        startActivity(i);
+                        finish();
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
                         Intent i = new Intent(ActivityUserRecipes.this, ActivityCookbook.class);
                         startActivity(i);
                         finish();
                     }
-
+                    if (recyclerView.getChildPosition(child) == 3) {
+                        //Remain here
+                    }
                     if (recyclerView.getChildPosition(child) == 4) {
                         Intent i = new Intent(ActivityUserRecipes.this, ActivityLiked.class);
                         startActivity(i);
                         finish();
-
                     }
                     if (recyclerView.getChildPosition(child) == 6) {
                     SharedPreferences sp = PreferenceManager
@@ -288,7 +291,7 @@ public class ActivityUserRecipes extends ActionBarActivity  {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        FragmentRecentMealsListView myFragment = (FragmentRecentMealsListView) getFragmentManager().findFragmentById(R.id.fragment1);
+        FragmentUserRecipesListView myFragment = (FragmentUserRecipesListView) getFragmentManager().findFragmentById(R.id.fragment1);
         final ListView fragmentListView = myFragment.getListView();
         fragmentListView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
@@ -311,14 +314,14 @@ public class ActivityUserRecipes extends ActionBarActivity  {
                 swipeLayout.setEnabled(enable);
             }
         });
-            getSupportActionBar().setTitle(recent_meals);
+            getSupportActionBar().setTitle(followed_chiefs);
 
         btnCreateRecipe = (Button) findViewById(R.id.btn_create_recipe);
         btnCreateRecipe.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 Intent i = new Intent(ActivityUserRecipes.this,ActivityCreateRecipe.class);
-                finish();
                 startActivity(i);
+                finish();
             }
         });
     }
@@ -326,7 +329,6 @@ public class ActivityUserRecipes extends ActionBarActivity  {
     @Override
     public void onResume() {
         super.onResume();
-        // loading the pois via AsyncTask
         if (!isWifiAvailable(ActivityUserRecipes.this)) {
 
 

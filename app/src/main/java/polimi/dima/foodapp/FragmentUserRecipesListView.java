@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * Created by Marti on 17/06/2015.
  */
-public class FragmentListCookbook extends ListFragment {
+public class FragmentUserRecipesListView extends ListFragment {
 
     private List<ListViewItem> mItems;        // ListView items list
     ListViewAdapter adapter;
@@ -47,7 +47,7 @@ public class FragmentListCookbook extends ListFragment {
     private ProgressDialog sDialog;
 
 
-    private static final String READ_RECIPES_URL = "http://expox-milano.com/foodapp/cookbook.php";
+    private static final String READ_RECIPES_URL = "http://expox-milano.com/foodapp/user_follow_recipes.php";
     private boolean downloaded_list = false;
     // JSON IDS:
     private static final String TAG_SUCCESS = "success";

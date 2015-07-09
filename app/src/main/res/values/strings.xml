@@ -48,5 +48,6 @@
         <string name="btnUploadToServer">Upload to Server</string>
     <string name="keep_image">Keep Image</string>
     <string name="follow">Follow</string>
+    <string name="followed_chiefs">Followed Chiefs</string>
 
 </resources>
