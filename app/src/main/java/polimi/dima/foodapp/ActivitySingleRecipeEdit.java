@@ -88,7 +88,7 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
     private Boolean logout = false;
     String TITLES[] = {"Recent Meals", "My Cook Book", "Friends", "Liked", "Forum", "Logout"};
     int ICONS[] = {R.drawable.cutlery,
-            R.drawable.open_book, R.drawable.forum, R.drawable.heart_dish,
+            R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish,
             R.drawable.group_button, R.drawable.logout};
 
     private static String recipe_id = "";
@@ -220,6 +220,12 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
                         Intent i = new Intent(ActivitySingleRecipeEdit.this, ActivityCookbook.class);
                         startActivity(i);
                     }
+                    if (recyclerView.getChildPosition(child) == 4) {
+                        Intent i = new Intent(ActivitySingleRecipeEdit.this, ActivityLiked.class);
+                        startActivity(i);
+                        finish();
+
+                    }
 
                     if (recyclerView.getChildPosition(child) == 6) {
                         SharedPreferences sp = PreferenceManager
@@ -235,7 +241,7 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
                         edit.commit();
                         Log.d("Log out current_user:", current_user);
                         Log.d("Log out: ", name);
-                        Intent i = new Intent(ActivitySingleRecipeEdit.this, LoginActivity.class);
+                        Intent i = new Intent(ActivitySingleRecipeEdit.this, ActivityLogin.class);
                         startActivity(i);
                         finish();
 

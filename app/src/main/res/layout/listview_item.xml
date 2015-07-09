@@ -11,15 +11,40 @@
     <!-- the innner view - provides the white rectangle -->
     <RelativeLayout android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/post_border_style" >
+        android:background="#FFF" >
 
+        <RelativeLayout
+            android:id="@+id/authorContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            >
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/creatorImage"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/default_face"
+                android:layout_marginLeft="1dp"
+                />
+            <TextView
+                android:id="@+id/creatorName"
+                android:layout_toRightOf="@+id/creatorImage"
+                android:layout_toEndOf="@+id/creatorImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@android:style/TextAppearance.Small"
+                android:text="Creator Name"
+                android:layout_marginTop="6dp"/>
+
+        </RelativeLayout>
         <!-- the icon view -->
         <ImageView android:id="@+id/ivIcon"
             android:layout_width="330dp"
             android:layout_height="330dp"
             android:padding="5dp"
             android:contentDescription="Content Description"
-            android:layout_alignParentLeft="true" />
+            android:src="@drawable/ic_launcher"
+            android:layout_below="@+id/authorContainer"/>
 
         <!-- the container view for the title and description -->
         <RelativeLayout android:layout_width="wrap_content"
@@ -31,14 +56,16 @@
             <TextView android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@android:style/TextAppearance.Medium" />
+                android:textAppearance="@android:style/TextAppearance.Medium"
+                android:text="Title"/>
 
             <!-- the description view -->
             <TextView android:id="@+id/tvDescription"
                 android:layout_below="@id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@android:style/TextAppearance.Small" />
+                android:textAppearance="@android:style/TextAppearance.Small"
+                android:text="Description"/>
         </RelativeLayout>
 
     </RelativeLayout>

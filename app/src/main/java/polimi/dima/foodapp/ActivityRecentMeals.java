@@ -69,7 +69,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
+    private FragmentNavigationDrawer mFragmentNavigationDrawer;
 
     /**
      * Used to store the last screen title. For use in {@link # restoreActionBar()}.
@@ -82,6 +82,14 @@ public class ActivityRecentMeals extends ActionBarActivity  {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connManager
                 .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        /*NetworkInfo networkInfo1 = connManager.
+                getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        if(networkInfo.isConnected() || networkInfo1.isConnected()){
+            return true;
+        }
+
+        return false;
+*/
         return networkInfo.isConnected();
     }
     private SwipeRefreshLayout swipeLayout;
@@ -148,7 +156,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
         String logout_string = getResources().getString(R.string.logout);
         String TITLES[] = {recent_meals,my_cook_book,friends,liked,forum,logout_string};
         int ICONS[] = {R.drawable.cutlery,
-                R.drawable.open_book, R.drawable.forum, R.drawable.heart_dish,
+                R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish,
                 R.drawable.group_button, R.drawable.logout};
         mRecyclerView = (RecyclerView) findViewById(R.id.RecyclerView); // Assigning the RecyclerView Object to the xml View
 
@@ -186,24 +194,30 @@ public class ActivityRecentMeals extends ActionBarActivity  {
                         Intent i = new Intent(ActivityRecentMeals.this, ActivityCookbook.class);
                         startActivity(i);
                     }
-                        if (recyclerView.getChildPosition(child) == 6) {
-                        SharedPreferences sp = PreferenceManager
-                                .getDefaultSharedPreferences(ActivityRecentMeals.this);
 
-                        current_user = "";
-                        name = "";
-                        logout = true;
-                        SharedPreferences.Editor edit = sp.edit();
-                        edit.putString("username", current_user);
-                        edit.putString("name", name);
-                        edit.putBoolean("logout", true);
-                        edit.commit();
-                        Log.d("Log out - current_user", current_user);
-                        Log.d("Log out - current name", name);
-                        Intent i = new Intent(ActivityRecentMeals.this, LoginActivity.class);
+                    if (recyclerView.getChildPosition(child) == 4) {
+                        Intent i = new Intent(ActivityRecentMeals.this, ActivityLiked.class);
                         startActivity(i);
                         finish();
 
+                    }
+                    if (recyclerView.getChildPosition(child) == 6) {
+                    SharedPreferences sp = PreferenceManager
+                            .getDefaultSharedPreferences(ActivityRecentMeals.this);
+
+                    current_user = "";
+                    name = "";
+                    logout = true;
+                    SharedPreferences.Editor edit = sp.edit();
+                    edit.putString("username", current_user);
+                    edit.putString("name", name);
+                    edit.putBoolean("logout", true);
+                    edit.commit();
+                    Log.d("Log out - current_user", current_user);
+                    Log.d("Log out - current name", name);
+                    Intent i = new Intent(ActivityRecentMeals.this, ActivityLogin.class);
+                    startActivity(i);
+                    finish();
                     }
                     return true;
 
@@ -273,7 +287,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        FragmentListView myFragment = (FragmentListView) getFragmentManager().findFragmentById(R.id.fragment1);
+        FragmentRecentMealsListView myFragment = (FragmentRecentMealsListView) getFragmentManager().findFragmentById(R.id.fragment1);
         final ListView fragmentListView = myFragment.getListView();
         fragmentListView.setOnScrollListener(new AbsListView.OnScrollListener() {
 

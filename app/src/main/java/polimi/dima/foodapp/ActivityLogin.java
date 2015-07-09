@@ -53,7 +53,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 
-public class LoginActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class ActivityLogin extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
 	private EditText user, pass;
 	private Button btnSubmit, btnRegister, btnPOI;
@@ -96,6 +96,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 	private static final String TAG_SUCCESS = "success";
 	private static final String TAG_MESSAGE = "message";
 
+    private static final String TAG_ID = "user_id";
     private static final String TAG_NAME = "name";
     private static final String TAG_USERNAME = "username";
     private static final String TAG_VERSION = "version";
@@ -137,7 +138,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 			// Loading whether there is logged-in user
 			Log.d("Username","saved_username: " + saved_username);
 			SharedPreferences sp = PreferenceManager
-					.getDefaultSharedPreferences(LoginActivity.this);
+					.getDefaultSharedPreferences(ActivityLogin.this);
 			String post_username = sp.getString("username", "");
             logout_bool = sp.getBoolean("logout", false);
             Log.d("Username", "Logout Bool: "+ logout_bool);
@@ -180,7 +181,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 		btnRegister = (Button) findViewById(R.id.btn_register);
 		btnRegister.setOnClickListener(new OnClickListener() {
 		    public void onClick(View w) {
-				Intent reg = new Intent(LoginActivity.this, RegisterActivity.class);
+				Intent reg = new Intent(ActivityLogin.this, ActivityRegister.class);
 				startActivity(reg);		   
 		    }
 		});
@@ -489,7 +490,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
     private void updateProfile(boolean isSignedIn) {
 
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(LoginActivity.this);
+                .getDefaultSharedPreferences(ActivityLogin.this);
         Editor edit = sp.edit();
         if (isSignedIn) {
             Log.d("Login Successful!", "");
@@ -568,7 +569,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                 gender = g_gender;
 
                 SharedPreferences sp = PreferenceManager
-                        .getDefaultSharedPreferences(LoginActivity.this);
+                        .getDefaultSharedPreferences(ActivityLogin.this);
                 Editor edit = sp.edit();
                 edit.putString("username", google_username);
                 edit.putString("name", name);
@@ -629,7 +630,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			pDialog = new ProgressDialog(LoginActivity.this);
+			pDialog = new ProgressDialog(ActivityLogin.this);
 			pDialog.setMessage("Attempting login...");
 			pDialog.setIndeterminate(false);
 			pDialog.setCancelable(true);
@@ -641,6 +642,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 
 			// Check for success and name tags
 			int success;
+            String id;
 			String name;
 			String username;
 			String email;
@@ -671,6 +673,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                 if (success == 1) {
                     Log.d("Login Successful!", json.toString());
                     // save user data
+                    id = json.getString(TAG_ID);
                     name = json.getString(TAG_NAME);
                     username = json.getString(TAG_USERNAME);
                     photo = json.getString(TAG_PHOTO);
@@ -682,10 +685,11 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                     String cover_save_name = "cover_photo";
 
                     SharedPreferences sp = PreferenceManager
-                            .getDefaultSharedPreferences(LoginActivity.this);
+                            .getDefaultSharedPreferences(ActivityLogin.this);
                     Editor edit = sp.edit();
                     edit.putString("username", u_username);
                     edit.putString("name", name);
+                    edit.putString("user_id",id);
                     edit.commit();
                     saved_username = u_username;
                     Log.d("saved_username", saved_username);
@@ -702,7 +706,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                     DownloadFileFromURL(cover_save_name, cover);
 
                     try {
-                        DatabaseHandler db = new DatabaseHandler(LoginActivity.this);
+                        DatabaseHandler db = new DatabaseHandler(ActivityLogin.this);
 
                         Log.d("Database", "Inserting...");
                         db.addProfile(new Profile(name, username, photo, cover, gender, email));
@@ -710,7 +714,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                         Log.e("Error JSON Parser",
                                 "Error when parsing the JSON");
                     }
-                    Intent i = new Intent(LoginActivity.this,
+                    Intent i = new Intent(ActivityLogin.this,
                             ActivityRecentMeals.class);
                     finish();
                     startActivity(i);
@@ -736,7 +740,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 			// dismiss the dialog once product deleted
 			pDialog.dismiss();
 			if (file_url != null) {
-				Toast.makeText(LoginActivity.this, file_url, Toast.LENGTH_LONG)
+				Toast.makeText(ActivityLogin.this, file_url, Toast.LENGTH_LONG)
 						.show();
 			}
 
@@ -795,10 +799,13 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                 success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
                     Log.d("Login Successful!", json.toString());
+
+                    String user_id="";
                     String username="";
                     String photo="";
                     String cover="";
                     // save user data
+                    user_id = json.getString(TAG_ID);
                     name = json.getString(TAG_NAME);
                     username = json.getString(TAG_USERNAME);
                     photo = json.getString(TAG_PHOTO);
@@ -810,10 +817,11 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                     String cover_save_name = "cover_photo";
 
                     SharedPreferences sp = PreferenceManager
-                            .getDefaultSharedPreferences(LoginActivity.this);
+                            .getDefaultSharedPreferences(ActivityLogin.this);
                     Editor edit = sp.edit();
                     edit.putString("username", username);
                     edit.putString("name", name);
+                    edit.putString("user_id",user_id);
                     edit.commit();
                     saved_username = username;
                     Log.d("saved_username", saved_username);
@@ -830,7 +838,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                     DownloadFileFromURL(cover_save_name, cover);
 
                     try {
-                        DatabaseHandler db = new DatabaseHandler(LoginActivity.this);
+                        DatabaseHandler db = new DatabaseHandler(ActivityLogin.this);
 
                         Log.d("Database", "Inserting...");
                         db.addProfile(new Profile(name, username, photo, cover, gender, email));
@@ -838,7 +846,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                         Log.e("Error JSON Parser",
                                 "Error when parsing the JSON");
                     }
-                    Intent i = new Intent(LoginActivity.this,
+                    Intent i = new Intent(ActivityLogin.this,
                             ActivityRecentMeals.class);
                     finish();
                     startActivity(i);
@@ -859,7 +867,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
             // dismiss the dialog once product deleted
          //   qDialog.dismiss();
             if (file_url != null) {
-                Toast.makeText(LoginActivity.this, file_url,
+                Toast.makeText(ActivityLogin.this, file_url,
                         Toast.LENGTH_LONG).show();
             }
 
@@ -934,7 +942,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                     String cover_save_name = "cover_photo";
 
                     SharedPreferences sp = PreferenceManager
-                            .getDefaultSharedPreferences(LoginActivity.this);
+                            .getDefaultSharedPreferences(ActivityLogin.this);
                     Editor edit = sp.edit();
                     edit.putString("username", username);
                     edit.putString("name", name);
@@ -954,7 +962,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                     DownloadFileFromURL(cover_save_name, cover);
 
                     try {
-                        DatabaseHandler db = new DatabaseHandler(LoginActivity.this);
+                        DatabaseHandler db = new DatabaseHandler(ActivityLogin.this);
 
                         Log.d("Database", "Inserting...");
                         db.addProfile(new Profile(name, username, photo, cover, gender, email));
@@ -962,7 +970,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                         Log.e("Error JSON Parser",
                                 "Error when parsing the JSON");
                     }
-                    Intent i = new Intent(LoginActivity.this,
+                    Intent i = new Intent(ActivityLogin.this,
                             ActivityRecentMeals.class);
                     finish();
                     startActivity(i);
@@ -986,7 +994,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
             // dismiss the dialog once product deleted
           //  rDialog.dismiss();
             if (file_url != null) {
-                Toast.makeText(LoginActivity.this, file_url,
+                Toast.makeText(ActivityLogin.this, file_url,
                         Toast.LENGTH_LONG).show();
             }
 

@@ -30,7 +30,7 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-public class RegisterActivity extends Activity implements OnClickListener {
+public class ActivityRegister extends Activity implements OnClickListener {
 
 	private EditText user, name, pass, mail;//, age_value;
     private Button mRegister;
@@ -214,7 +214,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
     	default:
     		break;
     	case 0:
-    		Intent k = new Intent(this, LoginActivity.class);
+    		Intent k = new Intent(this, ActivityLogin.class);
     		startActivity(k);
     		finish();
 			break;	
@@ -230,7 +230,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 //			Log.d("Log out - current name", current_name);
 			//ClearPreferences();
 			
-			Intent q = new Intent(this, RegisterActivity.class);
+			Intent q = new Intent(this, ActivityRegister.class);
 			startActivity(q);
 			finish();
 			break;
@@ -295,7 +295,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			pDialog = new ProgressDialog(RegisterActivity.this);
+			pDialog = new ProgressDialog(ActivityRegister.this);
 			pDialog.setMessage("Creating User...");
 			pDialog.setIndeterminate(false);
 			pDialog.setCancelable(true);
@@ -360,7 +360,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 			// dismiss the dialog once product deleted
 			pDialog.dismiss();
 			if (file_url != null) {
-				Toast.makeText(RegisterActivity.this, file_url,
+				Toast.makeText(ActivityRegister.this, file_url,
 						Toast.LENGTH_LONG).show();
 			}
 

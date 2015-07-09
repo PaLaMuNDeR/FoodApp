@@ -8,7 +8,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -62,7 +61,7 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
     private Boolean logout = false;
     String TITLES[] = {"Recent Meals", "My Cook Book", "Friends", "Liked", "Forum", "Logout"};
     int ICONS[] = {R.drawable.cutlery,
-            R.drawable.open_book, R.drawable.forum, R.drawable.heart_dish,
+            R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish,
             R.drawable.group_button, R.drawable.logout};
 
 
@@ -175,6 +174,12 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
                         Intent i = new Intent(ActivitySingleRecipeFromCookbook.this,ActivityCookbook.class);
                         startActivity(i);
                     }
+                    if (recyclerView.getChildPosition(child) == 4) {
+                        Intent i = new Intent(ActivitySingleRecipeFromCookbook.this, ActivityLiked.class);
+                        startActivity(i);
+                        finish();
+
+                    }
 
                     if (recyclerView.getChildPosition(child) == 6) {
                         SharedPreferences sp = PreferenceManager
@@ -190,7 +195,7 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
                         edit.commit();
                         Log.d("Log out current_user:", current_user);
                         Log.d("Log out: ", name);
-                        Intent i = new Intent(ActivitySingleRecipeFromCookbook.this, LoginActivity.class);
+                        Intent i = new Intent(ActivitySingleRecipeFromCookbook.this, ActivityLogin.class);
                         startActivity(i);
                         finish();
 

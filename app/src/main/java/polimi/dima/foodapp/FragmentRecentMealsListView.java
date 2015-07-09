@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Created by Marti on 17/06/2015.
  */
-public class FragmentListView extends ListFragment {
+public class FragmentRecentMealsListView extends ListFragment {
 
     private List<ListViewItem> mItems;        // ListView items list
     ListViewAdapter adapter;
@@ -56,6 +56,9 @@ public class FragmentListView extends ListFragment {
     private static final String TAG_INSTRUCTIONS = "instructions";
     private static final String TAG_INGREDIENTS = "ingredients";
     private static final String TAG_RECIPE_IMAGE_URL = "recipe_image_url";
+    private static final String TAG_CREATOR_ID = "creator_id";
+    private static final String TAG_CREATOR_USERNAME = "creator_username";
+    private static final String TAG_CREATOR_PHOTO = "creator_photo";
 
     // An array of all of our pois
     private JSONArray mPois = null;
@@ -177,6 +180,9 @@ public class FragmentListView extends ListFragment {
                     String instructions = c.getString(TAG_INSTRUCTIONS);
                     // String poi_id = c.getString(TAG_POI_ID);
                     String recipe_image_url = c.getString(TAG_RECIPE_IMAGE_URL);
+                    String creator_id = c.getString(TAG_CREATOR_ID);
+                    String creator_username = c.getString(TAG_CREATOR_USERNAME);
+                    String creator_photo = c.getString(TAG_CREATOR_PHOTO);
 
                     // creating new HashMap
                     HashMap<String, String> map = new HashMap<String, String>();
@@ -187,6 +193,9 @@ public class FragmentListView extends ListFragment {
                     map.put(TAG_INSTRUCTIONS, instructions);
                     map.put(TAG_INGREDIENTS, ingredients);
                     map.put(TAG_RECIPE_IMAGE_URL, recipe_image_url);
+                    map.put(TAG_CREATOR_ID, creator_id);
+                    map.put(TAG_CREATOR_USERNAME, creator_username);
+                    map.put(TAG_CREATOR_PHOTO, creator_photo);
 
                     // adding HashList to ArrayList
                     mPoiList.add(map);
@@ -197,8 +206,13 @@ public class FragmentListView extends ListFragment {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
-                    mItems.add(new ListViewItem(draw_temp, name, instructions));
+                    Drawable draw_temp_2 = null;
+                    try {
+                        draw_temp_2 = drawableFromUrl(creator_photo);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    mItems.add(new ListViewItem(draw_temp, name, instructions, creator_username, draw_temp_2));
                     // annndddd, our JSON data is up to date same with our array
                     // list
 
@@ -425,6 +439,10 @@ public class FragmentListView extends ListFragment {
             String ingredients = c.getString(TAG_INGREDIENTS);
             String instructions = c.getString(TAG_INSTRUCTIONS);
             String recipe_image_url = c.getString(TAG_RECIPE_IMAGE_URL);
+            String creator_id = c.getString(TAG_CREATOR_ID);
+            String creator_username = c.getString(TAG_CREATOR_USERNAME);
+            String creator_photo = c.getString(TAG_CREATOR_PHOTO);
+
 
             // // creating new HashMap
             HashMap<String, String> map = new HashMap<String, String>();
@@ -434,6 +452,9 @@ public class FragmentListView extends ListFragment {
             map.put(TAG_INGREDIENTS, ingredients);
             map.put(TAG_INSTRUCTIONS, instructions);
             map.put(TAG_RECIPE_IMAGE_URL, recipe_image_url);
+            map.put(TAG_CREATOR_ID, creator_id);
+            map.put(TAG_CREATOR_USERNAME, creator_username);
+            map.put(TAG_CREATOR_PHOTO, creator_photo);
             // adding HashList to ArrayList
             mPoiList.add(map);
 
@@ -451,6 +472,9 @@ public class FragmentListView extends ListFragment {
             edit.putString("instructions", instructions);
             // edit.putString("visibility", visibility);
             edit.putString("recipe_image_url", recipe_image_url);
+            edit.putString("creator_id", creator_id);
+            edit.putString("creator_username", creator_username);
+            edit.putString("creator_photo", creator_photo);
             edit.commit();
 
         } catch (JSONException e) {

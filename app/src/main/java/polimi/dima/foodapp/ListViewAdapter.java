@@ -33,6 +33,8 @@ public class ListViewAdapter extends ArrayAdapter<ListViewItem> {
             viewHolder.ivIcon = (ImageView) convertView.findViewById(R.id.ivIcon);
             viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.tvTitle);
             viewHolder.tvDescription = (TextView) convertView.findViewById(R.id.tvDescription);
+            viewHolder.creatorName = (TextView) convertView.findViewById(R.id.creatorName);
+            viewHolder.creatorImage = (ImageView) convertView.findViewById(R.id.creatorImage);
             convertView.setTag(viewHolder);
         } else {
             // recycle the already inflated view
@@ -44,6 +46,8 @@ public class ListViewAdapter extends ArrayAdapter<ListViewItem> {
         viewHolder.ivIcon.setImageDrawable(item.icon);
         viewHolder.tvTitle.setText(item.title);
         viewHolder.tvDescription.setText(item.description);
+        viewHolder.creatorName.setText(item.creator_name);
+        viewHolder.creatorImage.setImageDrawable(item.creator_photo);
 
         return convertView;
     }
@@ -57,5 +61,7 @@ public class ListViewAdapter extends ArrayAdapter<ListViewItem> {
         ImageView ivIcon;
         TextView tvTitle;
         TextView tvDescription;
+        TextView creatorName;
+        ImageView creatorImage;
     }
 }

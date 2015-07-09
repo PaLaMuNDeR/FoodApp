@@ -36,8 +36,7 @@ import org.json.JSONArray;
 import java.io.File;
 
 
-public class ActivityCookbook extends ActionBarActivity  {
-//        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class ActivityLiked extends ActionBarActivity  {
 
     private String current_user = "current_user_username";
     private String name = "name";
@@ -73,7 +72,7 @@ public class ActivityCookbook extends ActionBarActivity  {
      * Used to store the last screen title. For use in {@link # restoreActionBar()}.
      */
 
-    private CharSequence mTitle = "Recent Meals";
+ //   private CharSequence mTitle = "Recent Meals";
 
     public static Boolean isWifiAvailable(Context context) {
         ConnectivityManager connManager = (ConnectivityManager) context
@@ -92,7 +91,7 @@ public class ActivityCookbook extends ActionBarActivity  {
         setContentView(R.layout.activity_cookbook);
 
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(ActivityCookbook.this);
+                .getDefaultSharedPreferences(ActivityLiked.this);
         current_user = sp.getString("username", "");
         name = sp.getString("name", "");
         email = sp.getString("email", "");
@@ -102,7 +101,7 @@ public class ActivityCookbook extends ActionBarActivity  {
         edit.putBoolean("logout",false);
         edit.commit();
         Log.d("Username","LogoutBool in SP: "+sp.getBoolean("logout",false));
-        DatabaseHandler db = new DatabaseHandler(ActivityCookbook.this);
+        DatabaseHandler db = new DatabaseHandler(ActivityLiked.this);
         Profile pf =  db.getLastProfile();
         name = pf.name;
         username = pf.username;
@@ -160,7 +159,7 @@ public class ActivityCookbook extends ActionBarActivity  {
 
         mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
 
-        final GestureDetector mGestureDetector = new GestureDetector(ActivityCookbook.this, new GestureDetector.SimpleOnGestureListener() {
+        final GestureDetector mGestureDetector = new GestureDetector(ActivityLiked.this, new GestureDetector.SimpleOnGestureListener() {
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
@@ -175,24 +174,24 @@ public class ActivityCookbook extends ActionBarActivity  {
             public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent motionEvent) {
                 View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
 
-                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ActivityCookbook.this);
+                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ActivityLiked.this);
                 SharedPreferences.Editor edit = sp.edit();
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
-                    Toast.makeText(ActivityCookbook.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ActivityLiked.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
                     if (recyclerView.getChildPosition(child) == 1) {
                         //Go to Main
-                        Intent i = new Intent(ActivityCookbook.this,ActivityRecentMeals.class);
+                        Intent i = new Intent(ActivityLiked.this,ActivityRecentMeals.class);
                         startActivity(i);
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
-                    //Remain in Cookbook
-                    }
-                    if (recyclerView.getChildPosition(child) == 4) {
-                        Intent i = new Intent(ActivityCookbook.this, ActivityLiked.class);
+                        Intent i = new Intent(ActivityLiked.this, ActivityCookbook.class);
                         startActivity(i);
                         finish();
+                    }
+                    if (recyclerView.getChildPosition(child) == 4) {
+                    //Remain in Liked
 
                     }
 
@@ -206,7 +205,7 @@ public class ActivityCookbook extends ActionBarActivity  {
                         edit.commit();
                         Log.d("Log out - current_user", current_user);
                         Log.d("Log out - current name", name);
-                        Intent i = new Intent(ActivityCookbook.this, ActivityLogin.class);
+                        Intent i = new Intent(ActivityLiked.this, ActivityLogin.class);
                         startActivity(i);
                         finish();
 
@@ -310,10 +309,10 @@ public class ActivityCookbook extends ActionBarActivity  {
     public void onResume() {
         super.onResume();
         // loading the pois via AsyncTask
-        if (!isWifiAvailable(ActivityCookbook.this)) {
+        if (!isWifiAvailable(ActivityLiked.this)) {
 
 
-            Toast.makeText(ActivityCookbook.this, R.string.no_connection,
+            Toast.makeText(ActivityLiked.this, R.string.no_connection,
                     Toast.LENGTH_LONG).show();
         }
     }

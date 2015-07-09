@@ -29,7 +29,7 @@ import android.widget.Toast;
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
-public class NavigationDrawerFragment extends Fragment {
+public class FragmentNavigationDrawer extends Fragment {
 
     private RecyclerView recyclerView;
     /**
@@ -65,7 +65,7 @@ public class NavigationDrawerFragment extends Fragment {
     // If false, it is the list with the recipes
     private boolean cookbook_choice = false;
 
-    public NavigationDrawerFragment() {
+    public FragmentNavigationDrawer() {
     }
 
     @Override
@@ -274,6 +274,12 @@ public class NavigationDrawerFragment extends Fragment {
                 startActivity(i);
                 getActivity().finish();
 
+            }
+            if(item.getItemId()==4)
+            {
+                Intent i = new Intent(getActivity(), ActivityLiked.class);
+                startActivity(i);
+                getActivity().finish();
             }
             return true;
         }

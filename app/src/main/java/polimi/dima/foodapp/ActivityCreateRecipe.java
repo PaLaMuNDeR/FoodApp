@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.widget.DrawerLayout;
@@ -85,7 +84,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
     private Boolean logout = false;
     String TITLES[] = {"Recent Meals", "My Cook Book", "Friends", "Liked", "Forum", "Logout"};
     int ICONS[] = {R.drawable.cutlery,
-            R.drawable.open_book, R.drawable.forum, R.drawable.heart_dish,
+            R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish,
             R.drawable.group_button, R.drawable.logout};
 
     private static String recipe_id = "";
@@ -216,6 +215,12 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
                         Intent i = new Intent(ActivityCreateRecipe.this, ActivityCookbook.class);
                         startActivity(i);
                     }
+                    if (recyclerView.getChildPosition(child) == 4) {
+                        Intent i = new Intent(ActivityCreateRecipe.this, ActivityLiked.class);
+                        startActivity(i);
+                        finish();
+
+                    }
 
                     if (recyclerView.getChildPosition(child) == 6) {
                         SharedPreferences sp = PreferenceManager
@@ -231,7 +236,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
                         edit.commit();
                         Log.d("Log out current_user:", current_user);
                         Log.d("Log out: ", name);
-                        Intent i = new Intent(ActivityCreateRecipe.this, LoginActivity.class);
+                        Intent i = new Intent(ActivityCreateRecipe.this, ActivityLogin.class);
                         startActivity(i);
                         finish();
 

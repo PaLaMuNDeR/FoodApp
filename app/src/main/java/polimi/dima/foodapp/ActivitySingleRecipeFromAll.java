@@ -61,19 +61,22 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
     private Boolean logout = false;
     String TITLES[] = {"Recent Meals", "My Cook Book", "Friends", "Liked", "Forum", "Logout"};
     int ICONS[] = {R.drawable.cutlery,
-            R.drawable.open_book, R.drawable.forum, R.drawable.heart_dish,
+            R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish,
             R.drawable.group_button, R.drawable.logout};
-
-
     Button
             //btnAllPoi,
             //btnLogout,
             btnAdd;
 
+
     private static String recipe_id = "";
+
+    String creator_id;
+    String user_id;
 
     JSONParser jsonParser = new JSONParser();
     private static final String ADD_REC_URL = "http://expox-milano.com/foodapp/add_rec.php";
+    private static final String ADD_FOLLOW_URL = "http://expox-milano.com/foodapp/add_follow.php";
 
     // JSON element ids from repsonse of php script:
     private static final String TAG_SUCCESS = "success";
@@ -101,6 +104,8 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         email = sp.getString("email", "");
         photo = sp.getString("photo", "");
         cover = sp.getString("cover", "");
+        cover = sp.getString("cover", "");
+        user_id =sp.getString("user_id","");
         SharedPreferences.Editor edit = sp.edit();
         edit.putBoolean("logout",false);
         edit.commit();
@@ -113,6 +118,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         cover = pf.cover;
         gender = pf.gender;
         email = pf.email;
+
         BitmapDrawable coverBitmap = null;
         try {
             File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
@@ -176,6 +182,12 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                         Intent i = new Intent(ActivitySingleRecipeFromAll.this,ActivityCookbook.class);
                         startActivity(i);
                     }
+                    if (recyclerView.getChildPosition(child) == 4) {
+                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityLiked.class);
+                        startActivity(i);
+                        finish();
+
+                    }
 
                     if (recyclerView.getChildPosition(child) == 6) {
                         SharedPreferences sp = PreferenceManager
@@ -191,7 +203,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                         edit.commit();
                         Log.d("Log out current_user:", current_user);
                         Log.d("Log out: ", name);
-                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, LoginActivity.class);
+                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityLogin.class);
                         startActivity(i);
                         finish();
 
@@ -263,23 +275,27 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         instructions.setText(instructions_value);
 
         String recipe_image_url = sp.getString("recipe_image_url", "");
+        creator_id = sp.getString("creator_id", "");
+        String creator_username = sp.getString("creator_username", "");
+        String creator_photo = sp.getString("creator_photo", "");
 
-      /*  Drawable draw_temp = null;
-        try {
-            draw_temp = drawableFromUrl(recipe_image_url);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-*/
-//                Drawable draw_temp= new DownloadImageTask(recipe_image_url);
+        TextView creator_name = (TextView) findViewById(R.id.creatorName);
+        creator_name.setText(creator_username);
+        creator_name.setOnClickListener(this);
+        TextView follow_text = (TextView) findViewById(R.id.followTop);
 
+        ImageView follow_image = (ImageView) findViewById(R.id.imageFollow);
+        follow_image.setOnClickListener(this);
 
-        // annndddd, our JSON data is up to date same with our array
-        // list
         new DownloadImageTask((ImageView) findViewById(R.id.imageViewSingleRecipe))
                 .execute(recipe_image_url);
+        new DownloadImageTask((ImageView) findViewById(R.id.creatorImage))
+                .execute(creator_photo);
+        if(user_id.equals(creator_id)){
+            follow_image.setVisibility(View.GONE);
+            follow_text.setVisibility(View.GONE);
+        }
     }
-
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -352,6 +368,12 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                 break;
             case R.id.imageView1:
                 break;
+            case R.id.imageFollow:
+                new AddFollow().execute();
+                break;
+            case R.id.followTop:
+                new AddFollow().execute();
+                break;
             default:
                 break;
         }
@@ -414,8 +436,6 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
             // dismiss the dialog once product is added
             sDialog.dismiss();
             Log.d("current_user", "current_user" + current_user);
-            Log.d("current_user", "current_user" + current_user);
-            Log.d("current_user", "current_user" + current_user);
             if (file_url != null && current_user != "") {
                 Toast.makeText(ActivitySingleRecipeFromAll.this, R.string.opening_your_cookbook,
                         Toast.LENGTH_SHORT).show();
@@ -430,19 +450,71 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
     }
 
-    public void ClearPreferences() {
-        SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(ActivitySingleRecipeFromAll.this);
-        SharedPreferences.Editor edit = sp.edit();
-        edit.putString("poi_id", "poi_id");
-        edit.putString("poi_name", "poi_name");
-        edit.putString("short_description", "short_description");
-        edit.putString("address", "address");
-        edit.putString("visibility", "visibility");
-        edit.putString("region", "region");
-        edit.putString("web_page", "web_page");
-        edit.putString("vote", "vote");
-        edit.commit();
+    class AddFollow extends AsyncTask<String, String, String> {
+
+
+        boolean failure = false;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            sDialog = new ProgressDialog(ActivitySingleRecipeFromAll.this);
+            sDialog.setMessage("Adding it to your follow list...");
+            sDialog.setIndeterminate(false);
+            sDialog.setCancelable(true);
+            sDialog.show();
+        }
+
+        @Override
+        protected String doInBackground(String... args) {
+            // Check for success tag
+            int success;
+            String username = current_user;
+            try {
+                // Building Parameters
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
+                params.add(new BasicNameValuePair("username", username));
+                params.add(new BasicNameValuePair("creator_id", creator_id));
+
+                Log.d("request!", "starting");
+                // getting product details by making HTTP request
+                JSONObject json = jsonParser.makeHttpRequest(ADD_FOLLOW_URL,
+                        "POST", params);
+
+                // check your log for json response
+                Log.d("Login attempt", json.toString());
+
+                // json success tag
+                success = json.getInt(TAG_SUCCESS);
+                if (success == 1) {
+                    Log.d("Synch Successful!", json.toString());
+
+                    return json.getString(TAG_MESSAGE);
+                } else {
+                    Log.d("Synchronization failed!",
+                            json.getString(TAG_MESSAGE));
+                    return json.getString(TAG_MESSAGE);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+
+        }
+
+        protected void onPostExecute(String file_url) {
+            // dismiss the dialog once product is added
+            sDialog.dismiss();
+            Log.d("current_user", "current_user" + current_user);
+            if (file_url != null && current_user != "") {
+                Toast.makeText(ActivitySingleRecipeFromAll.this, "Added to your Following list",
+                        Toast.LENGTH_SHORT).show();
+            }
+            Log.d("Starting new activity", "ActivityCookbook");
+
+
+        }
 
     }
 
