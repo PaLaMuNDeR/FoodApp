@@ -185,6 +185,7 @@ public class ActivityCookbook extends ActionBarActivity  {
                         //Go to Main
                         Intent i = new Intent(ActivityCookbook.this,ActivityRecentMeals.class);
                         startActivity(i);
+                        finish();
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
                     //Remain in Cookbook

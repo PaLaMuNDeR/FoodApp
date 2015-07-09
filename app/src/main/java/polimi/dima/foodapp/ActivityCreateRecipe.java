@@ -210,10 +210,12 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
                         //Go to Main
                         Intent i = new Intent(ActivityCreateRecipe.this, ActivityRecentMeals.class);
                         startActivity(i);
+                        finish();
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
                         Intent i = new Intent(ActivityCreateRecipe.this, ActivityCookbook.class);
                         startActivity(i);
+                        finish();
                     }
                     if (recyclerView.getChildPosition(child) == 4) {
                         Intent i = new Intent(ActivityCreateRecipe.this, ActivityLiked.class);
@@ -510,8 +512,8 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
                         Toast.LENGTH_LONG).show();
                 if (bool_success) {
                     Intent i = new Intent(ActivityCreateRecipe.this, ActivityCookbook.class);
-                    finish();
                     startActivity(i);
+                    finish();
                 }
             }
 
@@ -799,6 +801,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
         i.putExtra("filePath", fileUri.getPath());
         i.putExtra("isImage", isImage);
         startActivity(i);
+        finish();
     }
 
 /**

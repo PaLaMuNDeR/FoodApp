@@ -10,7 +10,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
@@ -26,6 +25,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -35,8 +35,9 @@ import org.json.JSONArray;
 
 import java.io.File;
 
-
-public class ActivityLiked extends ActionBarActivity  {
+//AKA MainActivity
+public class ActivityUserRecipes extends ActionBarActivity  {
+//        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private String current_user = "current_user_username";
     private String name = "name";
@@ -49,6 +50,8 @@ public class ActivityLiked extends ActionBarActivity  {
     private GoogleApiClient mGoogleApiClient;
     ProgressDialog myPd_bar;
     private JSONArray mProfile = null;
+
+    Button btnCreateRecipe;
 
     //First We Declare Titles And Icons For Our Navigation Drawer List View
     //This Icons And Titles Are holded in an Array as you can see
@@ -72,13 +75,21 @@ public class ActivityLiked extends ActionBarActivity  {
      * Used to store the last screen title. For use in {@link # restoreActionBar()}.
      */
 
- //   private CharSequence mTitle = "Recent Meals";
+    private CharSequence mTitle = "Recent Meals";
 
     public static Boolean isWifiAvailable(Context context) {
         ConnectivityManager connManager = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connManager
                 .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        /*NetworkInfo networkInfo1 = connManager.
+                getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        if(networkInfo.isConnected() || networkInfo1.isConnected()){
+            return true;
+        }
+
+        return false;
+*/
         return networkInfo.isConnected();
     }
     private SwipeRefreshLayout swipeLayout;
@@ -88,10 +99,9 @@ public class ActivityLiked extends ActionBarActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cookbook);
-
+        setContentView(R.layout.activity_main);
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(ActivityLiked.this);
+                .getDefaultSharedPreferences(ActivityUserRecipes.this);
         current_user = sp.getString("username", "");
         name = sp.getString("name", "");
         email = sp.getString("email", "");
@@ -101,7 +111,7 @@ public class ActivityLiked extends ActionBarActivity  {
         edit.putBoolean("logout",false);
         edit.commit();
         Log.d("Username","LogoutBool in SP: "+sp.getBoolean("logout",false));
-        DatabaseHandler db = new DatabaseHandler(ActivityLiked.this);
+        DatabaseHandler db = new DatabaseHandler(ActivityUserRecipes.this);
         Profile pf =  db.getLastProfile();
         name = pf.name;
         username = pf.username;
@@ -113,14 +123,13 @@ public class ActivityLiked extends ActionBarActivity  {
         String coverPath="";
         BitmapDrawable coverBitmap = null;
         try {
-            imagePath = Environment.getExternalStorageDirectory().toString() +"/sdcard/FoodApp/profile/user_photo.jpg";
-            coverPath = Environment.getExternalStorageDirectory().toString() +"/sdcard/FoodApp/profile/cover_photo.jpg";
             File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
 
             if(imgFile.exists()){
                 Log.d("Download Image","Profile Image - yes");
                 profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             }
+
             imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
             if(imgFile.exists()){
                 Log.d("Download Image","Cover Image - yes");
@@ -159,7 +168,7 @@ public class ActivityLiked extends ActionBarActivity  {
 
         mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
 
-        final GestureDetector mGestureDetector = new GestureDetector(ActivityLiked.this, new GestureDetector.SimpleOnGestureListener() {
+        final GestureDetector mGestureDetector = new GestureDetector(ActivityUserRecipes.this, new GestureDetector.SimpleOnGestureListener() {
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
@@ -174,42 +183,42 @@ public class ActivityLiked extends ActionBarActivity  {
             public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent motionEvent) {
                 View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
 
-                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ActivityLiked.this);
-                SharedPreferences.Editor edit = sp.edit();
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
-                    Toast.makeText(ActivityLiked.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ActivityUserRecipes.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
                     if (recyclerView.getChildPosition(child) == 1) {
-                        //Go to Main
-                        Intent i = new Intent(ActivityLiked.this,ActivityRecentMeals.class);
-                        startActivity(i);
-                        finish();
+                    //Remain in Main
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
-                        Intent i = new Intent(ActivityLiked.this, ActivityCookbook.class);
+                        Intent i = new Intent(ActivityUserRecipes.this, ActivityCookbook.class);
                         startActivity(i);
                         finish();
                     }
+
                     if (recyclerView.getChildPosition(child) == 4) {
-                    //Remain in Liked
-
-                    }
-
-                    if (recyclerView.getChildPosition(child) == 6) {
-                        current_user = "";
-                        name = "";
-                        logout = true;
-                        edit.putString("username", current_user);
-                        edit.putString("name", name);
-                        edit.putBoolean("logout", true);
-                        edit.commit();
-                        Log.d("Log out - current_user", current_user);
-                        Log.d("Log out - current name", name);
-                        Intent i = new Intent(ActivityLiked.this, ActivityLogin.class);
+                        Intent i = new Intent(ActivityUserRecipes.this, ActivityLiked.class);
                         startActivity(i);
                         finish();
 
+                    }
+                    if (recyclerView.getChildPosition(child) == 6) {
+                    SharedPreferences sp = PreferenceManager
+                            .getDefaultSharedPreferences(ActivityUserRecipes.this);
+
+                    current_user = "";
+                    name = "";
+                    logout = true;
+                    SharedPreferences.Editor edit = sp.edit();
+                    edit.putString("username", current_user);
+                    edit.putString("name", name);
+                    edit.putBoolean("logout", true);
+                    edit.commit();
+                    Log.d("Log out - current_user", current_user);
+                    Log.d("Log out - current name", name);
+                    Intent i = new Intent(ActivityUserRecipes.this, ActivityLogin.class);
+                    startActivity(i);
+                    finish();
                     }
                     return true;
 
@@ -268,7 +277,8 @@ public class ActivityLiked extends ActionBarActivity  {
                     @Override
                     public void run() {
                         swipeLayout.setRefreshing(false);
-                        recreate();
+                       recreate();
+                        //            getFragmentManager().beginTransaction().attach(myFragment).commit();
                     }
                 }, 4000);
             }
@@ -278,7 +288,7 @@ public class ActivityLiked extends ActionBarActivity  {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        FragmentListCookbook myFragment = (FragmentListCookbook) getFragmentManager().findFragmentById(R.id.fragmentListCookbook);
+        FragmentRecentMealsListView myFragment = (FragmentRecentMealsListView) getFragmentManager().findFragmentById(R.id.fragment1);
         final ListView fragmentListView = myFragment.getListView();
         fragmentListView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
@@ -301,22 +311,30 @@ public class ActivityLiked extends ActionBarActivity  {
                 swipeLayout.setEnabled(enable);
             }
         });
+            getSupportActionBar().setTitle(recent_meals);
 
-            getSupportActionBar().setTitle(my_cook_book);
-
+        btnCreateRecipe = (Button) findViewById(R.id.btn_create_recipe);
+        btnCreateRecipe.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                Intent i = new Intent(ActivityUserRecipes.this,ActivityCreateRecipe.class);
+                finish();
+                startActivity(i);
+            }
+        });
     }
 
     @Override
     public void onResume() {
         super.onResume();
         // loading the pois via AsyncTask
-        if (!isWifiAvailable(ActivityLiked.this)) {
+        if (!isWifiAvailable(ActivityUserRecipes.this)) {
 
 
-            Toast.makeText(ActivityLiked.this, R.string.no_connection,
+            Toast.makeText(ActivityUserRecipes.this, R.string.no_connection,
                     Toast.LENGTH_LONG).show();
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

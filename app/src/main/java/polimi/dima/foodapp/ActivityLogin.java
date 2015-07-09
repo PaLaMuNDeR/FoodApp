@@ -182,7 +182,8 @@ public class ActivityLogin extends Activity implements GoogleApiClient.Connectio
 		btnRegister.setOnClickListener(new OnClickListener() {
 		    public void onClick(View w) {
 				Intent reg = new Intent(ActivityLogin.this, ActivityRegister.class);
-				startActivity(reg);		   
+				startActivity(reg);
+                finish();
 		    }
 		});
 

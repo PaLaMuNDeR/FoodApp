@@ -169,10 +169,12 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
                         //Go to Main
                         Intent i = new Intent(ActivitySingleRecipeFromCookbook.this,ActivityRecentMeals.class);
                         startActivity(i);
+                        finish();
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
                         Intent i = new Intent(ActivitySingleRecipeFromCookbook.this,ActivityCookbook.class);
                         startActivity(i);
+                        finish();
                     }
                     if (recyclerView.getChildPosition(child) == 4) {
                         Intent i = new Intent(ActivitySingleRecipeFromCookbook.this, ActivityLiked.class);

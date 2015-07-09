@@ -395,7 +395,7 @@ public class FragmentListLiked extends ListFragment {
 
             Intent i = new Intent(getActivity(),
                     ActivitySingleRecipeFromCookbook.class);
-            //finish();
+            getActivity().finish();
             startActivity(i);
 
         }

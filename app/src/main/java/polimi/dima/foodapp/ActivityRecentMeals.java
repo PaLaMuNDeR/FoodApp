@@ -193,6 +193,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
                     if (recyclerView.getChildPosition(child) == 2) {
                         Intent i = new Intent(ActivityRecentMeals.this, ActivityCookbook.class);
                         startActivity(i);
+                        finish();
                     }
 
                     if (recyclerView.getChildPosition(child) == 4) {
@@ -316,8 +317,8 @@ public class ActivityRecentMeals extends ActionBarActivity  {
         btnCreateRecipe.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 Intent i = new Intent(ActivityRecentMeals.this,ActivityCreateRecipe.class);
-                finish();
                 startActivity(i);
+                finish();
             }
         });
     }
@@ -325,7 +326,6 @@ public class ActivityRecentMeals extends ActionBarActivity  {
     @Override
     public void onResume() {
         super.onResume();
-        // loading the pois via AsyncTask
         if (!isWifiAvailable(ActivityRecentMeals.this)) {
 
 

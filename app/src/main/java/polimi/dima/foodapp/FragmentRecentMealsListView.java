@@ -12,9 +12,11 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -66,6 +68,8 @@ public class FragmentRecentMealsListView extends ListFragment {
     private ArrayList<HashMap<String, String>> mPoiList;
     // Checks whether there is internet
 
+    Drawable draw_temp_2;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -112,6 +116,50 @@ public class FragmentRecentMealsListView extends ListFragment {
         x = BitmapFactory.decodeStream(input);
         return new BitmapDrawable(x);
     }
+
+
+    public class DrawableFromUrl2 extends AsyncTask<String, Void, Drawable> {
+        //ImageView bmImage;
+       /* Drawable drawable;
+        DrawableFromUrl2(Drawable drawable){
+            this.drawable=drawable;
+        }*/
+        @Override
+        protected Drawable doInBackground(String... arg0) {
+            String url=arg0[0];
+
+            Drawable temp_draw=null;
+            try {
+                temp_draw = drawableFromUrl(url);
+            }
+            catch(Exception e){
+                Log.e("Error with image", e.toString());
+            }
+            return temp_draw;
+
+        }
+        protected void onPostExecute(Drawable result) {
+            draw_temp_2 = result;
+        }
+
+
+    }
+    /*
+
+        @Override
+        protected void onPostExecute(Drawable result) {
+            super.onPostExecute(result);
+            // pDialog.dismiss();
+           // return new BitmapDrawable(result);
+
+        }
+    */
+
+
+
+
+
+
 
 
     public class LoadRecipes extends AsyncTask<Void, Void, Boolean> {
@@ -206,12 +254,16 @@ public class FragmentRecentMealsListView extends ListFragment {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    Drawable draw_temp_2 = null;
+                   // Drawable draw_temp_2 = null;
                     try {
                         draw_temp_2 = drawableFromUrl(creator_photo);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                   // Drawable draw_temp_2=null;
+                       /*    new DrawableFromUrl2()
+                            .execute(creator_photo);*/
+
                     mItems.add(new ListViewItem(draw_temp, name, instructions, creator_username, draw_temp_2));
                     // annndddd, our JSON data is up to date same with our array
                     // list
@@ -397,7 +449,7 @@ public class FragmentRecentMealsListView extends ListFragment {
 
             Intent i = new Intent(getActivity(),
                     ActivitySingleRecipeFromAll.class);
-            //finish();
+            getActivity().finish();
             startActivity(i);
 
         }

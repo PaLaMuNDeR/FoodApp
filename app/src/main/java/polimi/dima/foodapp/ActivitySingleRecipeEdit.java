@@ -215,10 +215,12 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
                         //Go to Main
                         Intent i = new Intent(ActivitySingleRecipeEdit.this, ActivityRecentMeals.class);
                         startActivity(i);
+                        finish();
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
                         Intent i = new Intent(ActivitySingleRecipeEdit.this, ActivityCookbook.class);
                         startActivity(i);
+                        finish();
                     }
                     if (recyclerView.getChildPosition(child) == 4) {
                         Intent i = new Intent(ActivitySingleRecipeEdit.this, ActivityLiked.class);
@@ -846,6 +848,7 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
         i.putExtra("filePath", fileUri.getPath());
         i.putExtra("isImage", isImage);
         startActivity(i);
+        finish();
     }
 
 /**

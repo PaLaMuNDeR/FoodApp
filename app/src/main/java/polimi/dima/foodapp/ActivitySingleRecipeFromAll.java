@@ -177,10 +177,12 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                         //Go to Main
                         Intent i = new Intent(ActivitySingleRecipeFromAll.this,ActivityRecentMeals.class);
                         startActivity(i);
+                        finish();
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
                         Intent i = new Intent(ActivitySingleRecipeFromAll.this,ActivityCookbook.class);
                         startActivity(i);
+                        finish();
                     }
                     if (recyclerView.getChildPosition(child) == 4) {
                         Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityLiked.class);
@@ -327,8 +329,9 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                 InputStream in = new java.net.URL(urldisplay).openStream();
                 mIcon11 = BitmapFactory.decodeStream(in);
             } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
+                Log.e("Error", e.toString());
+                //e.getMessage());
+                //e.printStackTrace();
             }
             return mIcon11;
         }
