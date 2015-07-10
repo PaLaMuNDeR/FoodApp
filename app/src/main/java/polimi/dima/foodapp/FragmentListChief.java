@@ -85,12 +85,10 @@ public class FragmentListChief extends ListFragment {
         Resources resources = getResources();
 
         new loadChiefs().execute();
-             // initialize and set the list adapter
+        // initialize and set the list adapter
         setListAdapter(new ListViewSimpleAdapter(getActivity(), mItems));
 
     }
-
-
 
 
     @Override
@@ -108,7 +106,6 @@ public class FragmentListChief extends ListFragment {
         // do something
         Toast.makeText(getActivity(), item.title, Toast.LENGTH_SHORT).show();
     }
-
 
 
     public static Drawable drawableFromUrl(String url) throws IOException {
@@ -167,7 +164,7 @@ public class FragmentListChief extends ListFragment {
         // Feed the beast our comments url, and it spits us
         // back a JSON object. Boo-yeah Jerome.
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String username = sp.getString("username","");
+        String username = sp.getString("username", "");
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("username", username));
 
@@ -177,9 +174,12 @@ public class FragmentListChief extends ListFragment {
         json = jsonParser.makeHttpRequest(READ_USERS_URL,
                 "POST", params);
 
+        SharedPreferences.Editor edit = sp.edit();
+        edit.putString("json_users",json.toString());
+        edit.commit();
         // when parsing JSON stuff, we should probably
         // try to catch any exceptions:
-        if(!downloaded_list) {
+        if (!downloaded_list) {
             try {
 
                 // mPois will tell us how many "posts" are
@@ -231,8 +231,8 @@ public class FragmentListChief extends ListFragment {
     class AttemptTakeOnePoi extends AsyncTask<String, String, String> {
 
         *//**
-         * Before starting background thread Show Progress Dialog
-         * *//*
+     * Before starting background thread Show Progress Dialog
+     * *//*
 
         @Override
         protected void onPreExecute() {
@@ -297,6 +297,7 @@ public class FragmentListChief extends ListFragment {
 
     }
     */
+
     /**
      * Inserts the parsed data into the listview.
      */
@@ -325,7 +326,7 @@ public class FragmentListChief extends ListFragment {
         // could do something. However, we will choose
         // to do nothing...
 
-       final  ListView lv = getListView();
+        final ListView lv = getListView();
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -337,63 +338,10 @@ public class FragmentListChief extends ListFragment {
                         + "' the id is '" + id + "'");
 
                 id_click = position;
-
-                RelativeLayout itemSimple = (RelativeLayout) lv.findViewById(R.id.itemSimple);
-
-                itemSimple.setOnClickListener(new View.OnClickListener() {
-                                                  public void onClick(View v) {
-                                                      new LoadRecipes().execute();
-                                                  }
-                                              }
-                );
-
-                ImageView imageCreator = (ImageView) lv.findViewById(R.id.creatorImage);
-                imageCreator.setOnClickListener(new View.OnClickListener() {
-                                                    public void onClick(View v) {
-                                                        // Intent i = new Intent(ActivityChiefs.this, ActivityChiefs.class);
-                                                        // startActivity(i);
-                                                        new LoadRecipes().execute();
-                                                    }
-                                                }
-                );
-                TextView nameCreator = (TextView) lv.findViewById(R.id.creatorName);
-                nameCreator.setOnClickListener(new View.OnClickListener() {
-                                                   public void onClick(View v) {
-                                                       // Intent i = new Intent(ActivityChiefs.this, ActivityChiefs.class);
-                                                       // startActivity(i);
-                                                       new LoadRecipes().execute();
-                                                   }
-                                               }
-                );
-
-                ImageView imageDelete = (ImageView) lv.findViewById(R.id.more_item);
-                imageDelete.setOnClickListener(new View.OnClickListener() {
-                   public void onClick(View v) {
-                       // Intent i = new Intent(ActivityChiefs.this, ActivityChiefs.class);
-                       // startActivity(i);
-                       AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                       builder
-                               .setTitle(getResources().getString(R.string.unfollow))
-                               .setMessage(getResources().getString(R.string.unfollow_question))
-                               .setIcon(R.drawable.ic_launcher)
-                               .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                   public void onClick(DialogInterface dialog, int which) {
-                                       // Extract all the assets
-
-                                       new Unfollow().execute();
-
-                                   }
-                               })
-                               .setNegativeButton("No", null)
-                                       //Do nothing on no
-                               .show();
-                   }
-               }
-                );
+                new LoadRecipes().execute();
             }
         });
     }
-
 
 
 
@@ -413,14 +361,11 @@ public class FragmentListChief extends ListFragment {
         protected Boolean doInBackground(Void... arg0) {
             updateJSONdataForTheChief();
             return null;
-
         }
 
         @Override
         protected void onPostExecute(Boolean result) {
             super.onPostExecute(result);
-            // pDialog.dismiss();
-            updateList();
 
             Log.d("Starting new activity", "SingleRecipeActivity");
 
@@ -445,9 +390,9 @@ public class FragmentListChief extends ListFragment {
         JSONParser jParser = new JSONParser();
         // Feed the beast our comments url, and it spits us
         // back a JSON object. Boo-yeah Jerome.
-       //
-       //
-       // JSONObject json = jParser.getJSONFromUrl(READ_RECIPES_URL);
+        //
+        //
+        // JSONObject json = jParser.getJSONFromUrl(READ_RECIPES_URL);
 
         // when parsing JSON stuff, we should probably
         // try to catch any exceptions:
@@ -497,7 +442,9 @@ public class FragmentListChief extends ListFragment {
         }
 
     }
-    public class Unfollow extends AsyncTask<Void, Void, Boolean> {
+//Unfollow is not used here, but in the ListViewSimpleAdapter,
+// because it is a button on top of the view.
+/*    public class Unfollow extends AsyncTask<Void, Void, Boolean> {
 
         @Override
         protected void onPreExecute() {
@@ -529,46 +476,45 @@ public class FragmentListChief extends ListFragment {
             // getting product details by making HTTP request
 
 
+            params.add(new BasicNameValuePair("username", username));
+            params.add(new BasicNameValuePair("creator_id", creator_id));
 
-            params.add(new BasicNameValuePair("username",username));
-            params.add(new BasicNameValuePair("creator_id",creator_id));
-
-                json = jsonParser.makeHttpRequest(UNFOLLOW_URL,
-                        "POST", params);
+            json = jsonParser.makeHttpRequest(UNFOLLOW_URL,
+                    "POST", params);
 
             //json = jParser.getJSONFromUrl(READ_RECIPES_URL);
 
             // when parsing JSON stuff, we should probably
             // try to catch any exceptions:
-                try {
+            try {
 
-                    // mPois will tell us how many "posts" are
-                    // available
-                    mPois = json.getJSONArray(TAG_POSTS);
+                // mPois will tell us how many "posts" are
+                // available
+                mPois = json.getJSONArray(TAG_POSTS);
 
-                    // looping through all posts according to the json object
-                    // returned
-                    for (int i = 0; i < mPois.length(); i++) {
-                        JSONObject c = mPois.getJSONObject(i);
+                // looping through all posts according to the json object
+                // returned
+                for (int i = 0; i < mPois.length(); i++) {
+                    JSONObject c = mPois.getJSONObject(i);
 
-                        // gets the content of each tag
-                        String success = c.getString(TAG_SUCCESS);
+                    // gets the content of each tag
+                    String success = c.getString(TAG_SUCCESS);
 
-                        // creating new HashMap
-                        HashMap<String, String> map = new HashMap<String, String>();
+                    // creating new HashMap
+                    HashMap<String, String> map = new HashMap<String, String>();
 
-                        // map.put(TAG_POI_ID, poi_id);
-                        map.put(TAG_SUCCESS, success);
+                    // map.put(TAG_POI_ID, poi_id);
+                    map.put(TAG_SUCCESS, success);
 
-                        // adding HashList to ArrayList
-                        mPoiList.add(map);
+                    // adding HashList to ArrayList
+                    mPoiList.add(map);
 
-
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
 
                 }
+            } catch (JSONException e) {
+                e.printStackTrace();
+
+            }
             return null;
 
         }
@@ -579,5 +525,5 @@ public class FragmentListChief extends ListFragment {
             // pDialog.dismiss();
             getActivity().recreate();
         }
-    }
+    } */
 }

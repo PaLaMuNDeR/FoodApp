@@ -38,21 +38,16 @@
             android:layout_marginLeft="10dp"
             android:clickable="true"/>
 
+        <ImageView
+            android:id="@+id/more_item"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_more_vert_black_48dp"
+            android:clickable="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            />
 
         </RelativeLayout>
-<RelativeLayout
-    android:id="@+id/moreHolder"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignParentRight="true"
-    android:layout_alignParentEnd="true"
-    >
 
-    <ImageView
-        android:id="@+id/more_item"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@drawable/ic_more_vert_black_48dp"
-        android:clickable="true"/>
-</RelativeLayout>
 </RelativeLayout>

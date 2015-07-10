@@ -333,7 +333,7 @@ public class ActivityChiefs extends ActionBarActivity  {
                 swipeLayout.setEnabled(enable);
             }
 
-             });
+        });
     }
 
     @Override

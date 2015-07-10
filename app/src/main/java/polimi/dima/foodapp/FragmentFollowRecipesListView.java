@@ -404,7 +404,7 @@ public class FragmentFollowRecipesListView extends ListFragment {
             edit.putBoolean("one_user_recipes", false);
             edit.commit();
             Intent i = new Intent(getActivity(),
-                    ActivitySingleRecipeFromCookbook.class);
+                    ActivitySingleRecipeFromAll.class);
             getActivity().finish();
             startActivity(i);
 
