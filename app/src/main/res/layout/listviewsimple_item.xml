@@ -9,13 +9,20 @@
     android:padding="5dp" >
 
     <!-- the innner view - provides the white rectangle -->
-    <RelativeLayout android:layout_width="fill_parent"
+    <RelativeLayout
+        android:id="@+id/itemSimple"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/moreHolder"
+        android:layout_toStartOf="@+id/moreHolder"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:background="#FFF" >
+
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/creatorImage"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@drawable/default_face"
             android:layout_marginLeft="1dp"
             android:clickable="true"
@@ -25,28 +32,27 @@
             android:layout_toRightOf="@id/creatorImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@android:style/TextAppearance.Small"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
             android:text="Creator Name"
-            android:layout_marginTop="6dp"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="10dp"
             android:clickable="true"/>
-        <ImageView
-            android:id="@+id/imageFollow"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_toLeftOf="@+id/followTop"
-            android:src="@drawable/follow"
-            android:clickable="true"
-            />
-        <TextView
-            android:id="@+id/followTop"
-            android:layout_alignParentRight="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@android:style/TextAppearance.Small"
-            android:text="@string/follow"
-            android:layout_marginTop="6dp"
-            android:clickable="true"/>
+
 
         </RelativeLayout>
+<RelativeLayout
+    android:id="@+id/moreHolder"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentEnd="true"
+    >
 
+    <ImageView
+        android:id="@+id/more_item"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_more_vert_black_48dp"
+        android:clickable="true"/>
+</RelativeLayout>
 </RelativeLayout>

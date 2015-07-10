@@ -50,5 +50,7 @@
     <string name="follow">Follow</string>
     <string name="followed_chiefs">Followed Chiefs</string>
     <string name="chiefs">Chiefs</string>
+    <string name="unfollow">Unfollow</string>
+    <string name="unfollow_question">Do you want to unfollow this user?</string>
 
 </resources>

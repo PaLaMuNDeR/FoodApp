@@ -1,7 +1,9 @@
 package polimi.dima.foodapp;
 
+import android.app.AlertDialog;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -15,7 +17,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
@@ -23,6 +28,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +54,7 @@ public class FragmentListChief extends ListFragment {
 
 
     private static final String READ_USERS_URL = "http://expox-milano.com/foodapp/user_follow.php";
+    private static final String UNFOLLOW_URL = "http://expox-milano.com/foodapp/del_follow.php";
     private boolean downloaded_list = false;
     // JSON IDS:
     private static final String TAG_SUCCESS = "success";
@@ -317,7 +324,9 @@ public class FragmentListChief extends ListFragment {
         // Optional: when the user clicks a list item we
         // could do something. However, we will choose
         // to do nothing...
-        ListView lv = getListView();
+
+       final  ListView lv = getListView();
+
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
@@ -329,11 +338,64 @@ public class FragmentListChief extends ListFragment {
 
                 id_click = position;
 
-                new LoadRecipes().execute();
+                RelativeLayout itemSimple = (RelativeLayout) lv.findViewById(R.id.itemSimple);
 
+                itemSimple.setOnClickListener(new View.OnClickListener() {
+                                                  public void onClick(View v) {
+                                                      new LoadRecipes().execute();
+                                                  }
+                                              }
+                );
+
+                ImageView imageCreator = (ImageView) lv.findViewById(R.id.creatorImage);
+                imageCreator.setOnClickListener(new View.OnClickListener() {
+                                                    public void onClick(View v) {
+                                                        // Intent i = new Intent(ActivityChiefs.this, ActivityChiefs.class);
+                                                        // startActivity(i);
+                                                        new LoadRecipes().execute();
+                                                    }
+                                                }
+                );
+                TextView nameCreator = (TextView) lv.findViewById(R.id.creatorName);
+                nameCreator.setOnClickListener(new View.OnClickListener() {
+                                                   public void onClick(View v) {
+                                                       // Intent i = new Intent(ActivityChiefs.this, ActivityChiefs.class);
+                                                       // startActivity(i);
+                                                       new LoadRecipes().execute();
+                                                   }
+                                               }
+                );
+
+                ImageView imageDelete = (ImageView) lv.findViewById(R.id.more_item);
+                imageDelete.setOnClickListener(new View.OnClickListener() {
+                   public void onClick(View v) {
+                       // Intent i = new Intent(ActivityChiefs.this, ActivityChiefs.class);
+                       // startActivity(i);
+                       AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                       builder
+                               .setTitle(getResources().getString(R.string.unfollow))
+                               .setMessage(getResources().getString(R.string.unfollow_question))
+                               .setIcon(R.drawable.ic_launcher)
+                               .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                   public void onClick(DialogInterface dialog, int which) {
+                                       // Extract all the assets
+
+                                       new Unfollow().execute();
+
+                                   }
+                               })
+                               .setNegativeButton("No", null)
+                                       //Do nothing on no
+                               .show();
+                   }
+               }
+                );
             }
         });
     }
+
+
+
 
     public class LoadRecipes extends AsyncTask<Void, Void, Boolean> {
 
@@ -434,5 +496,88 @@ public class FragmentListChief extends ListFragment {
 
         }
 
+    }
+    public class Unfollow extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // pDialog = new ProgressDialog(ActivityRecommendations.this);
+            // pDialog.setMessage("Loading your place..");
+            // pDialog.setIndeterminate(false);
+            // pDialog.setCancelable(true);
+            // pDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... arg0) {
+            updateJSONdataForTheChief();
+            // Instantiate the arraylist to contain all the JSON data.
+            // we are going to use a bunch of key-value pairs, referring
+            // to the json element name, and the content, for example,
+            // message it the tag, and "I'm awesome" as the content..
+
+            mPoiList = new ArrayList<HashMap<String, String>>();
+
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String username = sp.getString("username", "");
+            String creator_id = sp.getString("creator_id", "");
+
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+
+            Log.d("request!", "starting");
+            // getting product details by making HTTP request
+
+
+
+            params.add(new BasicNameValuePair("username",username));
+            params.add(new BasicNameValuePair("creator_id",creator_id));
+
+                json = jsonParser.makeHttpRequest(UNFOLLOW_URL,
+                        "POST", params);
+
+            //json = jParser.getJSONFromUrl(READ_RECIPES_URL);
+
+            // when parsing JSON stuff, we should probably
+            // try to catch any exceptions:
+                try {
+
+                    // mPois will tell us how many "posts" are
+                    // available
+                    mPois = json.getJSONArray(TAG_POSTS);
+
+                    // looping through all posts according to the json object
+                    // returned
+                    for (int i = 0; i < mPois.length(); i++) {
+                        JSONObject c = mPois.getJSONObject(i);
+
+                        // gets the content of each tag
+                        String success = c.getString(TAG_SUCCESS);
+
+                        // creating new HashMap
+                        HashMap<String, String> map = new HashMap<String, String>();
+
+                        // map.put(TAG_POI_ID, poi_id);
+                        map.put(TAG_SUCCESS, success);
+
+                        // adding HashList to ArrayList
+                        mPoiList.add(map);
+
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+
+                }
+            return null;
+
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            // pDialog.dismiss();
+            getActivity().recreate();
+        }
     }
 }
