@@ -34,9 +34,10 @@ buildscript {
 //compile fileTree(include: ['*.jar'], dir: 'libs')
 dependencies {
     compile fileTree(dir: 'libs')
-    compile 'com.android.support:appcompat-v7:22.0.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.google.android.gms:play-services:7.3.0'
     compile 'com.android.support:recyclerview-v7:21.0.+'
     compile 'de.hdodenhof:circleimageview:1.2.1'
+    compile 'com.github.shell-software:fab:1.1.2'
 
 }

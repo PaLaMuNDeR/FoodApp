@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/C:/xx/fab-master/fab-master/sample/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/res/values-v17/values.xml -->
+    <eat-comment/>
+    <style name="RtlOverlay.Widget.AppCompat.ActionBar.TitleItem" parent="android:Widget">
+        <item name="android:layout_gravity">center_vertical|start</item>
+        <item name="android:paddingEnd">8dp</item>
+    </style>
+    <style name="RtlOverlay.Widget.AppCompat.ActionButton.CloseMode" parent="Base.Widget.AppCompat.ActionButton.CloseMode">
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+    </style>
+    <style name="RtlOverlay.Widget.AppCompat.ActionButton.Overflow" parent="Base.Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">12dp</item>
+    </style>
+    <style name="RtlOverlay.Widget.AppCompat.PopupMenuItem" parent="android:Widget">
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+    <style name="RtlOverlay.Widget.AppCompat.PopupMenuItem.InternalGroup" parent="android:Widget">
+        <item name="android:layout_marginStart">16dp</item>
+    </style>
+    <style name="RtlOverlay.Widget.AppCompat.PopupMenuItem.Text" parent="android:Widget">
+        <item name="android:layout_alignParentStart">true</item>
+        <item name="android:textAlignment">viewStart</item>
+    </style>
+    <style name="RtlOverlay.Widget.AppCompat.Search.DropDown" parent="android:Widget">
+        <item name="android:paddingStart">@dimen/abc_dropdownitem_text_padding_left</item>
+        <item name="android:paddingEnd">4dp</item>
+    </style>
+    <style name="RtlOverlay.Widget.AppCompat.Search.DropDown.Icon1" parent="android:Widget">
+        <item name="android:layout_alignParentStart">true</item>
+    </style>
+    <style name="RtlOverlay.Widget.AppCompat.Search.DropDown.Icon2" parent="android:Widget">
+        <item name="android:layout_toStartOf">@id/edit_query</item>
+    </style>
+    <style name="RtlOverlay.Widget.AppCompat.Search.DropDown.Query" parent="android:Widget">
+        <item name="android:layout_alignParentEnd">true</item>
+    </style>
+    <style name="RtlOverlay.Widget.AppCompat.Search.DropDown.Text" parent="Base.Widget.AppCompat.DropDownItem.Spinner">
+        <item name="android:layout_toStartOf">@android:id/icon2</item>
+        <item name="android:layout_toEndOf">@android:id/icon1</item>
+    </style>
+    <style name="RtlOverlay.Widget.AppCompat.SearchView.MagIcon" parent="android:Widget">
+        <item name="android:layout_marginStart">@dimen/abc_dropdownitem_text_padding_left</item>
+    </style>
+    <!-- From: file:/C:/xx/fab-master/fab-master/sample/src/main/res/values-v17/styles.xml -->
+    <eat-comment/>
+    <style name="fab_action_button_style" parent="fab_action_button_base_style">
+		<item name="android:layout_alignParentBottom">true</item>
+		<item name="android:layout_alignParentEnd">true</item>
+		<item name="android:layout_marginEnd">@dimen/fab_margin</item>
+		<item name="android:layout_marginBottom">@dimen/fab_margin</item>
+	</style>
+    <style name="fab_checkbox_base_style" parent="fab_layout_wrap_width_wrap_height_style">
+		<item name="android:layout_marginStart">@dimen/fab_checkbox_left_start_margin_dimen</item>
+		<item name="android:layout_marginEnd">@dimen/fab_checkbox_right_end_margin_dimen</item>
+		<item name="android:layout_marginTop">@dimen/fab_checkbox_top_margin_dimen</item>
+		<item name="android:layout_marginBottom">@dimen/fab_checkbox_bottom_margin_dimen</item>
+	</style>
+    <style name="fab_radiobutton_horizontal_next_style" parent="fab_radiogroup_base_style">
+		<item name="android:layout_marginStart">@dimen/fab_radiobutton_horizontal_left_start_margin</item>
+	</style>
+    <style name="fab_radiogroup_style" parent="fab_radiogroup_base_style">
+		<item name="android:layout_marginStart">@dimen/fab_radiogroup_left_start_margin_dimen</item>
+		<item name="android:layout_marginEnd">@dimen/fab_radiogroup_right_end_margin_dimen</item>
+		<item name="android:layout_marginTop">@dimen/fab_radiogroup_top_margin_dimen</item>
+		<item name="android:layout_marginBottom">@dimen/fab_radiogroup_bottom_margin_dimen</item>
+	</style>
+    <style name="fab_seekbar_style" parent="fab_seekbar_base_style">
+		<item name="android:layout_marginStart">@dimen/fab_seekbar_left_start_margin_dimen</item>
+		<item name="android:layout_marginEnd">@dimen/fab_seekbar_right_end_margin_dimen</item>
+		<item name="android:layout_marginTop">@dimen/fab_seekbar_top_margin_dimen</item>
+		<item name="android:layout_marginBottom">@dimen/fab_seekbar_bottom_margin_dimen</item>
+	</style>
+    <style name="fab_textview_style" parent="fab_textview_base_style">
+		<item name="android:layout_marginStart">@dimen/fab_textview_left_start_margin_dimen</item>
+		<item name="android:layout_marginEnd">@dimen/fab_textview_right_end_margin_dimen</item>
+		<item name="android:layout_marginTop">@dimen/fab_textview_top_margin_dimen</item>
+		<item name="android:layout_marginBottom">@dimen/fab_textview_bottom_margin_dimen</item>
+	</style>
+</resources>

@@ -16,4 +16,5 @@
             android:divider="@android:color/transparent"
             android:scrollbars="none"
             android:drawSelectorOnTop="false"/>
+
     </android.support.v4.widget.SwipeRefreshLayout>

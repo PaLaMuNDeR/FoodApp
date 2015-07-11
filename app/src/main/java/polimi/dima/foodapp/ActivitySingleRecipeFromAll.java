@@ -61,7 +61,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
     private Boolean logout = false;
     String TITLES[] = {"Recent Meals", "My Cook Book", "Friends", "Liked", "Forum", "Logout"};
     int ICONS[] = {R.drawable.cutlery,
-            R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish_s_64,
+            R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish_s_32,
             R.drawable.group_button, R.drawable.logout};
     Button
             //btnAllPoi,
@@ -594,7 +594,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                 if (bool_liked) {
                     Toast.makeText(ActivitySingleRecipeFromAll.this, "Unliked",
                             Toast.LENGTH_SHORT).show();
-                    image_like.setImageDrawable(getResources().getDrawable(R.drawable.heart_dish_s_64));
+                    image_like.setImageDrawable(getResources().getDrawable(R.drawable.heart_dish_s_32));
                     bool_liked = false;
                 } else {
                     Toast.makeText(ActivitySingleRecipeFromAll.this, "Liked",

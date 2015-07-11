@@ -48,6 +48,7 @@ import java.util.Locale;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.software.shell.fab.ActionButton;
 
 /**
  * Created by Marti on 19/06/2015.
@@ -84,7 +85,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
     private Boolean logout = false;
     String TITLES[] = {"Recent Meals", "My Cook Book", "Friends", "Liked", "Forum", "Logout"};
     int ICONS[] = {R.drawable.cutlery,
-            R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish_s_64,
+            R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish_s_32,
             R.drawable.group_button, R.drawable.logout};
 
     private static String recipe_id = "";
@@ -120,7 +121,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
     private Uri fileUri; // file url to store image
 
-    private Button btnCapturePicture;
+    private ImageView btnCapturePicture;
     boolean camera_bool=false;
 
     @Override
@@ -327,7 +328,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
 
         //for taking image from camera
-        btnCapturePicture = (Button) findViewById(R.id.btnCapturePicture);
+        btnCapturePicture = (ImageView) findViewById(R.id.btnCapturePicture);
 
         /**
          * Capture image button click event
@@ -362,6 +363,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
             // Put file name in Async Http Post Param which will used in Php web app
             image_params.put("filename", fileName);
         }
+
     }
         /**
          * Checking device has camera hardware or not
@@ -654,7 +656,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
             public void uploadImage(View v) {
         // When Image is selected from Gallery
         if (imgPath != null && !imgPath.isEmpty()) {
-            prgDialog.setMessage("Converting Image to Binary Data");
+            prgDialog.setMessage("Adding salt and pepper...");
             prgDialog.show();
             // Convert image to String using Base64
             encodeImagetoString();
@@ -693,7 +695,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
                     @Override
             protected void onPostExecute(String msg) {
-                prgDialog.setMessage("Calling Upload");
+                prgDialog.setMessage("Tasting...");
                 // Put converted Image string into Async Http Post param
                 image_params.put("image", encodedString);
                 // Trigger Image upload

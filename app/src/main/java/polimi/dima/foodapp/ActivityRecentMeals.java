@@ -30,6 +30,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.software.shell.fab.ActionButton;
 
 import org.json.JSONArray;
 
@@ -156,7 +157,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
         String logout_string = getResources().getString(R.string.logout);
         String TITLES[] = {recent_meals,my_cook_book,friends,liked,forum,logout_string};
         int ICONS[] = {R.drawable.cutlery,
-                R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish_s_64,
+                R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish_s_32,
                 R.drawable.group_button, R.drawable.logout};
         mRecyclerView = (RecyclerView) findViewById(R.id.RecyclerView); // Assigning the RecyclerView Object to the xml View
 
@@ -318,13 +319,31 @@ public class ActivityRecentMeals extends ActionBarActivity  {
             getSupportActionBar().setTitle(recent_meals);
 
         btnCreateRecipe = (Button) findViewById(R.id.btn_chiefs);
-        btnCreateRecipe.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                Intent i = new Intent(ActivityRecentMeals.this,ActivityCreateRecipe.class);
+        btnCreateRecipe.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent i = new Intent(ActivityRecentMeals.this, ActivityCreateRecipe.class);
                 startActivity(i);
                 finish();
             }
         });
+
+        ActionButton actionButton = (ActionButton) findViewById(R.id.action_button);
+        actionButton.setRippleEffectEnabled(true);
+        actionButton.setSize(60.0f);
+        actionButton.setButtonColor(getResources().getColor(R.color.accentColor));
+        actionButton.playShowAnimation();   // plays the show animation
+
+        actionButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent i = new Intent(ActivityRecentMeals.this,ActivityCreateRecipe.class);
+                startActivity(i);
+                finish();
+
+
+            }
+        });
+        actionButton.setImageResource(R.drawable.fab_plus_icon);
+
     }
 
     @Override

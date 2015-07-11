@@ -22,7 +22,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" >
-                    <Button
+                    <ImageView
                         android:id="@+id/btnCapturePicture"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -30,17 +30,9 @@
                         android:paddingLeft="20dp"
                         android:paddingRight="20dp"
                         android:text="@string/btnTakePicture"
+                        android:src="@drawable/photo_camera_128"
+                        android:clickable="true"
                         />
-                    <TextView
-                        android:id="@+id/textViewMoto"
-                        android:layout_width="120dp"
-                        android:layout_height="120dp"
-                        android:layout_alignParentTop="true"
-                        android:layout_centerHorizontal="true"
-                        android:gravity="center"
-                        android:text="@string/moto"
-                        android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:textStyle="bold" />
 
 
                         <ImageButton
@@ -51,8 +43,7 @@
                             android:clickable="true"
                             android:layout_below="@+id/textViewMoto"
                             android:layout_centerHorizontal="true"
-
-                            android:src="@drawable/ic_launcher" />
+                            android:src="@drawable/image_archive_128" />
                     <TextView
                         android:id="@+id/create_recipe_name_label"
                         android:layout_width="wrap_content"
@@ -110,7 +101,6 @@
                         android:id="@+id/btn_create"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/post_border_style"
                         android:text="@string/create_and_add_to_cookbook"
                         android:textColor="#333"
                         android:textSize="16sp"
