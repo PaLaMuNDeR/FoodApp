@@ -30,10 +30,12 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.software.shell.fab.ActionButton;
 
 import org.json.JSONArray;
 
 import java.io.File;
+import java.util.prefs.PreferenceChangeEvent;
 
 //AKA MainActivity
 public class ActivityFollowRecipes extends ActionBarActivity  {
@@ -189,27 +191,29 @@ public class ActivityFollowRecipes extends ActionBarActivity  {
                     Toast.makeText(ActivityFollowRecipes.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
                     SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ActivityFollowRecipes.this);
                     SharedPreferences.Editor edit = sp.edit();
+                    //0 is the image on top
                     if (recyclerView.getChildPosition(child) == 1) {
-                        edit.putBoolean("one_user_recipes", false);
-                        edit.commit();
                         Intent i = new Intent(ActivityFollowRecipes.this, ActivityRecentMeals.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
-                        edit.putBoolean("one_user_recipes", false);
-                        edit.commit();
                         Intent i = new Intent(ActivityFollowRecipes.this, ActivityCookbook.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 3) {
-                        //Remain here
+                        Intent i = new Intent(ActivityFollowRecipes.this, ActivityFollowRecipes.class);
+                        startActivity(i);
+                        finish();
                     }
                     if (recyclerView.getChildPosition(child) == 4) {
-                        edit.putBoolean("one_user_recipes", false);
-                        edit.commit();
                         Intent i = new Intent(ActivityFollowRecipes.this, ActivityLiked.class);
+                        startActivity(i);
+                        finish();
+                    }
+                    if (recyclerView.getChildPosition(child) == 5) {
+                        Intent i = new Intent(ActivityFollowRecipes.this, ActivityForum.class);
                         startActivity(i);
                         finish();
                     }
@@ -323,8 +327,15 @@ public class ActivityFollowRecipes extends ActionBarActivity  {
         });
             getSupportActionBar().setTitle(followed_chiefs);
 
-        btnChiefs = (Button) findViewById(R.id.btn_chiefs);
-        btnChiefs.setOnClickListener(new View.OnClickListener() {
+        //Floating Action Button
+        ActionButton actionButton = (ActionButton) findViewById(R.id.action_button);
+        actionButton.setRippleEffectEnabled(true);
+        actionButton.setImageResource(R.drawable.chef_32);
+        actionButton.setSize(60.0f);
+        actionButton.setButtonColor(getResources().getColor(R.color.accentColor));
+        actionButton.playShowAnimation();   // plays the show animation
+
+        actionButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 SharedPreferences sp = PreferenceManager
                         .getDefaultSharedPreferences(ActivityFollowRecipes.this);
@@ -336,6 +347,7 @@ public class ActivityFollowRecipes extends ActionBarActivity  {
                 finish();
             }
         });
+
     }
 
     @Override
@@ -351,34 +363,12 @@ public class ActivityFollowRecipes extends ActionBarActivity  {
 
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        //   restoreActionBar();
-        return true;
-    }
-
-    /*
-
-        public void restoreActionBar() {
-            ActionBar actionBar = getSupportActionBar();
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setTitle(mTitle);
-
-        }
-    */
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
@@ -387,5 +377,19 @@ public class ActivityFollowRecipes extends ActionBarActivity  {
         return super.onOptionsItemSelected(item);
     }
 
-
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        Intent i = new Intent(ActivityFollowRecipes.this, ActivityRecentMeals.class);
+        startActivity(i);
+        finish();
+    }
+    @Override
+    public void onStop(){
+        super.onStop();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ActivityFollowRecipes.this);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.putBoolean("one_user_recipes", false);
+        edit.commit();
+    }
 }

@@ -49,16 +49,12 @@ public class FragmentRecentMealsListView extends ListFragment {
     private ProgressDialog sDialog;
 
     private static final String READ_RECIPES_URL = "http://expox-milano.com/foodapp/user_likes.php";
+    private static final String READ_LIKED_RECIPES_URL = "http://expox-milano.com/foodapp/user_liked_recipes.php";
     private boolean downloaded_list = false;
     // JSON IDS:
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
     private static final String TAG_POSTS = "posts";
-    private static final String TAG_LIKES= "likes";
-    private static final String TAG_FOLLOWED = "followed";
-    private static final String TAG_RECIPE_ID = "recipe_id";
-    private static final String TAG_L_RECIPE_ID = "l_recipe_id";
-    private static final String TAG_F_USER_ID = "f_user_id";
     private static final String TAG_RECIPE_NAME = "recipe_name";
     private static final String TAG_INSTRUCTIONS = "instructions";
     private static final String TAG_INGREDIENTS = "ingredients";
@@ -66,6 +62,11 @@ public class FragmentRecentMealsListView extends ListFragment {
     private static final String TAG_CREATOR_ID = "creator_id";
     private static final String TAG_CREATOR_USERNAME = "creator_username";
     private static final String TAG_CREATOR_PHOTO = "creator_photo";
+    private static final String TAG_RECIPE_ID = "recipe_id";
+    private static final String TAG_LIKES= "likes";
+    private static final String TAG_FOLLOWED = "followed";
+    private static final String TAG_L_RECIPE_ID = "l_recipe_id";
+    private static final String TAG_F_USER_ID = "f_user_id";
 
     // An array of all of our pois
     private JSONArray mPois = null;
@@ -97,8 +98,12 @@ public class FragmentRecentMealsListView extends ListFragment {
 super.onDestroyView();
         for(int i=0;i<mItems.size();i++) {
             mItems.remove(i);
+        } SharedPreferences sp = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
 
-        }
+        SharedPreferences.Editor edit = sp.edit();
+        edit.putBoolean("liked_activity_bool", false);
+        edit.commit();
     }
 
 
@@ -163,25 +168,25 @@ super.onDestroyView();
     public void updateJSONdata() {
 
         if(!downloaded_list) {
-            mPoiList = null;
-            mPoiList = new ArrayList<HashMap<String, String>>();
-            mLikeList = null;
-            mLikeList = new ArrayList<HashMap<String, String>>();
-            mFollowedList= null;
-            mFollowedList= new ArrayList<HashMap<String, String>>();
 
             JSONParser jParser = new JSONParser();
             SharedPreferences sp = PreferenceManager
                     .getDefaultSharedPreferences(getActivity());
-           String username = sp.getString("username","");
+           String username = sp.getString("username", "");
+            Boolean liked_activity_bool = sp.getBoolean("liked_activity_bool", false);
+
             List<NameValuePair> params = new ArrayList<NameValuePair>();
+            String creator_id = sp.getString("creator_id","0");
+            params.add(new BasicNameValuePair("creator_id",creator_id));
             params.add(new BasicNameValuePair("username", username));
+           if(liked_activity_bool){
+               json = jsonParser.makeHttpRequest(READ_LIKED_RECIPES_URL,
+                       "POST", params);
 
-    // Posting user data to script
-    json = jsonParser.makeHttpRequest(READ_RECIPES_URL, "POST",
-            params);
-//            json = jParser.getJSONFromUrl(READ_RECIPES_URL);
-
+           }else {
+               json = jsonParser.makeHttpRequest(READ_RECIPES_URL,
+                       "POST", params);
+           }
         // when parsing JSON stuff, we should probably
         // try to catch any exceptions:
             try {
@@ -191,6 +196,7 @@ super.onDestroyView();
                 // mPois will tell us how many "posts" are
                 // available
                 mPois = json.getJSONArray(TAG_POSTS);
+
 
                 // looping through all posts according to the json object
                 // returned
@@ -204,25 +210,11 @@ super.onDestroyView();
                     String instructions = c.getString(TAG_INSTRUCTIONS);
                     // String poi_id = c.getString(TAG_POI_ID);
                     String recipe_image_url = c.getString(TAG_RECIPE_IMAGE_URL);
-                    String creator_id = c.getString(TAG_CREATOR_ID);
+                    creator_id = c.getString(TAG_CREATOR_ID);
                     String creator_username = c.getString(TAG_CREATOR_USERNAME);
                     String creator_photo = c.getString(TAG_CREATOR_PHOTO);
 
-                    // creating new HashMap
-                    HashMap<String, String> map = new HashMap<String, String>();
 
-                    // map.put(TAG_POI_ID, poi_id);
-                    map.put(TAG_RECIPE_ID, recipe_id);
-                    map.put(TAG_RECIPE_NAME, name);
-                    map.put(TAG_INSTRUCTIONS, instructions);
-                    map.put(TAG_INGREDIENTS, ingredients);
-                    map.put(TAG_RECIPE_IMAGE_URL, recipe_image_url);
-                    map.put(TAG_CREATOR_ID, creator_id);
-                    map.put(TAG_CREATOR_USERNAME, creator_username);
-                    map.put(TAG_CREATOR_PHOTO, creator_photo);
-
-                    // adding HashList to ArrayList
-                    mPoiList.add(map);
 
                     Drawable draw_temp = null;
                     try {
@@ -250,63 +242,7 @@ super.onDestroyView();
                 e.printStackTrace();
 
             }
-            try{
-                //.-=Parse the likes=-.
 
-                // mPois will tell us how many "posts" are
-                // available
-                mLikes = json.getJSONArray(TAG_LIKES);
-
-                // looping through all posts according to the json object
-                // returned
-                for (int i = 0; i < mLikes.length(); i++) {
-                    JSONObject c = mLikes.getJSONObject(i);
-
-                    // gets the content of each tag
-                    String l_recipe_id = c.getString(TAG_L_RECIPE_ID);
-
-                    // creating new HashMap
-                    HashMap<String, String> map = new HashMap<String, String>();
-
-                    map.put(TAG_L_RECIPE_ID, l_recipe_id);
-
-                    // adding HashList to ArrayList
-                    mLikeList.add(map);
-                }
-            }
-            catch (JSONException e) {
-                e.printStackTrace();
-
-            }
-            try{
-                //.-=Parse the followed users=-.
-
-                // mPois will tell us how many "posts" are
-                // available
-                mFollowed = json.getJSONArray(TAG_FOLLOWED);
-
-                // looping through all posts according to the json object
-                // returned
-                for (int i = 0; i < mFollowed.length(); i++) {
-                    JSONObject f = mFollowed.getJSONObject(i);
-
-                    // gets the content of each tag
-                    String f_user_id = f.getString(TAG_F_USER_ID);
-
-                    // creating new HashMap
-                    HashMap<String, String> map = new HashMap<String, String>();
-
-                    // map.put(TAG_POI_ID, poi_id);
-                    map.put(TAG_F_USER_ID, f_user_id);
-
-                    // adding HashList to ArrayList
-                    mFollowedList.add(map);
-                }
-            }
-            catch (JSONException e) {
-                e.printStackTrace();
-
-            }
         }
     }
 

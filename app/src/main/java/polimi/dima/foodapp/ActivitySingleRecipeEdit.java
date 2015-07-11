@@ -212,12 +212,10 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
                 View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
 
 
+
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
-                    Toast.makeText(ActivitySingleRecipeEdit.this, "The Item Clicked is: " +
-                            recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
                     if (recyclerView.getChildPosition(child) == 1) {
-                        //Go to Main
                         Intent i = new Intent(ActivitySingleRecipeEdit.this, ActivityRecentMeals.class);
                         startActivity(i);
                         finish();
@@ -227,13 +225,21 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
                         startActivity(i);
                         finish();
                     }
+                    if (recyclerView.getChildPosition(child) == 3) {
+                        Intent i = new Intent(ActivitySingleRecipeEdit.this, ActivityFollowRecipes.class);
+                        startActivity(i);
+                        finish();
+                    }
                     if (recyclerView.getChildPosition(child) == 4) {
                         Intent i = new Intent(ActivitySingleRecipeEdit.this, ActivityLiked.class);
                         startActivity(i);
                         finish();
-
                     }
-
+                    if (recyclerView.getChildPosition(child) == 5) {
+                        Intent i = new Intent(ActivitySingleRecipeEdit.this, ActivityForum.class);
+                        startActivity(i);
+                        finish();
+                    }
                     if (recyclerView.getChildPosition(child) == 6) {
                         SharedPreferences sp = PreferenceManager
                                 .getDefaultSharedPreferences(ActivitySingleRecipeEdit.this);
@@ -910,6 +916,13 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
 
 
 
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        Intent i = new Intent(ActivitySingleRecipeEdit.this, ActivitySingleRecipeFromCookbook.class);
+        startActivity(i);
+        finish();
+    }
 
 
 

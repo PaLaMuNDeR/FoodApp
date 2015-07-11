@@ -190,7 +190,6 @@ public class ActivityChiefs extends ActionBarActivity  {
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
-                    Toast.makeText(ActivityChiefs.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
                     if (recyclerView.getChildPosition(child) == 1) {
                         Intent i = new Intent(ActivityChiefs.this, ActivityRecentMeals.class);
                         startActivity(i);
@@ -202,10 +201,17 @@ public class ActivityChiefs extends ActionBarActivity  {
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 3) {
-                        //Remain here
+                        Intent i = new Intent(ActivityChiefs.this, ActivityFollowRecipes.class);
+                        startActivity(i);
+                        finish();
                     }
                     if (recyclerView.getChildPosition(child) == 4) {
                         Intent i = new Intent(ActivityChiefs.this, ActivityLiked.class);
+                        startActivity(i);
+                        finish();
+                    }
+                    if (recyclerView.getChildPosition(child) == 5) {
+                        Intent i = new Intent(ActivityChiefs.this, ActivityForum.class);
                         startActivity(i);
                         finish();
                     }
@@ -345,14 +351,13 @@ public class ActivityChiefs extends ActionBarActivity  {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        //   restoreActionBar();
-        return true;
-    }
-
+@Override
+public void onBackPressed(){
+    super.onBackPressed();
+    Intent i = new Intent(ActivityChiefs.this, ActivityFollowRecipes.class);
+    startActivity(i);
+    finish();
+}
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -362,9 +367,6 @@ public class ActivityChiefs extends ActionBarActivity  {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }

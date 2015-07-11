@@ -79,7 +79,6 @@ public class ListViewSimpleAdapter extends ArrayAdapter<ListViewItem> {
                     public void onClick(View v) {
                         //Integer index = (Integer) convertView.getTag();
 
-                        Toast.makeText(getContext(), "More item 1", Toast.LENGTH_LONG).show();
                         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
                         SharedPreferences.Editor edit = sp.edit();
                         edit.putBoolean("Del", true);
@@ -95,7 +94,6 @@ public class ListViewSimpleAdapter extends ArrayAdapter<ListViewItem> {
                                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
                                         // Extract all the assets
-                                        Toast.makeText(getContext(), "Return number: "+getPosition(item), Toast.LENGTH_SHORT).show();
                                         id_click = getPosition(item);
                                        new Unfollow().execute();
 

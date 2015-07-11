@@ -338,44 +338,16 @@ public class FragmentListChief extends ListFragment {
                         + "' the id is '" + id + "'");
 
                 id_click = position;
-                new LoadRecipes().execute();
+                updateJSONdataForTheChief();
+                Intent i = new Intent(getActivity(),
+                        ActivityFollowRecipes.class);
+                getActivity().finish();
+                startActivity(i);
             }
         });
     }
 
 
-
-    public class LoadRecipes extends AsyncTask<Void, Void, Boolean> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            // pDialog = new ProgressDialog(ActivityRecommendations.this);
-            // pDialog.setMessage("Loading your place..");
-            // pDialog.setIndeterminate(false);
-            // pDialog.setCancelable(true);
-            // pDialog.show();
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... arg0) {
-            updateJSONdataForTheChief();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            super.onPostExecute(result);
-
-            Log.d("Starting new activity", "SingleRecipeActivity");
-
-            Intent i = new Intent(getActivity(),
-                    ActivityFollowRecipes.class);
-            getActivity().finish();
-            startActivity(i);
-
-        }
-    }
 
     public void updateJSONdataForTheChief() {
 

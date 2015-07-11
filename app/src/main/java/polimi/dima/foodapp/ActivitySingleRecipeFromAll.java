@@ -59,13 +59,11 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
     private String cover = "cover";
     private String gender = "gender";
     private Boolean logout = false;
-    String TITLES[] = {"Recent Meals", "My Cook Book", "Friends", "Liked", "Forum", "Logout"};
+    String TITLES[] = {"Recent Meals", "My Cook Book", "Followed", "Liked", "Forum", "Logout"};
     int ICONS[] = {R.drawable.cutlery,
             R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish_s_32,
             R.drawable.group_button, R.drawable.logout};
     Button
-            //btnAllPoi,
-            //btnLogout,
             btnAdd;
 
     private static String recipe_id = "";
@@ -178,9 +176,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
-                    Toast.makeText(ActivitySingleRecipeFromAll.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
                     if (recyclerView.getChildPosition(child) == 1) {
-                        //Go to Main
                         Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityRecentMeals.class);
                         startActivity(i);
                         finish();
@@ -190,13 +186,21 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                         startActivity(i);
                         finish();
                     }
+                    if (recyclerView.getChildPosition(child) == 3) {
+                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityFollowRecipes.class);
+                        startActivity(i);
+                        finish();
+                    }
                     if (recyclerView.getChildPosition(child) == 4) {
                         Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityLiked.class);
                         startActivity(i);
                         finish();
-
                     }
-
+                    if (recyclerView.getChildPosition(child) == 5) {
+                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityForum.class);
+                        startActivity(i);
+                        finish();
+                    }
                     if (recyclerView.getChildPosition(child) == 6) {
                         SharedPreferences sp = PreferenceManager
                                 .getDefaultSharedPreferences(ActivitySingleRecipeFromAll.this);
@@ -527,12 +531,12 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                     Toast.makeText(ActivitySingleRecipeFromAll.this, "Unfollowed",
                             Toast.LENGTH_SHORT).show();
                     image_followed.setImageDrawable(getResources().getDrawable(R.drawable.follow_s_64));
-                    bool_followed=false;
+                    bool_followed = false;
                 } else {
                     Toast.makeText(ActivitySingleRecipeFromAll.this, "Following",
                             Toast.LENGTH_SHORT).show();
                     image_followed.setImageDrawable(getResources().getDrawable(R.drawable.follow_o_64));
-                    bool_followed=true;
+                    bool_followed = true;
                 }
 
             }
@@ -592,7 +596,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                 if (bool_liked) {
                     Toast.makeText(ActivitySingleRecipeFromAll.this, "Unliked",
                             Toast.LENGTH_SHORT).show();
-                    image_like.setImageDrawable(getResources().getDrawable(R.drawable.heart_dish_s_32));
+                    image_like.setImageDrawable(getResources().getDrawable(R.drawable.heart_dish_s_64));
                     bool_liked = false;
                 } else {
                     Toast.makeText(ActivitySingleRecipeFromAll.this, "Liked",
@@ -605,4 +609,12 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         }
 
     }
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityRecentMeals.class);
+        startActivity(i);
+        finish();
+    }
+
 }

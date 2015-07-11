@@ -119,7 +119,6 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
     // Camera activity request codes
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
-    private static final int CAMERA_CAPTURE_VIDEO_REQUEST_CODE = 200;
 
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
@@ -179,8 +178,6 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
         // Assinging the toolbar object ot the view
         //and setting the the Action bar to our toolbar
         //
-        //   toolbar = (Toolbar) findViewById(R.id.tool_bar);
-        //   setSupportActionBar(toolbar);
         mRecyclerView = (RecyclerView) findViewById(R.id.RecyclerView); // Assigning the RecyclerView Object to the xml View
 
         mRecyclerView.setHasFixedSize(true);                            // Letting the system know that the list objects are of fixed size
@@ -210,8 +207,8 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
+                    //0 is the image on top
                     if (recyclerView.getChildPosition(child) == 1) {
-                        //Go to Main
                         Intent i = new Intent(ActivityCreateRecipe.this, ActivityRecentMeals.class);
                         startActivity(i);
                         finish();
@@ -221,13 +218,21 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
                         startActivity(i);
                         finish();
                     }
+                    if (recyclerView.getChildPosition(child) == 3) {
+                        Intent i = new Intent(ActivityCreateRecipe.this, ActivityFollowRecipes.class);
+                        startActivity(i);
+                        finish();
+                    }
                     if (recyclerView.getChildPosition(child) == 4) {
                         Intent i = new Intent(ActivityCreateRecipe.this, ActivityLiked.class);
                         startActivity(i);
                         finish();
-
                     }
-
+                    if (recyclerView.getChildPosition(child) == 5) {
+                        Intent i = new Intent(ActivityCreateRecipe.this, ActivityForum.class);
+                        startActivity(i);
+                        finish();
+                    }
                     if (recyclerView.getChildPosition(child) == 6) {
                         SharedPreferences sp = PreferenceManager
                                 .getDefaultSharedPreferences(ActivityCreateRecipe.this);
@@ -298,27 +303,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
         current_user = post_username;
         // parsing the data from the shared preferences
-//        recipe_id = sp.getString("recipe_id", "");
-/*
 
-        String r_name_value = sp.getString("recipe_name", "");
-        TextView recipe_name_view2 = (TextView) findViewById(R.id.recipe_name);
-        recipe_name_view2.setText(r_name_value);
-        getSupportActionBar().setTitle(r_name_value);
-
-        String ingredients_value = sp.getString("ingredients", "");
-        TextView ingredients = (TextView) findViewById(R.id.ingredients);
-        ingredients.setText(ingredients_value);
-
-        String instructions_value = sp.getString("instructions", "");
-        TextView instructions = (TextView) findViewById(R.id.instructions);
-        instructions.setText(instructions_value);
-
-        String recipe_image_url = sp.getString("recipe_image_url", "");
-        new DownloadImageTask((ImageView) findViewById(R.id.imageViewSingleRecipe))
-                .execute(recipe_image_url);
-
-*/
         recipe_image_button = (ImageButton) findViewById(R.id.recipe_image_button);
         recipe_name = (EditText) findViewById(R.id.create_recipe_name);
         ingredients = (EditText) findViewById(R.id.create_recipe_ingredients);
@@ -328,7 +313,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
         btnCreate.setOnClickListener(this);
         prgDialog = new ProgressDialog(this);
         recipe_image_button.setOnClickListener(this);
-
+        recipe_image_button.setImageDrawable(getResources().getDrawable(R.drawable.image_archive_128));
 
         //for taking image from camera
         btnCapturePicture = (ImageView) findViewById(R.id.btnCapturePicture);
@@ -510,10 +495,19 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
          * *
          */
         protected void onPostExecute(String file_url) {
-            // dismiss the dialog once product deleted
             pDialog.dismiss();
             if (file_url != null) {
                 if (bool_success) {
+                    imgPath=null;
+                    fileName=null;
+                    image_params.remove("image");
+                    image_params.remove("filename");
+                    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ActivityCreateRecipe.this);
+                    SharedPreferences.Editor edit = sp.edit();
+                    edit.putBoolean("camera_bool",false);
+                    edit.putString("imgPath", "");
+                    edit.commit();
+                    recipe_image_button.setImageDrawable(getResources().getDrawable(R.drawable.image_archive_128));
                     Intent i = new Intent(ActivityCreateRecipe.this, ActivityCookbook.class);
                     startActivity(i);
                     finish();
@@ -699,15 +693,13 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
         // Don't forget to change the IP address to your LAN address. Port no as well.
         client.post(UPLOAD_IMAGE_URL,
                 image_params, new AsyncHttpResponseHandler() {
-            // When the response returned by REST has Http
+                    // When the response returned by REST has Http
                     // response code '200'
                     @Override
-            public void onSuccess(String response) {
-                // Hide Progress Dialog
-                prgDialog.hide();
-                Toast.makeText(getApplicationContext(), response,
-                        Toast.LENGTH_LONG).show();
-                        uploaded_image_url=response;
+                    public void onSuccess(String response) {
+                        // Hide Progress Dialog
+                        prgDialog.hide();
+                        uploaded_image_url = response;
                         new CreateRecipe().execute();
 
                     }
@@ -716,32 +708,32 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
                     // response code other than '200' such as '404',
                     // '500' or '403' etc
                     @Override
-            public void onFailure(int statusCode, Throwable error,
-                                                      String content) {
-                // Hide Progress Dialog
-                prgDialog.hide();
-                // When Http response code is '404'
-                if (statusCode == 404) {
-                    Toast.makeText(getApplicationContext(),
-                            "Requested resource not found",
-                            Toast.LENGTH_LONG).show();
+                    public void onFailure(int statusCode, Throwable error,
+                                          String content) {
+                        // Hide Progress Dialog
+                        prgDialog.hide();
+                        // When Http response code is '404'
+                        if (statusCode == 404) {
+                            Toast.makeText(getApplicationContext(),
+                                    "Requested resource not found",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                        // When Http response code is '500'
+                        else if (statusCode == 500) {
+                            Toast.makeText(getApplicationContext(),
+                                    "Something went wrong at server end",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                        // When Http response code other than 404, 500
+                        else {
+                            Toast.makeText(
+                                    getApplicationContext(),
+                                    "Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
+                                            + statusCode, Toast.LENGTH_LONG)
+                                    .show();
+                        }
                     }
-                // When Http response code is '500'
-                else if (statusCode == 500) {
-                    Toast.makeText(getApplicationContext(),
-                            "Something went wrong at server end",
-                            Toast.LENGTH_LONG).show();
-                    }
-                // When Http response code other than 404, 500
-                else {
-                    Toast.makeText(
-                            getApplicationContext(),
-                            "Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
-                            + statusCode, Toast.LENGTH_LONG)
-                    .show();
-                    }
-                }
-            });
+                });
         }
 
     /**
@@ -776,15 +768,6 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
         // get the file url
         fileUri = savedInstanceState.getParcelable("file_uri");
-    }
-
-
-    private void launchUploadActivity(boolean isImage){
-        Intent i = new Intent(ActivityCreateRecipe.this, UploadActivity.class);
-        i.putExtra("filePath", fileUri.getPath());
-        i.putExtra("isImage", isImage);
-        startActivity(i);
-        finish();
     }
 
 /**
@@ -847,7 +830,13 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
 
 
-
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        Intent i = new Intent(ActivityCreateRecipe.this, ActivityRecentMeals.class);
+        startActivity(i);
+        finish();
+    }
 
     @Override
     protected void onDestroy() {

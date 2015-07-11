@@ -10,19 +10,13 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-    <Button
-        android:id="@+id/btn_chiefs"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/chiefs"
-        android:layout_marginTop="5dp" />
 
     <android.support.v4.widget.SwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/swipe_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btn_chiefs">
+        >
 
         <fragment
             android:id="@+id/fragment1"
@@ -41,6 +35,17 @@
                 android:drawSelectorOnTop="false"
           />
     </android.support.v4.widget.SwipeRefreshLayout>
+        <com.software.shell.fab.ActionButton
+            android:id="@+id/action_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="@dimen/fab_margin"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:layout_marginBottom="@dimen/fab_margin"
+            />
     </RelativeLayout>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/RecyclerView"

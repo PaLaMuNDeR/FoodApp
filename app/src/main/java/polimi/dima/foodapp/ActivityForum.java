@@ -20,12 +20,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -37,7 +35,7 @@ import org.json.JSONArray;
 import java.io.File;
 
 //AKA MainActivity
-public class ActivityForum extends ActionBarActivity  {
+public class ActivityForum extends ActionBarActivity {
 //        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private String current_user = "current_user_username";
@@ -52,7 +50,8 @@ public class ActivityForum extends ActionBarActivity  {
     ProgressDialog myPd_bar;
     private JSONArray mProfile = null;
 
-    Button btnCreateRecipe;
+    private Toast backtoast;
+
 
     //First We Declare Titles And Icons For Our Navigation Drawer List View
     //This Icons And Titles Are holded in an Array as you can see
@@ -93,8 +92,8 @@ public class ActivityForum extends ActionBarActivity  {
 */
         return networkInfo.isConnected();
     }
-    private SwipeRefreshLayout swipeLayout;
 
+    private SwipeRefreshLayout swipeLayout;
 
 
     @Override
@@ -109,37 +108,36 @@ public class ActivityForum extends ActionBarActivity  {
         photo = sp.getString("photo", "");
         cover = sp.getString("cover", "");
         SharedPreferences.Editor edit = sp.edit();
-        edit.putBoolean("logout",false);
+        edit.putBoolean("logout", false);
         edit.commit();
-        Log.d("Username","LogoutBool in SP: "+sp.getBoolean("logout",false));
+        Log.d("Username", "LogoutBool in SP: " + sp.getBoolean("logout", false));
         DatabaseHandler db = new DatabaseHandler(ActivityForum.this);
-        Profile pf =  db.getLastProfile();
+        Profile pf = db.getLastProfile();
         name = pf.name;
         username = pf.username;
         photo = pf.photo;
         cover = pf.cover;
         gender = pf.gender;
         email = pf.email;
-        String imagePath="";
-        String coverPath="";
+        String imagePath = "";
+        String coverPath = "";
         BitmapDrawable coverBitmap = null;
         try {
             File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
 
-            if(imgFile.exists()){
-                Log.d("Download Image","Profile Image - yes");
+            if (imgFile.exists()) {
+                Log.d("Download Image", "Profile Image - yes");
                 profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             }
 
             imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
-            if(imgFile.exists()){
-                Log.d("Download Image","Cover Image - yes");
+            if (imgFile.exists()) {
+                Log.d("Download Image", "Cover Image - yes");
                 Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 coverBitmap = new BitmapDrawable(getResources(), bitmap);
             }
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -150,7 +148,7 @@ public class ActivityForum extends ActionBarActivity  {
         String liked = getResources().getString(R.string.liked);
         String forum = getResources().getString(R.string.forum);
         String logout_string = getResources().getString(R.string.logout);
-        String TITLES[] = {recent_meals,my_cook_book,friends,liked,forum,logout_string};
+        String TITLES[] = {recent_meals, my_cook_book, friends, liked, forum, logout_string};
         int ICONS[] = {R.drawable.cutlery,
                 R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish_s_32,
                 R.drawable.group_button, R.drawable.logout};
@@ -159,7 +157,7 @@ public class ActivityForum extends ActionBarActivity  {
         // Letting the system know that the list objects are of fixed size
         mRecyclerView.setHasFixedSize(true);
 
-        mAdapter = new MyAdapter(TITLES, ICONS, name, email, profileBitmap, coverBitmap,  this);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
+        mAdapter = new MyAdapter(TITLES, ICONS, name, email, profileBitmap, coverBitmap, this);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
         // And passing the titles,icons,header view name, header view email,
         // and header view profile picture
 
@@ -169,12 +167,12 @@ public class ActivityForum extends ActionBarActivity  {
         final GestureDetector mGestureDetector = new GestureDetector(ActivityForum.this,
                 new GestureDetector.SimpleOnGestureListener() {
 
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                return true;
-            }
+                    @Override
+                    public boolean onSingleTapUp(MotionEvent e) {
+                        return true;
+                    }
 
-        });
+                });
 
 
         mRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
@@ -183,13 +181,11 @@ public class ActivityForum extends ActionBarActivity  {
                     motionEvent) {
                 View child = recyclerView.findChildViewUnder(motionEvent.getX(),
                         motionEvent.getY());
-
-
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
                     //0 is the image on top
                     if (recyclerView.getChildPosition(child) == 1) {
-                    //Remain in Main
+                        //Remain in Main
 
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
@@ -214,22 +210,22 @@ public class ActivityForum extends ActionBarActivity  {
                     }
                     if (recyclerView.getChildPosition(child) == 6) {
 
-                    //Getting the user settings
-                    SharedPreferences sp = PreferenceManager
-                            .getDefaultSharedPreferences(ActivityForum.this);
-                    current_user = "";
-                    name = "";
-                    logout = true;
-                    SharedPreferences.Editor edit = sp.edit();
-                    edit.putString("username", current_user);
-                    edit.putString("name", name);
-                    edit.putBoolean("logout", true);
-                    edit.commit();
-                    Log.d("Log out - current_user", current_user);
-                    Log.d("Log out - current name", name);
-                    Intent i = new Intent(ActivityForum.this, ActivityLogin.class);
-                    startActivity(i);
-                    finish();
+                        //Getting the user settings
+                        SharedPreferences sp = PreferenceManager
+                                .getDefaultSharedPreferences(ActivityForum.this);
+                        current_user = "";
+                        name = "";
+                        logout = true;
+                        SharedPreferences.Editor edit = sp.edit();
+                        edit.putString("username", current_user);
+                        edit.putString("name", name);
+                        edit.putBoolean("logout", true);
+                        edit.commit();
+                        Log.d("Log out - current_user", current_user);
+                        Log.d("Log out - current name", name);
+                        Intent i = new Intent(ActivityForum.this, ActivityLogin.class);
+                        startActivity(i);
+                        finish();
                     }
                     return true;
                 }
@@ -281,7 +277,7 @@ public class ActivityForum extends ActionBarActivity  {
                     @Override
                     public void run() {
                         swipeLayout.setRefreshing(false);
-                       recreate();
+                        recreate();
                     }
                 }, 4000);
             }
@@ -314,7 +310,7 @@ public class ActivityForum extends ActionBarActivity  {
                 swipeLayout.setEnabled(enable);
             }
         });
-            getSupportActionBar().setTitle(recent_meals);
+        getSupportActionBar().setTitle(recent_meals);
 
         //Floating Action Button
         ActionButton actionButton = (ActionButton) findViewById(R.id.action_button);
@@ -344,26 +340,13 @@ public class ActivityForum extends ActionBarActivity  {
                     Toast.LENGTH_LONG).show();
         }
     }
-
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        //   restoreActionBar();
-        return true;
+    public void onBackPressed(){
+        super.onBackPressed();
+        Intent i = new Intent(ActivityForum.this, ActivityRecentMeals.class);
+        startActivity(i);
+        finish();
     }
-
-    /*
-
-        public void restoreActionBar() {
-            ActionBar actionBar = getSupportActionBar();
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setTitle(mTitle);
-
-        }
-    */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -371,15 +354,9 @@ public class ActivityForum extends ActionBarActivity  {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-
-
         return super.onOptionsItemSelected(item);
     }
 

@@ -433,5 +433,12 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
         edit.commit();
 
     }
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        Intent i = new Intent(ActivitySingleRecipeFromCookbook.this, ActivityCookbook.class);
+        startActivity(i);
+        finish();
+    }
 
 }
