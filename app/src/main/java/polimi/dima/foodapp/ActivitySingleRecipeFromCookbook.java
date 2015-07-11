@@ -61,7 +61,7 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
     private Boolean logout = false;
     String TITLES[] = {"Recent Meals", "My Cook Book", "Friends", "Liked", "Forum", "Logout"};
     int ICONS[] = {R.drawable.cutlery,
-            R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish,
+            R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish_s_64,
             R.drawable.group_button, R.drawable.logout};
 
 

@@ -21,8 +21,8 @@
         >
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/creatorImage"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@drawable/default_face"
             android:layout_marginLeft="1dp"
             android:clickable="true"
@@ -38,15 +38,17 @@
             android:clickable="true"/>
         <ImageView
             android:id="@+id/imageFollow"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_toLeftOf="@+id/followTop"
-            android:src="@drawable/follow"
+            android:layout_toStartOf="@+id/followTop"
+            android:src="@drawable/follow_s_64"
             android:clickable="true"
             />
         <TextView
             android:id="@+id/followTop"
             android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@android:style/TextAppearance.Small"
@@ -90,7 +92,17 @@
                     android:textColor="#333"
                     android:textSize="16sp"
                     android:textStyle="bold" />
-
+                <TextView
+                    android:id="@+id/ingredients_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/recipe_name"
+                    android:gravity="left"
+                    android:paddingLeft="5dp"
+                    android:text="@string/ingredients"
+                    android:textColor="#5d5d5d"
+                    android:textStyle="bold" >
+                </TextView>
                 <TextView
                     android:id="@+id/ingredients"
                     android:layout_width="wrap_content"
@@ -99,6 +111,8 @@
                     android:paddingBottom="2dip"
                     android:paddingLeft="8dp"
                     android:text="description"
+                    android:layout_toRightOf="@id/ingredients_label"
+                    android:layout_toEndOf="@id/ingredients_label"
                     android:textColor="#888" >
                 </TextView>
 
@@ -132,6 +146,7 @@
             </RelativeLayout>
         </RelativeLayout>
 
+
         <Button
             android:id="@+id/btn_add"
             android:layout_width="wrap_content"
@@ -145,6 +160,15 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
+    <ImageView
+        android:id="@+id/image_like"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/heart_dish_s_64"
+        android:clickable="true"
+        android:layout_below="@+id/box"
+        android:layout_toLeftOf="@id/btn_add"
+        android:layout_toStartOf="@id/btn_add"/>
 
 
     </RelativeLayout>

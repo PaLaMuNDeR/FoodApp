@@ -38,7 +38,7 @@ import java.util.List;
  * Created by Marti on 19/06/2015.
  */
 
-public class ActivitySingleRecipeFromAll extends ActionBarActivity implements View.OnClickListener{
+public class ActivitySingleRecipeFromAll extends ActionBarActivity implements View.OnClickListener {
     private String current_name = "current_user_name";
 
     // Progress Dialog
@@ -61,30 +61,35 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
     private Boolean logout = false;
     String TITLES[] = {"Recent Meals", "My Cook Book", "Friends", "Liked", "Forum", "Logout"};
     int ICONS[] = {R.drawable.cutlery,
-            R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish,
+            R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish_s_64,
             R.drawable.group_button, R.drawable.logout};
     Button
             //btnAllPoi,
             //btnLogout,
             btnAdd;
 
-
     private static String recipe_id = "";
-
     String creator_id;
-    String user_id;
 
+    String user_id;
     JSONParser jsonParser = new JSONParser();
+
+    JSONObject json;
+    JSONObject jsonFollow;
     private static final String ADD_REC_URL = "http://expox-milano.com/foodapp/add_rec.php";
+    private static final String UNFOLLOW_URL = "http://expox-milano.com/foodapp/del_follow.php";
     private static final String ADD_FOLLOW_URL = "http://expox-milano.com/foodapp/add_follow.php";
+    private static final String ADD_LIKE_URL = "http://expox-milano.com/foodapp/add_like.php";
+    private static final String UNLIKE_URL = "http://expox-milano.com/foodapp/del_like.php";
 
     // JSON element ids from repsonse of php script:
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
 
-    public ActivitySingleRecipeFromAll(){
-
-    }
+    ImageView image_like;
+    ImageView image_followed;
+    Boolean bool_liked = false;
+    Boolean bool_followed = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,13 +110,15 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         photo = sp.getString("photo", "");
         cover = sp.getString("cover", "");
         cover = sp.getString("cover", "");
-        user_id =sp.getString("user_id","");
+        user_id = sp.getString("user_id", "");
+        bool_liked = sp.getBoolean("liked", false);
+        bool_followed = sp.getBoolean("followed", false);
         SharedPreferences.Editor edit = sp.edit();
-        edit.putBoolean("logout",false);
+        edit.putBoolean("logout", false);
         edit.commit();
-        Log.d("Username","LogoutBool in SP: "+sp.getBoolean("logout",false));
+        Log.d("Username", "LogoutBool in SP: " + sp.getBoolean("logout", false));
         DatabaseHandler db = new DatabaseHandler(ActivitySingleRecipeFromAll.this);
-        Profile pf =  db.getLastProfile();
+        Profile pf = db.getLastProfile();
         name = pf.name;
         username = pf.username;
         photo = pf.photo;
@@ -123,19 +130,18 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         try {
             File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
 
-            if(imgFile.exists()){
-                Log.d("Download Image","Profile Image - yes");
+            if (imgFile.exists()) {
+                Log.d("Download Image", "Profile Image - yes");
                 profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             }
             imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
-            if(imgFile.exists()){
-                Log.d("Download Image","Cover Image - yes");
+            if (imgFile.exists()) {
+                Log.d("Download Image", "Cover Image - yes");
                 Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 coverBitmap = new BitmapDrawable(getResources(), bitmap);
             }
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -148,7 +154,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
         mRecyclerView.setHasFixedSize(true);                            // Letting the system know that the list objects are of fixed size
 
-        mAdapter = new MyAdapter(TITLES, ICONS, name, email, profileBitmap, coverBitmap,  this);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
+        mAdapter = new MyAdapter(TITLES, ICONS, name, email, profileBitmap, coverBitmap, this);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
         // And passing the titles,icons,header view recipe_name_view, header view email,
         // and header view profile picture
 
@@ -175,12 +181,12 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                     Toast.makeText(ActivitySingleRecipeFromAll.this, "The Item Clicked is: " + recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
                     if (recyclerView.getChildPosition(child) == 1) {
                         //Go to Main
-                        Intent i = new Intent(ActivitySingleRecipeFromAll.this,ActivityRecentMeals.class);
+                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityRecentMeals.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
-                        Intent i = new Intent(ActivitySingleRecipeFromAll.this,ActivityCookbook.class);
+                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityCookbook.class);
                         startActivity(i);
                         finish();
                     }
@@ -289,15 +295,29 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         ImageView follow_image = (ImageView) findViewById(R.id.imageFollow);
         follow_image.setOnClickListener(this);
 
+
         new DownloadImageTask((ImageView) findViewById(R.id.imageViewSingleRecipe))
                 .execute(recipe_image_url);
         new DownloadImageTask((ImageView) findViewById(R.id.creatorImage))
                 .execute(creator_photo);
-        if(user_id.equals(creator_id)){
+        if (user_id.equals(creator_id)) {
             follow_image.setVisibility(View.GONE);
             follow_text.setVisibility(View.GONE);
+            //TODO if is it is already followed, too
+        }
+
+        image_like = (ImageView) findViewById(R.id.image_like);
+        image_like.setOnClickListener(this);
+        if (bool_liked) {
+            image_like.setImageDrawable(getResources().getDrawable(R.drawable.heart_dish_o_64));
+        }
+        image_followed = (ImageView) findViewById(R.id.imageFollow);
+        image_followed.setOnClickListener(this);
+        if (bool_followed) {
+            image_followed.setImageDrawable(getResources().getDrawable(R.drawable.follow_o_64));
         }
     }
+
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -340,6 +360,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
             bmImage.setImageBitmap(result);
         }
     }
+
     public void onClick(View v) {
         switch (v.getId()) {
 //		case R.id.btn_logout: {
@@ -367,15 +388,18 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 //			break;
             case R.id.btn_add:
                 new AddRecipe().execute();
-
                 break;
             case R.id.imageView1:
                 break;
             case R.id.imageFollow:
-                new AddFollow().execute();
+                new AddFollowUnfollow().execute();
                 break;
             case R.id.followTop:
-                new AddFollow().execute();
+                new AddFollowUnfollow().execute();
+                break;
+            case R.id.image_like:
+                new LikeUnlike().execute();
+
                 break;
             default:
                 break;
@@ -453,20 +477,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
     }
 
-    class AddFollow extends AsyncTask<String, String, String> {
-
-
-        boolean failure = false;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            sDialog = new ProgressDialog(ActivitySingleRecipeFromAll.this);
-            sDialog.setMessage("Adding it to your follow list...");
-            sDialog.setIndeterminate(false);
-            sDialog.setCancelable(true);
-            sDialog.show();
-        }
+    class AddFollowUnfollow extends AsyncTask<String, String, String> {
 
         @Override
         protected String doInBackground(String... args) {
@@ -481,9 +492,13 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
                 Log.d("request!", "starting");
                 // getting product details by making HTTP request
-                JSONObject json = jsonParser.makeHttpRequest(ADD_FOLLOW_URL,
-                        "POST", params);
-
+                if (bool_followed) {
+                    json = jsonParser.makeHttpRequest(UNFOLLOW_URL,
+                            "POST", params);
+                } else {
+                    json = jsonParser.makeHttpRequest(ADD_FOLLOW_URL,
+                            "POST", params);
+                }
                 // check your log for json response
                 Log.d("Login attempt", json.toString());
 
@@ -508,17 +523,88 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
         protected void onPostExecute(String file_url) {
             // dismiss the dialog once product is added
-            sDialog.dismiss();
             Log.d("current_user", "current_user" + current_user);
             if (file_url != null && current_user != "") {
-                Toast.makeText(ActivitySingleRecipeFromAll.this, "Added to your Following list",
-                        Toast.LENGTH_SHORT).show();
+                if (bool_followed) {
+                    Toast.makeText(ActivitySingleRecipeFromAll.this, "Unfollowed",
+                            Toast.LENGTH_SHORT).show();
+                    image_followed.setImageDrawable(getResources().getDrawable(R.drawable.follow_s_64));
+                    bool_followed=false;
+                } else {
+                    Toast.makeText(ActivitySingleRecipeFromAll.this, "Following",
+                            Toast.LENGTH_SHORT).show();
+                    image_followed.setImageDrawable(getResources().getDrawable(R.drawable.follow_o_64));
+                    bool_followed=true;
+                }
+
             }
-            Log.d("Starting new activity", "ActivityCookbook");
-
-
         }
 
     }
 
+    class LikeUnlike extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... args) {
+            // Check for success tag
+            int success;
+            String username = current_user;
+            try {
+                // Building Parameters
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
+                params.add(new BasicNameValuePair("username", username));
+                params.add(new BasicNameValuePair("recipe_id", recipe_id));
+
+                Log.d("request!", "starting");
+                // getting product details by making HTTP request
+                if (bool_liked) {
+                    json = jsonParser.makeHttpRequest(UNLIKE_URL,
+                            "POST", params);
+
+                } else {
+                    json = jsonParser.makeHttpRequest(ADD_LIKE_URL,
+                            "POST", params);
+                }
+                // check your log for json response
+                Log.d("Login attempt", json.toString());
+
+                // json success tag
+                success = json.getInt(TAG_SUCCESS);
+                if (success == 1) {
+                    Log.d("Synch Successful!", json.toString());
+
+                    return json.getString(TAG_MESSAGE);
+                } else {
+                    Log.d("Synchronization failed!",
+                            json.getString(TAG_MESSAGE));
+                    return json.getString(TAG_MESSAGE);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+
+        }
+
+        protected void onPostExecute(String file_url) {
+            // dismiss the dialog once product is added
+            Log.d("current_user", "current_user" + current_user);
+            if (file_url != null && current_user != "") {
+                if (bool_liked) {
+                    Toast.makeText(ActivitySingleRecipeFromAll.this, "Unliked",
+                            Toast.LENGTH_SHORT).show();
+                    image_like.setImageDrawable(getResources().getDrawable(R.drawable.heart_dish_s_64));
+                    bool_liked = false;
+                } else {
+                    Toast.makeText(ActivitySingleRecipeFromAll.this, "Liked",
+                            Toast.LENGTH_SHORT).show();
+                    image_like.setImageDrawable(getResources().getDrawable(R.drawable.heart_dish_o_64));
+                    bool_liked = true;
+                }
+            }
+
+        }
+
+    }
 }

@@ -25,10 +25,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -36,7 +34,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import org.json.JSONArray;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 //AKA MainActivity
@@ -163,7 +160,7 @@ public class ActivityChiefs extends ActionBarActivity  {
         String logout_string = getResources().getString(R.string.logout);
         String TITLES[] = {recent_meals, my_cook_book, followed_chiefs, liked, forum, logout_string};
         int ICONS[] = {R.drawable.cutlery,
-                R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish,
+                R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish_s_64,
                 R.drawable.group_button, R.drawable.logout};
         mRecyclerView = (RecyclerView) findViewById(R.id.RecyclerView); // Assigning the RecyclerView Object to the xml View
 

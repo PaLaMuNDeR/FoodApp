@@ -88,7 +88,7 @@ public class ActivityLiked extends ActionBarActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cookbook);
+        setContentView(R.layout.activity_main);
 
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(ActivityLiked.this);
@@ -147,7 +147,7 @@ public class ActivityLiked extends ActionBarActivity  {
         String logout_string = getResources().getString(R.string.logout);
         String TITLES[] = {recent_meals,my_cook_book,friends,liked,forum,logout_string};
         int ICONS[] = {R.drawable.cutlery,
-                R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish,
+                R.drawable.open_book, R.drawable.follow, R.drawable.heart_dish_s_64,
                 R.drawable.group_button, R.drawable.logout};
         mRecyclerView = (RecyclerView) findViewById(R.id.RecyclerView); // Assigning the RecyclerView Object to the xml View
 

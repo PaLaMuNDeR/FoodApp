@@ -35,7 +35,7 @@
     <string name="liked">Liked</string>
     <string name="forum">Forum</string>
     <string name="opening_your_cookbook">Opening your cookbook</string>
-    <string name="delete">Delete from my cookbook</string>
+    <string name="delete">Delete</string>
     <string name="personalize">Personalize</string>
     <string name="create_recipe">Create Recipe</string>
     <string name="create_recipe_name_label">Recipe Name:</string>
@@ -52,5 +52,6 @@
     <string name="chiefs">Chiefs</string>
     <string name="unfollow">Unfollow</string>
     <string name="unfollow_question">Do you want to unfollow this user?</string>
+    <string name="ingredients">Ingredients:</string>
 
 </resources>
