@@ -393,7 +393,7 @@ super.onDestroyView();
             for(int i=0; i<mFollowed.length(); i++){
                 JSONObject l = mFollowed.getJSONObject(i);
 
-                if(recipe_id.equals(l.getString(TAG_F_USER_ID))){
+                if(creator_id.equals(l.getString(TAG_F_USER_ID))){
                     followed=true;
                 }
             }

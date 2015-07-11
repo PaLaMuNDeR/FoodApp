@@ -292,8 +292,8 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         creator_name.setOnClickListener(this);
         TextView follow_text = (TextView) findViewById(R.id.followTop);
 
-        ImageView follow_image = (ImageView) findViewById(R.id.imageFollow);
-        follow_image.setOnClickListener(this);
+        image_followed = (ImageView) findViewById(R.id.imageFollow);
+        image_followed.setOnClickListener(this);
 
 
         new DownloadImageTask((ImageView) findViewById(R.id.imageViewSingleRecipe))
@@ -301,7 +301,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         new DownloadImageTask((ImageView) findViewById(R.id.creatorImage))
                 .execute(creator_photo);
         if (user_id.equals(creator_id)) {
-            follow_image.setVisibility(View.GONE);
+            image_followed.setVisibility(View.GONE);
             follow_text.setVisibility(View.GONE);
             //TODO if is it is already followed, too
         }
@@ -311,10 +311,8 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         if (bool_liked) {
             image_like.setImageDrawable(getResources().getDrawable(R.drawable.heart_dish_o_64));
         }
-        image_followed = (ImageView) findViewById(R.id.imageFollow);
-        image_followed.setOnClickListener(this);
         if (bool_followed) {
-            image_followed.setImageDrawable(getResources().getDrawable(R.drawable.follow_o_64));
+            this.image_followed.setImageDrawable(getResources().getDrawable(R.drawable.follow_o_64));
         }
     }
 

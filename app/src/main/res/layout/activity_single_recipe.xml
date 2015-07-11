@@ -167,8 +167,10 @@
         android:src="@drawable/heart_dish_s_32"
         android:clickable="true"
         android:layout_below="@+id/box"
-        android:layout_toLeftOf="@id/btn_add"
-        android:layout_toStartOf="@id/btn_add"/>
+        android:layout_toRightOf="@id/btn_add"
+        android:layout_toEndOf="@id/btn_add"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"/>
 
 
     </RelativeLayout>
