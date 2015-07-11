@@ -9,12 +9,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -37,7 +37,7 @@ import org.json.JSONArray;
 import java.io.File;
 
 //AKA MainActivity
-public class ActivityRecentMeals extends ActionBarActivity  {
+public class ActivityForum extends ActionBarActivity  {
 //        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private String current_user = "current_user_username";
@@ -102,7 +102,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(ActivityRecentMeals.this);
+                .getDefaultSharedPreferences(ActivityForum.this);
         current_user = sp.getString("username", "");
         name = sp.getString("name", "");
         email = sp.getString("email", "");
@@ -112,7 +112,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
         edit.putBoolean("logout",false);
         edit.commit();
         Log.d("Username","LogoutBool in SP: "+sp.getBoolean("logout",false));
-        DatabaseHandler db = new DatabaseHandler(ActivityRecentMeals.this);
+        DatabaseHandler db = new DatabaseHandler(ActivityForum.this);
         Profile pf =  db.getLastProfile();
         name = pf.name;
         username = pf.username;
@@ -166,7 +166,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
         // Setting the adapter to RecyclerView
         mRecyclerView.setAdapter(mAdapter);
 
-        final GestureDetector mGestureDetector = new GestureDetector(ActivityRecentMeals.this,
+        final GestureDetector mGestureDetector = new GestureDetector(ActivityForum.this,
                 new GestureDetector.SimpleOnGestureListener() {
 
             @Override
@@ -193,22 +193,22 @@ public class ActivityRecentMeals extends ActionBarActivity  {
 
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
-                        Intent i = new Intent(ActivityRecentMeals.this, ActivityCookbook.class);
+                        Intent i = new Intent(ActivityForum.this, ActivityCookbook.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 3) {
-                        Intent i = new Intent(ActivityRecentMeals.this, ActivityFollowRecipes.class);
+                        Intent i = new Intent(ActivityForum.this, ActivityFollowRecipes.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 4) {
-                        Intent i = new Intent(ActivityRecentMeals.this, ActivityLiked.class);
+                        Intent i = new Intent(ActivityForum.this, ActivityLiked.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 5) {
-                        Intent i = new Intent(ActivityRecentMeals.this, ActivityForum.class);
+                        Intent i = new Intent(ActivityForum.this, ActivityForum.class);
                         startActivity(i);
                         finish();
                     }
@@ -216,7 +216,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
 
                     //Getting the user settings
                     SharedPreferences sp = PreferenceManager
-                            .getDefaultSharedPreferences(ActivityRecentMeals.this);
+                            .getDefaultSharedPreferences(ActivityForum.this);
                     current_user = "";
                     name = "";
                     logout = true;
@@ -227,7 +227,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
                     edit.commit();
                     Log.d("Log out - current_user", current_user);
                     Log.d("Log out - current name", name);
-                    Intent i = new Intent(ActivityRecentMeals.this, ActivityLogin.class);
+                    Intent i = new Intent(ActivityForum.this, ActivityLogin.class);
                     startActivity(i);
                     finish();
                     }
@@ -326,7 +326,7 @@ public class ActivityRecentMeals extends ActionBarActivity  {
 
         actionButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(ActivityRecentMeals.this,ActivityCreateRecipe.class);
+                Intent i = new Intent(ActivityForum.this, ActivityCreateRecipe.class);
                 startActivity(i);
                 finish();
             }
@@ -337,10 +337,10 @@ public class ActivityRecentMeals extends ActionBarActivity  {
     @Override
     public void onResume() {
         super.onResume();
-        if (!isWifiAvailable(ActivityRecentMeals.this)) {
+        if (!isWifiAvailable(ActivityForum.this)) {
 
 
-            Toast.makeText(ActivityRecentMeals.this, R.string.no_connection,
+            Toast.makeText(ActivityForum.this, R.string.no_connection,
                     Toast.LENGTH_LONG).show();
         }
     }

@@ -46,6 +46,12 @@ public class UploadActivity extends Activity {
 	private Button btnUpload;
 	long totalSize = 0;
 
+	// File upload url (replace the ip with your server address)
+	public static final String FILE_UPLOAD_URL = "http://expox-milano.com/foodapp/fileUpload.php";
+
+	// Directory name to store captured images and videos
+	public static final String IMAGE_DIRECTORY_NAME = "Android File Upload";
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -146,7 +152,7 @@ public class UploadActivity extends Activity {
 			String responseString = null;
 
 			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(Config.FILE_UPLOAD_URL);
+			HttpPost httppost = new HttpPost(FILE_UPLOAD_URL);
 
 			try {
 				AndroidMultiPartEntity entity = new AndroidMultiPartEntity(

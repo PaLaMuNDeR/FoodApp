@@ -63,6 +63,11 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
     private ImageButton recipe_image_button;
     private Button btnCreate;
 
+    // File upload url (replace the ip with your server address)
+    public static final String FILE_UPLOAD_URL = "http://expox-milano.com/foodapp/fileUpload.php";
+
+    // Directory name to store captured images and videos
+    public static final String IMAGE_DIRECTORY_NAME = "Android File Upload";
     // Progress Dialog
     private ProgressDialog pDialog;
     private ProgressDialog qDialog;
@@ -205,8 +210,6 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
-                    Toast.makeText(ActivityCreateRecipe.this, "The Item Clicked is: " +
-                            recyclerView.getChildPosition(child), Toast.LENGTH_SHORT).show();
                     if (recyclerView.getChildPosition(child) == 1) {
                         //Go to Main
                         Intent i = new Intent(ActivityCreateRecipe.this, ActivityRecentMeals.class);
@@ -510,8 +513,6 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
             // dismiss the dialog once product deleted
             pDialog.dismiss();
             if (file_url != null) {
-                Toast.makeText(ActivityCreateRecipe.this, file_url,
-                        Toast.LENGTH_LONG).show();
                 if (bool_success) {
                     Intent i = new Intent(ActivityCreateRecipe.this, ActivityCookbook.class);
                     startActivity(i);
@@ -627,26 +628,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
                         .show();
             }
 
-        } else if (requestCode == CAMERA_CAPTURE_VIDEO_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
 
-                // video successfully recorded
-                // launching upload activity
-                launchUploadActivity(false);
-
-            } else if (resultCode == RESULT_CANCELED) {
-
-                // user cancelled recording
-                Toast.makeText(getApplicationContext(),
-                        "User cancelled video recording", Toast.LENGTH_SHORT)
-                        .show();
-
-            } else {
-                // failed to record video
-                Toast.makeText(getApplicationContext(),
-                        "Sorry! Failed to record video", Toast.LENGTH_SHORT)
-                        .show();
-            }
         }
 
 
@@ -713,7 +695,6 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
             // Make Http call to upload Image to Php server
             public void makeHTTPCall() {
-        prgDialog.setMessage("Invoking Php");
         AsyncHttpClient client = new AsyncHttpClient();
         // Don't forget to change the IP address to your LAN address. Port no as well.
         client.post(UPLOAD_IMAGE_URL,
@@ -826,13 +807,13 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
         File mediaStorageDir = new File(
                 Environment
                         .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                Config.IMAGE_DIRECTORY_NAME);
+                IMAGE_DIRECTORY_NAME);
 
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
                 Log.d(TAG, "Oops! Failed create "
-                        + Config.IMAGE_DIRECTORY_NAME + " directory");
+                        + IMAGE_DIRECTORY_NAME + " directory");
                 return null;
             }
         }

@@ -71,6 +71,11 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
     private ProgressDialog qDialog;
 
 
+    // File upload url (replace the ip with your server address)
+    public static final String FILE_UPLOAD_URL = "http://expox-milano.com/foodapp/fileUpload.php";
+
+    // Directory name to store captured images and videos
+    public static final String IMAGE_DIRECTORY_NAME = "Android File Upload";
     // Drawer Layout
     RecyclerView mRecyclerView;                           // Declaring RecyclerView
     RecyclerView.Adapter mAdapter;                        // Declaring Adapter For Recycler View
@@ -871,13 +876,13 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
         File mediaStorageDir = new File(
                 Environment
                         .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                Config.IMAGE_DIRECTORY_NAME);
+                IMAGE_DIRECTORY_NAME);
 
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
                 Log.d(TAG, "Oops! Failed create "
-                        + Config.IMAGE_DIRECTORY_NAME + " directory");
+                        + IMAGE_DIRECTORY_NAME + " directory");
                 return null;
             }
         }

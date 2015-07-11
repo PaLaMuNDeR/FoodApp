@@ -93,6 +93,15 @@ public class FragmentRecentMealsListView extends ListFragment {
         setListAdapter(new ListViewAdapter(getActivity(), mItems));
 
     }
+    @Override
+    public void onDestroyView(){
+super.onDestroyView();
+        for(int i=0;i<mItems.size();i++) {
+            mItems.remove(i);
+
+        }
+    }
+
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {

@@ -24,7 +24,7 @@
     <string name="logout">Logout</string>
     <string name="mail">Email:</string>
     <string name="input_email">Input email here</string>
-    <string name="no_connection">No Internet connection. Swipe down to retry</string>
+    <string name="no_connection">No Wifi connection. Connect to Wifi to avoid mobile charges</string>
     <string name="address">Address</string>
     <string name="instructions">Instructions:</string>
     <string name="create_and_add_to_cookbook">Create and add to my Cookbook</string>
