@@ -48,7 +48,6 @@ public class FragmentRecentMealsListView extends ListFragment {
     private ProgressDialog pDialog;
     private ProgressDialog sDialog;
 
-
     private static final String READ_RECIPES_URL = "http://expox-milano.com/foodapp/user_likes.php";
     private boolean downloaded_list = false;
     // JSON IDS:
