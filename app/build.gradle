@@ -22,16 +22,7 @@ android {
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE'
     }
-}/*
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.+'
-    }
-}*/
-//compile fileTree(include: ['*.jar'], dir: 'libs')
+}
 dependencies {
     compile fileTree(dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.2.0'
