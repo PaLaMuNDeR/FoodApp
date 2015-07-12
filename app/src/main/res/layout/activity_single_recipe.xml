@@ -7,62 +7,65 @@
     android:layout_height="match_parent"
     android:elevation="7dp">
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/fragmentSingle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/fragmentSingle"
-        android:background="#fff" >
+        android:background="#fff">
 
-    <RelativeLayout
-        android:id="@+id/authorContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        >
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/creatorImage"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/default_face"
-            android:layout_marginLeft="1dp"
-            android:clickable="true"
-            />
-        <TextView
-            android:id="@+id/creatorName"
-            android:layout_toRightOf="@id/creatorImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@android:style/TextAppearance.Small"
-            android:text="Creator Name"
-            android:layout_marginTop="6dp"
-            android:clickable="true"/>
-        <ImageView
-            android:id="@+id/imageFollow"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_toLeftOf="@+id/followTop"
-            android:layout_toStartOf="@+id/followTop"
-            android:src="@drawable/follow_s_64"
-            android:clickable="true"
-            />
-        <TextView
-            android:id="@+id/followTop"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@android:style/TextAppearance.Small"
-            android:text="@string/follow"
-            android:layout_marginTop="6dp"
-            android:clickable="true"/>
-    </RelativeLayout>
         <RelativeLayout
-            android:id="@+id/box"
+            android:id="@+id/authorContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/creatorImage"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginLeft="1dp"
+                android:clickable="true"
+                android:src="@drawable/default_face" />
+
+            <TextView
+                android:id="@+id/creatorName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_toRightOf="@id/creatorImage"
+                android:clickable="true"
+                android:text="Creator Name"
+                android:textAppearance="@android:style/TextAppearance.Small" />
+
+            <ImageView
+                android:id="@+id/imageFollow"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_toLeftOf="@+id/followTop"
+                android:layout_toStartOf="@+id/followTop"
+                android:clickable="true"
+                android:src="@drawable/follow_s_64" />
+
+            <TextView
+                android:id="@+id/followTop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="6dp"
+                android:clickable="true"
+                android:text="@string/follow"
+                android:layout_marginRight="3dp"
+                android:textAppearance="@android:style/TextAppearance.Small" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/recipeContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/authorContainer"
             android:layout_margin="2dp"
-            android:orientation="horizontal"
-            android:layout_below="@id/authorContainer">
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/imageViewSingleRecipe"
@@ -74,10 +77,10 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/imageViewSingleRecipe"
                 android:layout_toEndOf="@+id/imageViewSingleRecipe"
+                android:layout_toRightOf="@+id/imageViewSingleRecipe"
                 android:background="@drawable/post_background_style"
-                android:orientation="horizontal" >
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/recipe_name"
@@ -87,10 +90,11 @@
                     android:paddingBottom="2dip"
                     android:paddingLeft="5dp"
                     android:paddingTop="6dip"
-                    android:text="poi_name"
+                    android:text="name"
                     android:textColor="#333"
                     android:textSize="16sp"
                     android:textStyle="bold" />
+
                 <TextView
                     android:id="@+id/ingredients_label"
                     android:layout_width="wrap_content"
@@ -100,20 +104,19 @@
                     android:paddingLeft="5dp"
                     android:text="@string/ingredients"
                     android:textColor="#5d5d5d"
-                    android:textStyle="bold" >
-                </TextView>
+                    android:textStyle="bold"></TextView>
+
                 <TextView
                     android:id="@+id/ingredients"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/recipe_name"
+                    android:layout_toEndOf="@id/ingredients_label"
+                    android:layout_toRightOf="@id/ingredients_label"
                     android:paddingBottom="2dip"
                     android:paddingLeft="8dp"
                     android:text="description"
-                    android:layout_toRightOf="@id/ingredients_label"
-                    android:layout_toEndOf="@id/ingredients_label"
-                    android:textColor="#888" >
-                </TextView>
+                    android:textColor="#888"></TextView>
 
                 <TextView
                     android:id="@+id/instructions_label"
@@ -124,33 +127,29 @@
                     android:paddingLeft="5dp"
                     android:text="@string/instructions"
                     android:textColor="#5d5d5d"
-                    android:textStyle="bold" >
-                </TextView>
+                    android:textStyle="bold"></TextView>
 
                 <TextView
                     android:id="@+id/instructions"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/ingredients"
-                    android:layout_toRightOf="@+id/instructions_label"
                     android:layout_toEndOf="@+id/instructions_label"
+                    android:layout_toRightOf="@+id/instructions_label"
                     android:gravity="left"
                     android:text="instructions_value"
                     android:textColor="#acacac"
-                    android:textStyle="bold" >
-                </TextView>
-
+                    android:textStyle="bold"></TextView>
 
 
             </RelativeLayout>
         </RelativeLayout>
 
-
         <Button
             android:id="@+id/btn_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/box"
+            android:layout_below="@+id/recipeContainer"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="14dp"
             android:text="@string/add_to_cookbook"
@@ -158,26 +157,90 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-    <ImageView
-        android:id="@+id/image_like"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@drawable/heart_dish_s_64"
-        android:clickable="true"
-        android:layout_below="@+id/box"
-        android:layout_toRightOf="@id/btn_add"
-        android:layout_toEndOf="@id/btn_add"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"/>
+        <ImageView
+            android:id="@+id/image_like"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/recipeContainer"
+            android:layout_toEndOf="@id/btn_add"
+            android:layout_toRightOf="@id/btn_add"
+            android:clickable="true"
+            android:src="@drawable/heart_dish_s_64" />
 
+        <RelativeLayout
+            android:id="@+id/commentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btn_add">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/user_photo"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:src="@drawable/default_face" />
+
+            <TextView
+                android:id="@+id/username"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_toEndOf="@id/user_photo"
+                android:layout_toRightOf="@id/user_photo"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_centerInParent="true"
+                />
+
+            <EditText
+                android:id="@+id/comment_box"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/username"
+                android:layout_toLeftOf="@+id/post_comment"
+                android:layout_toRightOf="@+id/username"
+                android:layout_toStartOf="@+id/post_comment"
+                android:focusableInTouchMode="true"/>
+
+            <ImageView
+                android:id="@+id/post_comment"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:clickable="true"
+                android:paddingRight="3dp"
+                android:src="@drawable/comment_64" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/commentContainer"
+            android:gravity="bottom">
+
+
+                <ListView
+                    android:id="@+id/comments_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawSelectorOnTop="false"
+                    android:scrollbars="none" />
+
+        </RelativeLayout>
 
     </RelativeLayout>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/RecyclerView"
         android:layout_width="320dp"
         android:layout_height="match_parent"
         android:layout_gravity="left"
         android:background="@color/primaryColor"
-        android:scrollbars="vertical"/>
+        android:scrollbars="vertical" />
 
 </android.support.v4.widget.DrawerLayout>

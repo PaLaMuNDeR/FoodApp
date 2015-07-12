@@ -13,8 +13,6 @@
         android:id="@+id/itemSimple"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/moreHolder"
-        android:layout_toStartOf="@+id/moreHolder"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:background="#FFF" >

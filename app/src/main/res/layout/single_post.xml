@@ -13,7 +13,7 @@
         android:orientation="vertical" >
 
         <LinearLayout
-            android:id="@+id/box"
+            android:id="@+id/recipeContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="2dp"
@@ -27,7 +27,7 @@
                 android:src="@drawable/ic_launcher" />
 
             <LinearLayout
-                android:id="@id/box"
+                android:id="@id/recipeContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="2dp"

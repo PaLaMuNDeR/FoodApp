@@ -190,53 +190,53 @@ super.onDestroyView();
         // when parsing JSON stuff, we should probably
         // try to catch any exceptions:
             try {
-                //.-=Parse the recipes=-.
+                    //.-=Parse the recipes=-.
 
 
-                // mPois will tell us how many "posts" are
-                // available
-                mPois = json.getJSONArray(TAG_POSTS);
+                    // mPois will tell us how many "posts" are
+                    // available
+                    mPois = json.getJSONArray(TAG_POSTS);
 
 
-                // looping through all posts according to the json object
-                // returned
-                for (int i = 0; i < mPois.length(); i++) {
-                    JSONObject c = mPois.getJSONObject(i);
+                    // looping through all posts according to the json object
+                    // returned
+                    for (int i = 0; i < mPois.length(); i++) {
+                        JSONObject c = mPois.getJSONObject(i);
 
-                    // gets the content of each tag
-                    String recipe_id = c.getString(TAG_RECIPE_ID);
-                    String name = c.getString(TAG_RECIPE_NAME);
-                    String ingredients = c.getString(TAG_INGREDIENTS);
-                    String instructions = c.getString(TAG_INSTRUCTIONS);
-                    // String poi_id = c.getString(TAG_POI_ID);
-                    String recipe_image_url = c.getString(TAG_RECIPE_IMAGE_URL);
-                    creator_id = c.getString(TAG_CREATOR_ID);
-                    String creator_username = c.getString(TAG_CREATOR_USERNAME);
-                    String creator_photo = c.getString(TAG_CREATOR_PHOTO);
+                        // gets the content of each tag
+                        String recipe_id = c.getString(TAG_RECIPE_ID);
+                        String name = c.getString(TAG_RECIPE_NAME);
+                        String ingredients = c.getString(TAG_INGREDIENTS);
+                        String instructions = c.getString(TAG_INSTRUCTIONS);
+                        // String poi_id = c.getString(TAG_POI_ID);
+                        String recipe_image_url = c.getString(TAG_RECIPE_IMAGE_URL);
+                        creator_id = c.getString(TAG_CREATOR_ID);
+                        String creator_username = c.getString(TAG_CREATOR_USERNAME);
+                        String creator_photo = c.getString(TAG_CREATOR_PHOTO);
 
 
 
-                    Drawable draw_temp = null;
-                    try {
-                        draw_temp = drawableFromUrl(recipe_image_url);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    // Drawable draw_temp_2 = null;
-                    try {
-                        draw_temp_2 = drawableFromUrl(creator_photo);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    // Drawable draw_temp_2=null;
+                        Drawable draw_temp = null;
+                        try {
+                            draw_temp = drawableFromUrl(recipe_image_url);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        // Drawable draw_temp_2 = null;
+                        try {
+                            draw_temp_2 = drawableFromUrl(creator_photo);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        // Drawable draw_temp_2=null;
                        /*    new DrawableFromUrl2()
                             .execute(creator_photo);*/
 
-                    mItems.add(new ListViewItem(draw_temp, name, instructions, creator_username, draw_temp_2));
-                    // annndddd, our JSON data is up to date same with our array
-                    // list
+                        mItems.add(new ListViewItem(draw_temp, name, instructions, creator_username, draw_temp_2));
+                        // annndddd, our JSON data is up to date same with our array
+                        // list
 
-                }
+                    }
                 downloaded_list = true;
             } catch (JSONException e) {
                 e.printStackTrace();

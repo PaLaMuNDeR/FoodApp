@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?><!-- the parent view - provides the gray listfragment background color -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@drawable/post_background_style"
+    android:gravity="center_vertical"
+    android:padding="5dp">
+
+    <!-- the innner view - provides the white rectangle -->
+    <RelativeLayout
+        android:id="@+id/itemSimple"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="#FFF">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/creatorImage"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginLeft="1dp"
+            android:clickable="true"
+            android:src="@drawable/default_face" />
+
+        <TextView
+            android:id="@+id/creatorName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@id/creatorImage"
+            android:layout_toRightOf="@id/creatorImage"
+            android:clickable="true"
+            android:text="Creator Name"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />
+
+        <TextView
+            android:id="@+id/commentText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@id/creatorName"
+            android:layout_toRightOf="@id/creatorName"
+            android:textSize="14sp" />
+
+    </RelativeLayout>
+
+</RelativeLayout>
