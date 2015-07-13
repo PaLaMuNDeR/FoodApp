@@ -375,8 +375,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         post_comment = (ImageView) findViewById(R.id.post_comment);
         post_comment.setOnClickListener(this);
         lv = (ListView) findViewById(R.id.comments_list);
-        InputMethodManager inputManager = (InputMethodManager)
-                getSystemService(Context.INPUT_METHOD_SERVICE);
+
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -439,7 +438,8 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                 new LikeUnlike().execute();
                 break;
             case R.id.post_comment:
-
+                InputMethodManager inputManager = (InputMethodManager)
+                        getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
                 new PostComment().execute();
@@ -823,12 +823,13 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
     }
     public static Drawable drawableFromUrl(String url) throws IOException {
         Bitmap x;
-
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 3;
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.connect();
         InputStream input = connection.getInputStream();
 
-        x = BitmapFactory.decodeStream(input);
+        x = BitmapFactory.decodeStream(input,null,options);
         return new BitmapDrawable(x);
     }
 

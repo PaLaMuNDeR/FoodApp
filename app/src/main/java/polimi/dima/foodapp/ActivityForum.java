@@ -153,6 +153,7 @@ public class ActivityForum extends ActionBarActivity {
 
             if (imgFile.exists()) {
                 Log.d("Download Image", "Profile Image - yes");
+
                 profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(),options);
             }
 
@@ -363,7 +364,7 @@ public class ActivityForum extends ActionBarActivity {
 
         actionButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(ActivityForum.this, ActivityCreateRecipe.class);
+                Intent i = new Intent(ActivityForum.this, ActivityCreateQuestion.class);
                 startActivity(i);
                 finish();
             }

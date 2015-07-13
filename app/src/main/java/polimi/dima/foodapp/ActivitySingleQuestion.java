@@ -95,7 +95,7 @@ public class ActivitySingleQuestion extends ActionBarActivity implements View.On
     private static final String UNLIKE_URL = "http://expox-milano.com/foodapp/del_like.php";
 
     private static final String TAG_POSTS = "posts";
-    private static final String TAG_RECIPE_ID = "recipe_id";
+    private static final String TAG_QUESTION_ID = "question_id";
     private static final String TAG_TEXT = "text";
     private static final String TAG_COMMENTER = "username";
     private static final String TAG_COMMENTER_PHOTO = "photo";
@@ -309,12 +309,12 @@ public class ActivitySingleQuestion extends ActionBarActivity implements View.On
         mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
 
         current_user = post_username;
-        //Load the comments of the recipe
-        new LoadComments().execute();
 
 
         // parsing the data from the shared preferences
         recipe_id = sp.getString("question_id", "");
+        //Load the comments of the recipe
+        new LoadComments().execute();
 
         String r_title = sp.getString("question_title", "");
         TextView recipe_name_view2 = (TextView) findViewById(R.id.recipe_name);
@@ -378,7 +378,7 @@ public class ActivitySingleQuestion extends ActionBarActivity implements View.On
             String urldisplay = urls[0];
             Bitmap mIcon11 = null;
             try {
-                ;
+
                 InputStream in = new URL(urldisplay).openStream();
                 mIcon11 = BitmapFactory.decodeStream(in);
             } catch (Exception e) {
@@ -626,7 +626,7 @@ public class ActivitySingleQuestion extends ActionBarActivity implements View.On
                 // Building Parameters
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
                 params.add(new BasicNameValuePair("username", username));
-                params.add(new BasicNameValuePair("recipe_id", recipe_id));
+                params.add(new BasicNameValuePair("question_id", recipe_id));
                 params.add(new BasicNameValuePair("text", comment_text));
                 json = jsonParser.makeHttpRequest(POST_COMMENT_URL,
                         "POST", params);
@@ -693,7 +693,7 @@ public class ActivitySingleQuestion extends ActionBarActivity implements View.On
             try{
                 // Building Parameters
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
-                params.add(new BasicNameValuePair("recipe_id", recipe_id));
+                params.add(new BasicNameValuePair("question_id", recipe_id));
 
                 Log.d("request!", "starting");
                 // getting product details by making HTTP request
@@ -718,7 +718,7 @@ public class ActivitySingleQuestion extends ActionBarActivity implements View.On
                         JSONObject c = mPois.getJSONObject(i);
 
                         // gets the content of each tag
-                        String recipe_id = c.getString(TAG_RECIPE_ID);
+                        String recipe_id = c.getString(TAG_QUESTION_ID);
                         String text = c.getString(TAG_TEXT);
                         String commenter = c.getString(TAG_COMMENTER);
                         String commenter_photo = c.getString(TAG_COMMENTER_PHOTO);
@@ -784,19 +784,20 @@ public class ActivitySingleQuestion extends ActionBarActivity implements View.On
     }
     public static Drawable drawableFromUrl(String url) throws IOException {
         Bitmap x;
-
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 3;
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.connect();
         InputStream input = connection.getInputStream();
 
-        x = BitmapFactory.decodeStream(input);
+        x = BitmapFactory.decodeStream(input,null,options);
         return new BitmapDrawable(x);
     }
 
     @Override
     public void onBackPressed(){
         super.onBackPressed();
-        Intent i = new Intent(ActivitySingleQuestion.this, ActivityRecentMeals.class);
+        Intent i = new Intent(ActivitySingleQuestion.this, ActivityForum.class);
         startActivity(i);
         finish();
     }

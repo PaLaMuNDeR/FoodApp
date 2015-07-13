@@ -166,13 +166,14 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
         BitmapDrawable coverBitmap = null;
         try {
             File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
-
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 3;
             if (imgFile.exists()) {
-                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(),options);
             }
             imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
             if (imgFile.exists()) {
-                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(),options);
                 coverBitmap = new BitmapDrawable(getResources(), bitmap);
             }
 

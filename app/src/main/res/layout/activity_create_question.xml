@@ -48,7 +48,7 @@
                         android:id="@+id/create_recipe_name_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/create_recipe_name_label"
+                        android:text="@string/question_title"
                         android:layout_centerHorizontal="true"
                         android:layout_below="@+id/recipe_image_button"
                         />
@@ -58,7 +58,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:ems="10"
-                        android:hint="@string/create_recipe_name"
+                        android:hint="@string/quetion_title_name"
                         android:layout_below="@+id/create_recipe_name_label"
                         android:layout_centerHorizontal="true" />
 
@@ -67,7 +67,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/create_recipe_name"
-                        android:text="@string/create_recipe_ingredients_label"
+                        android:text="@string/text_label"
                         android:layout_centerVertical="true"
                         android:layout_centerHorizontal="true" />
                     <EditText
@@ -76,36 +76,29 @@
                         android:layout_height="wrap_content"
                         android:layout_centerHorizontal="true"
                         android:ems="10"
-                        android:hint="@string/create_recipe_ingredients"
+                        android:hint="@string/input_text"
                         android:layout_below="@+id/create_recipe_ingredients_label"/>
 
-
-                    <TextView
-                        android:id="@+id/create_recipe_instructions_label"
+                    <CheckBox
+                        android:id="@+id/keepImageCheck"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true"
-                        android:text="@string/create_recipe_instructions_label"
+                        android:text="@string/basic"
                         android:layout_below="@+id/create_recipe_ingredients"
-                        />
-                    <EditText
-                        android:id="@+id/create_recipe_instructions"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:hint="@string/create_recipe_instructions"
-                        android:layout_below="@+id/create_recipe_instructions_label"
-                        android:layout_centerHorizontal="true" />
+                        android:layout_toLeftOf="@+id/create_recipe_ingredients_label"
+                        android:layout_toStartOf="@+id/create_recipe_ingredients_label"
+                        android:checked="true" />
+
 
                     <Button
                         android:id="@+id/btn_create"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/create_and_add_to_cookbook"
+                        android:text="@string/post"
                         android:textColor="#333"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:layout_below="@+id/create_recipe_instructions"
+                        android:layout_below="@+id/keepImageCheck"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="30dp" />
                     <CheckBox
@@ -114,7 +107,10 @@
                         android:layout_height="wrap_content"
                         android:text="@string/post_as_anonymous"
                         android:layout_below="@+id/btn_create"
+                        android:layout_toLeftOf="@+id/btn_create"
+                        android:layout_toStartOf="@+id/btn_create"
                         android:checked="false" />
+
                 </RelativeLayout>
             </ScrollView>
 

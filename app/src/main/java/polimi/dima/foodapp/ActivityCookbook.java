@@ -121,12 +121,16 @@ public class ActivityCookbook extends ActionBarActivity  {
 
             if(imgFile.exists()){
                 Log.d("Download Image","Profile Image - yes");
-                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 3;
+                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(),options);
             }
             imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
             if(imgFile.exists()){
                 Log.d("Download Image","Cover Image - yes");
-                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 3;
+                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(),options);
                 coverBitmap = new BitmapDrawable(getResources(), bitmap);
             }
 
