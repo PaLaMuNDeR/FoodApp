@@ -719,10 +719,8 @@ public class ActivitySingleRecipeEdit extends ActionBarActivity implements View.
             encodeImagetoString();
             // When Image is not selected from Gallery
         } else {
-            Toast.makeText(
-                    getApplicationContext(),
-                    "You must select image from gallery before you try to upload",
-                    Toast.LENGTH_LONG).show();
+            uploaded_image_url=recipe_image_url;
+            new CreateRecipe().execute();
         }
     }
 

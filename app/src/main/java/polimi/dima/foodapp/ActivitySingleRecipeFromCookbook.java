@@ -334,6 +334,7 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
                 new DelRecipe().execute();
                 break;
             case R.id.btn_edit:
+
                 Intent i = new Intent(ActivitySingleRecipeFromCookbook.this,
                         ActivitySingleRecipeEdit.class);
                 finish();

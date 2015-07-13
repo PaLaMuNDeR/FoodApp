@@ -80,12 +80,14 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
     Button
             btnAdd;
 
+   // TextView numLikes ;
+   // TextView Likes ;
     private static String recipe_id = "";
     String creator_id;
 
     String user_id;
     JSONParser jsonParser = new JSONParser();
-
+String likes="0";
     JSONObject json;
     JSONObject jsonFollow;
     private static final String ADD_REC_URL = "http://expox-milano.com/foodapp/add_rec.php";
@@ -97,6 +99,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
     private static final String UNLIKE_URL = "http://expox-milano.com/foodapp/del_like.php";
 
     private static final String TAG_POSTS = "posts";
+    private static final String TAG_LIKES = "likes";
     private static final String TAG_RECIPE_ID = "recipe_id";
     private static final String TAG_TEXT = "text";
     private static final String TAG_COMMENTER = "username";
@@ -156,7 +159,6 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         mItems = new ArrayList<ListViewItem>();
 
 
-
         BitmapDrawable coverBitmap = null;
         //TODO do it all around
 
@@ -169,15 +171,15 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
             if (imgFile.exists()) {
                 Log.d("Download Image", "Profile Image - yes");
 
-               // profileBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(imgFile.getAbsolutePath()), );
+                // profileBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(imgFile.getAbsolutePath()), );
 
-                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(),options);
+                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(), options);
             }
             imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
             if (imgFile.exists()) {
                 Log.d("Download Image", "Cover Image - yes");
-                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(),options);
-             //   Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(imgFile.getAbsolutePath()), 30,30, true);
+                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(), options);
+                //   Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(imgFile.getAbsolutePath()), 30,30, true);
 
                 coverBitmap = new BitmapDrawable(getResources(), bitmap);
             }
@@ -185,7 +187,6 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
 
         // Assinging the toolbar object ot the view
@@ -313,7 +314,6 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
         current_user = post_username;
         //Load the comments of the recipe
-        new LoadComments().execute();
 
 
         btnAdd = (Button) findViewById(R.id.btn_add);
@@ -321,6 +321,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         btnAdd.setOnClickListener(this);
         // parsing the data from the shared preferences
         recipe_id = sp.getString("recipe_id", "");
+        new LoadComments().execute();
 
         String r_name_value = sp.getString("recipe_name", "");
         TextView recipe_name_view2 = (TextView) findViewById(R.id.recipe_name);
@@ -367,10 +368,10 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         if (bool_followed) {
             this.image_followed.setImageDrawable(getResources().getDrawable(R.drawable.follow_o_64));
         }
-        ImageView user_photo= (ImageView) findViewById(R.id.user_photo);
+        ImageView user_photo = (ImageView) findViewById(R.id.user_photo);
         user_photo.setImageBitmap(profileBitmap);
         TextView current_username = (TextView) findViewById(R.id.username);
-                current_username.setText(current_user);
+        current_username.setText(current_user);
         comment_box = (EditText) findViewById(R.id.comment_box);
         post_comment = (ImageView) findViewById(R.id.post_comment);
         post_comment.setOnClickListener(this);
@@ -443,6 +444,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                 inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
                 new PostComment().execute();
+
                 break;
             default:
                 break;
@@ -613,15 +615,41 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
                 // json success tag
                 success = json.getInt(TAG_SUCCESS);
-                if (success == 1) {
-                    Log.d("Synch Successful!", json.toString());
+               if(json!=null) {
+                   try {
+                       //.-=Parse the likes=-.
 
-                    return json.getString(TAG_MESSAGE);
-                } else {
-                    Log.d("Synchronization failed!",
-                            json.getString(TAG_MESSAGE));
-                    return json.getString(TAG_MESSAGE);
-                }
+
+                       // mPois will tell us how many "posts" are
+                       // available
+                       mPois = json.getJSONArray(TAG_LIKES);
+
+
+                       // looping through all posts according to the json object
+                       // returned
+                       for (int i = 0; i < mPois.length(); i++) {
+                           JSONObject c = mPois.getJSONObject(i);
+
+                           // gets the content of each tag
+                           likes = c.getString(TAG_LIKES);
+
+
+
+                       }
+                   } catch (JSONException e) {
+                       e.printStackTrace();
+                   }
+
+                   if (success == 1) {
+                       Log.d("Synch Successful!", json.toString());
+
+                       return json.getString(TAG_MESSAGE);
+                   } else {
+                       Log.d("Synchronization failed!",
+                               json.getString(TAG_MESSAGE));
+                       return json.getString(TAG_MESSAGE);
+                   }
+               }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -644,6 +672,20 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                             Toast.LENGTH_SHORT).show();
                     image_like.setImageDrawable(getResources().getDrawable(R.drawable.heart_dish_o_64));
                     bool_liked = true;
+                }
+                TextView  numLikes = (TextView) findViewById(R.id.num_likes);
+                TextView  Likes = (TextView) findViewById(R.id.likes);
+
+                if(likes.equals("1")){
+
+                    numLikes.setText(likes);
+                    Likes.setText("Like");
+                }else if(likes.equals("0")){
+                    numLikes.setText("No");
+                    Likes.setText("Likes");
+
+                }else {
+                    numLikes.setText(likes);
                 }
             }
 
@@ -706,7 +748,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
             Log.d("current_user", "current_user" + current_user);
             if (file_url != null && current_user != "") {
                 comment_box.setText("");
-                comment_box.setInputType(InputType.TYPE_NULL);
+           //     comment_box.setInputType(InputType.TYPE_NULL);
 /*
                 comment_box.setFocusable(false);
                 comment_box.setFocusableInTouchMode(true);*/
@@ -714,6 +756,17 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
                 Toast.makeText(ActivitySingleRecipeFromAll.this, "Posted",
                         Toast.LENGTH_SHORT).show();
+                EditText ed = (EditText) findViewById(R.id.comment_box);
+                ed.setFocusable(true);
+                ed.setFocusableInTouchMode(true);
+
+                InputMethodManager inputManager = (InputMethodManager)
+                        getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                        InputMethodManager.RESULT_SHOWN);
+
+
+                lv.deferNotifyDataSetChanged();
                 new LoadComments().execute();
 
             }
@@ -728,57 +781,79 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         protected String doInBackground(String... args) {
             // Check for success tag
             int success;
-            try{
+            try {
                 // Building Parameters
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
                 params.add(new BasicNameValuePair("recipe_id", recipe_id));
 
                 Log.d("request!", "starting");
                 // getting product details by making HTTP request
-                    json = jsonParser.makeHttpRequest(LOAD_COMMENTS_URL,
-                            "POST", params);
+                json = jsonParser.makeHttpRequest(LOAD_COMMENTS_URL,
+                        "POST", params);
                 // check your log for json response
                 Log.d("Comments attempt", json.toString());
-            success = json.getInt(TAG_SUCCESS);
-            if (success == 1) {
-                try {
-                    //.-=Parse the recipes=-.
+                success = json.getInt(TAG_SUCCESS);
+                if (json != null) {
+                    try {
+                        //.-=Parse the comments=-.
 
 
-                    // mPois will tell us how many "posts" are
-                    // available
-                    mPois = json.getJSONArray(TAG_POSTS);
+                        // mPois will tell us how many "posts" are
+                        // available
+                        mPois = json.getJSONArray(TAG_POSTS);
 
 
-                    // looping through all posts according to the json object
-                    // returned
-                    for (int i = 0; i < mPois.length(); i++) {
-                        JSONObject c = mPois.getJSONObject(i);
+                        // looping through all posts according to the json object
+                        // returned
+                        for (int i = 0; i < mPois.length(); i++) {
+                            JSONObject c = mPois.getJSONObject(i);
 
-                        // gets the content of each tag
-                        String recipe_id = c.getString(TAG_RECIPE_ID);
-                        String text = c.getString(TAG_TEXT);
-                        String commenter = c.getString(TAG_COMMENTER);
-                        String commenter_photo = c.getString(TAG_COMMENTER_PHOTO);
+                            // gets the content of each tag
+                            String recipe_id = c.getString(TAG_RECIPE_ID);
+                            String text = c.getString(TAG_TEXT);
+                            String commenter = c.getString(TAG_COMMENTER);
+                            String commenter_photo = c.getString(TAG_COMMENTER_PHOTO);
 
-                        Drawable draw_temp = null;
-                        try {
-                            draw_temp = drawableFromUrl(commenter_photo);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            Drawable draw_temp = null;
+                            try {
+                                draw_temp = drawableFromUrl(commenter_photo);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            mItems.add(new ListViewItem(recipe_id, commenter, draw_temp, text));
+                            // annndddd, our JSON data is up to date same with our array
+                            // list
+
                         }
-
-                        mItems.add(new ListViewItem(recipe_id, commenter, draw_temp, text));
-                        // annndddd, our JSON data is up to date same with our array
-                        // list
-
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    try {
+                        //.-=Parse the likes=-.
+
+
+                        // mPois will tell us how many "posts" are
+                        // available
+                        mPois = json.getJSONArray(TAG_LIKES);
+
+
+                        // looping through all posts according to the json object
+                        // returned
+                        for (int i = 0; i < mPois.length(); i++) {
+                            JSONObject c = mPois.getJSONObject(i);
+
+                            // gets the content of each tag
+                            likes = c.getString(TAG_LIKES);
+
+
+
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-                }
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
@@ -788,7 +863,21 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         protected void onPostExecute(String file_url) {
             // dismiss the dialog once product is added
             Log.d("current_user", "current_user" + current_user);
-            lv.deferNotifyDataSetChanged();
+
+            TextView  numLikes = (TextView) findViewById(R.id.num_likes);
+            TextView  Likes = (TextView) findViewById(R.id.likes);
+
+            if(likes.equals("1")){
+
+                numLikes.setText(likes);
+                Likes.setText("Like");
+            }else if(likes.equals("0")){
+                numLikes.setText("No");
+                Likes.setText("Likes");
+
+            }else {
+                numLikes.setText(likes);
+            }
             updateCommentsList();
         }
 
@@ -807,9 +896,9 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                 Log.e("poi_name", "The position is '" + position
                         + "' the id is '" + id + "'");
 
-          //      id_click = position;
+                //      id_click = position;
 
-            //    updateJSONdataForOne();
+                //    updateJSONdataForOne();
 
 /*
                 Intent i = new Intent(getActivity(),
@@ -821,6 +910,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
             }
         });
     }
+
     public static Drawable drawableFromUrl(String url) throws IOException {
         Bitmap x;
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -829,12 +919,12 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         connection.connect();
         InputStream input = connection.getInputStream();
 
-        x = BitmapFactory.decodeStream(input,null,options);
+        x = BitmapFactory.decodeStream(input, null, options);
         return new BitmapDrawable(x);
     }
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
         super.onBackPressed();
         Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityRecentMeals.class);
         startActivity(i);

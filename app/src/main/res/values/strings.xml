@@ -63,6 +63,8 @@
     <string name="input_text">Input text here</string>
     <string name="post">Post</string>
     <string name="post_as_anonymous">Post as anonymous</string>
+    <string name="Likes">Likes</string>
+    <string name="no">No</string>
     <array name="choices">
     <item name="basic"/>
     <item name="advanced"/>

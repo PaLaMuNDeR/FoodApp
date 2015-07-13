@@ -212,7 +212,10 @@ public class ActivityForum extends ActionBarActivity {
                     Drawer.closeDrawers();
                     //0 is the image on top
                     if (recyclerView.getChildPosition(child) == 1) {
-                        //Remain in Main
+                        Intent i = new Intent(ActivityForum.this, ActivityRecentMeals.class);
+                        startActivity(i);
+                        finish();
+
 
                     }
                     if (recyclerView.getChildPosition(child) == 2) {

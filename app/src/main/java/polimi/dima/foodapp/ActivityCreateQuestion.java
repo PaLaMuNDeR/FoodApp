@@ -864,7 +864,7 @@ public class ActivityCreateQuestion extends ActionBarActivity implements View.On
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent i = new Intent(ActivityCreateQuestion.this, ActivityRecentMeals.class);
+        Intent i = new Intent(ActivityCreateQuestion.this, ActivityForum.class);
         startActivity(i);
         finish();
     }
