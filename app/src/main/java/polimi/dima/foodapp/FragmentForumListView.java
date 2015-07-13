@@ -1,7 +1,10 @@
 package polimi.dima.foodapp;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -12,11 +15,13 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -37,7 +42,7 @@ import java.util.List;
 /**
  * Created by Marti on 17/06/2015.
  */
-public class FragmentRecentMealsListView extends ListFragment {
+public class FragmentForumListView extends ListFragment {
 
     private List<ListViewItem> mItems;        // ListView items list
     ListViewAdapter adapter;
@@ -48,8 +53,7 @@ public class FragmentRecentMealsListView extends ListFragment {
     private ProgressDialog pDialog;
     private ProgressDialog sDialog;
 
-    private static final String READ_RECIPES_URL = "http://expox-milano.com/foodapp/user_likes.php";
-    private static final String READ_LIKED_RECIPES_URL = "http://expox-milano.com/foodapp/user_liked_recipes.php";
+    private static final String READ_QUESTIONS_URL = "http://expox-milano.com/foodapp/questions.php";
     private boolean downloaded_list = false;
     // JSON IDS:
     private static final String TAG_SUCCESS = "success";
@@ -59,7 +63,7 @@ public class FragmentRecentMealsListView extends ListFragment {
     private static final String TAG_INSTRUCTIONS = "instructions";
     private static final String TAG_INGREDIENTS = "ingredients";
     private static final String TAG_RECIPE_IMAGE_URL = "recipe_image_url";
-    private static final String TAG_CREATOR_ID = "creator_id";
+    private static final String TAG_CREATOR_ID = "user_id";
     private static final String TAG_CREATOR_USERNAME = "creator_username";
     private static final String TAG_CREATOR_PHOTO = "creator_photo";
     private static final String TAG_RECIPE_ID = "recipe_id";
@@ -67,6 +71,10 @@ public class FragmentRecentMealsListView extends ListFragment {
     private static final String TAG_FOLLOWED = "followed";
     private static final String TAG_L_RECIPE_ID = "l_recipe_id";
     private static final String TAG_F_USER_ID = "f_user_id";
+    private static final String TAQ_QUESTION_ID= "question_id";
+    private static final String TAG_TEXT= "text";
+    private static final String TAG_QUESTION_IMAGE_URL= "question_image_url";
+    private static final String TAG_QUESTION_TITLE= "title";
 
     // An array of all of our pois
     private JSONArray mPois = null;
@@ -78,8 +86,8 @@ public class FragmentRecentMealsListView extends ListFragment {
     private ArrayList<HashMap<String, String>> mFollowedList;
     // Checks whether there is internet
 
-    Drawable draw_temp_2;
-
+    //0-basic, 1-advanced
+Boolean level_bool=false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,11 +96,11 @@ public class FragmentRecentMealsListView extends ListFragment {
         // initialize the items list
         mItems = new ArrayList<ListViewItem>();
         Resources resources = getResources();
-        new LoadRecipes().execute();
-             // initialize and set the list adapter
-        setListAdapter(new ListViewAdapter(getActivity(), mItems));
 
-    }
+  //  new LoadRecipes().execute();
+
+}
+
     @Override
     public void onDestroyView(){
 super.onDestroyView();
@@ -102,7 +110,7 @@ super.onDestroyView();
                 .getDefaultSharedPreferences(getActivity());
 
         SharedPreferences.Editor edit = sp.edit();
-        edit.putBoolean("liked_activity_bool", false);
+        edit.putBoolean("level_bool", false);
         edit.commit();
     }
 
@@ -141,7 +149,7 @@ super.onDestroyView();
         protected void onPreExecute() {
             super.onPreExecute();
             pDialog = new ProgressDialog(getActivity());
-            pDialog.setMessage("Loading all recipes...");
+            pDialog.setMessage("Loading all questions...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(true);
             pDialog.show();
@@ -157,6 +165,7 @@ super.onDestroyView();
         protected void onPostExecute(Boolean result) {
             super.onPostExecute(result);
             pDialog.dismiss();
+            getListView().deferNotifyDataSetChanged();
             updateList();
         }
 
@@ -172,21 +181,17 @@ super.onDestroyView();
             JSONParser jParser = new JSONParser();
             SharedPreferences sp = PreferenceManager
                     .getDefaultSharedPreferences(getActivity());
-           String username = sp.getString("username", "");
-            Boolean liked_activity_bool = sp.getBoolean("liked_activity_bool", false);
+           level_bool = sp.getBoolean("level_bool", false);
+
+            String level = "0";
+            if(level_bool){
+level="1";
+            }
 
             List<NameValuePair> params = new ArrayList<NameValuePair>();
-            String creator_id = sp.getString("creator_id","0");
-            params.add(new BasicNameValuePair("creator_id",creator_id));
-            params.add(new BasicNameValuePair("username", username));
-           if(liked_activity_bool){
-               json = jsonParser.makeHttpRequest(READ_LIKED_RECIPES_URL,
+            params.add(new BasicNameValuePair("level",level));
+               json = jsonParser.makeHttpRequest(READ_QUESTIONS_URL,
                        "POST", params);
-
-           }else {
-               json = jsonParser.makeHttpRequest(READ_RECIPES_URL,
-                       "POST", params);
-           }
         // when parsing JSON stuff, we should probably
         // try to catch any exceptions:
             try {
@@ -198,41 +203,35 @@ super.onDestroyView();
                 if(json!=null) {
                     mPois = json.getJSONArray(TAG_POSTS);
 
-
                     // looping through all posts according to the json object
                     // returned
                     for (int i = 0; i < mPois.length(); i++) {
                         JSONObject c = mPois.getJSONObject(i);
 
                         // gets the content of each tag
-                        String recipe_id = c.getString(TAG_RECIPE_ID);
-                        String name = c.getString(TAG_RECIPE_NAME);
-                        String ingredients = c.getString(TAG_INGREDIENTS);
-                        String instructions = c.getString(TAG_INSTRUCTIONS);
-                        // String poi_id = c.getString(TAG_POI_ID);
-                        String recipe_image_url = c.getString(TAG_RECIPE_IMAGE_URL);
-                        creator_id = c.getString(TAG_CREATOR_ID);
+                        String question_id = c.getString(TAQ_QUESTION_ID);
+                        String text = c.getString(TAG_TEXT);
+                        String question_image_url = c.getString(TAG_QUESTION_IMAGE_URL);
                         String creator_username = c.getString(TAG_CREATOR_USERNAME);
+                        String creator_id = c.getString(TAG_CREATOR_ID);
                         String creator_photo = c.getString(TAG_CREATOR_PHOTO);
+                        String title = c.getString(TAG_QUESTION_TITLE);
 
 
                         Drawable draw_temp = null;
                         try {
-                            draw_temp = drawableFromUrl(recipe_image_url);
+                            draw_temp = drawableFromUrl(question_image_url);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        // Drawable draw_temp_2 = null;
+                        Drawable draw_temp_2 = null;
                         try {
                             draw_temp_2 = drawableFromUrl(creator_photo);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        // Drawable draw_temp_2=null;
-                       /*    new DrawableFromUrl2()
-                            .execute(creator_photo);*/
 
-                        mItems.add(new ListViewItem(draw_temp, name, instructions, creator_username, draw_temp_2));
+                        mItems.add(new ListViewItem(draw_temp, title, text, creator_username, draw_temp_2));
                         // annndddd, our JSON data is up to date same with our array
                         // list
 
@@ -268,7 +267,7 @@ super.onDestroyView();
                 updateJSONdataForOne();
 
                 Intent i = new Intent(getActivity(),
-                        ActivitySingleRecipeFromAll.class);
+                        ActivitySingleQuestion.class);
                 getActivity().finish();
                 startActivity(i);
 
@@ -309,47 +308,26 @@ super.onDestroyView();
                 JSONObject c = mPois.getJSONObject(id_click);
 
                 // gets the content of each tag
-                String recipe_id = c.getString(TAG_RECIPE_ID);
-                String recipe_name = c.getString(TAG_RECIPE_NAME);
-                String ingredients = c.getString(TAG_INGREDIENTS);
-                String instructions = c.getString(TAG_INSTRUCTIONS);
-                String recipe_image_url = c.getString(TAG_RECIPE_IMAGE_URL);
-                String creator_id = c.getString(TAG_CREATOR_ID);
+                // gets the content of each tag
+                String question_id = c.getString(TAQ_QUESTION_ID);
+                String text = c.getString(TAG_TEXT);
+                String question_image_url = c.getString(TAG_QUESTION_IMAGE_URL);
                 String creator_username = c.getString(TAG_CREATOR_USERNAME);
+                String creator_id = c.getString(TAG_CREATOR_ID);
                 String creator_photo = c.getString(TAG_CREATOR_PHOTO);
+                String title = c.getString(TAG_QUESTION_TITLE);
 
-                Boolean liked = false;
-                Boolean followed = false;
-                mLikes = json.getJSONArray(TAG_LIKES);
-                for (int i = 0; i < mLikes.length(); i++) {
-                    JSONObject l = mLikes.getJSONObject(i);
-
-                    if (recipe_id.equals(l.getString(TAG_L_RECIPE_ID))) {
-                        liked = true;
-                    }
-                }
-                mFollowed = json.getJSONArray(TAG_FOLLOWED);
-                for (int i = 0; i < mFollowed.length(); i++) {
-                    JSONObject l = mFollowed.getJSONObject(i);
-
-                    if (creator_id.equals(l.getString(TAG_F_USER_ID))) {
-                        followed = true;
-                    }
-                }
 
                 SharedPreferences sp = PreferenceManager
                         .getDefaultSharedPreferences(getActivity());
                 SharedPreferences.Editor edit = sp.edit();
-                edit.putString("recipe_id", recipe_id);
-                edit.putString("recipe_name", recipe_name);
-                edit.putString("ingredients", ingredients);
-                edit.putString("instructions", instructions);
-                edit.putString("recipe_image_url", recipe_image_url);
+                edit.putString("question_id", question_id);
+                edit.putString("question_title", title);
+                edit.putString("text", text);
+                edit.putString("question_image_url", question_image_url);
                 edit.putString("creator_id", creator_id);
                 edit.putString("creator_username", creator_username);
                 edit.putString("creator_photo", creator_photo);
-                edit.putBoolean("liked", liked);
-                edit.putBoolean("followed", followed);
                 edit.commit();
 
             } catch (JSONException e) {

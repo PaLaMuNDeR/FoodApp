@@ -29,6 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
+
             android:layout_marginLeft="10dp"
             android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/creatorImage"
@@ -45,7 +46,8 @@
             android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/creatorName"
             android:layout_toRightOf="@id/creatorName"
-            android:textSize="14sp" />
+            android:textSize="16sp"
+            android:layout_centerInParent="true"/>
 
     </RelativeLayout>
 

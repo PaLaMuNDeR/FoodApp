@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -37,7 +36,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +49,7 @@ import java.util.List;
  * Created by Marti on 19/06/2015.
  */
 
-public class ActivitySingleRecipeFromAll extends ActionBarActivity implements View.OnClickListener {
+public class ActivitySingleQuestion extends ActionBarActivity implements View.OnClickListener {
     private String current_name = "current_user_name";
     private JSONArray mPois = null;
 
@@ -92,8 +90,8 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
     private static final String UNFOLLOW_URL = "http://expox-milano.com/foodapp/del_follow.php";
     private static final String ADD_FOLLOW_URL = "http://expox-milano.com/foodapp/add_follow.php";
     private static final String ADD_LIKE_URL = "http://expox-milano.com/foodapp/add_like.php";
-    private static final String LOAD_COMMENTS_URL = "http://expox-milano.com/foodapp/comments_for_recipe.php";
-    private static final String POST_COMMENT_URL = "http://expox-milano.com/foodapp/add_comment_for_recipe.php";
+    private static final String LOAD_COMMENTS_URL = "http://expox-milano.com/foodapp/comments_for_questions.php";
+    private static final String POST_COMMENT_URL = "http://expox-milano.com/foodapp/add_comment_for_question.php";
     private static final String UNLIKE_URL = "http://expox-milano.com/foodapp/del_like.php";
 
     private static final String TAG_POSTS = "posts";
@@ -117,14 +115,13 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
     String comment_text;
     Boolean bool_liked = false;
     Boolean bool_followed = false;
-    InputMethodManager inputManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_single_recipe);
+        setContentView(R.layout.activity_single_question);
         SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(ActivitySingleRecipeFromAll.this);
+                .getDefaultSharedPreferences(ActivitySingleQuestion.this);
         String post_username = sp.getString("username", "");
         String post_name = sp.getString("recipe_name_view", "");
         Log.d("recipe_name_view", "Loading recipe_name_view " + post_name);
@@ -145,7 +142,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         edit.putBoolean("logout", false);
         edit.commit();
         Log.d("Username", "LogoutBool in SP: " + sp.getBoolean("logout", false));
-        DatabaseHandler db = new DatabaseHandler(ActivitySingleRecipeFromAll.this);
+        DatabaseHandler db = new DatabaseHandler(ActivitySingleQuestion.this);
         Profile pf = db.getLastProfile();
         name = pf.name;
         username = pf.username;
@@ -203,7 +200,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
         mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
 
-        final GestureDetector mGestureDetector = new GestureDetector(ActivitySingleRecipeFromAll.this, new GestureDetector.SimpleOnGestureListener() {
+        final GestureDetector mGestureDetector = new GestureDetector(ActivitySingleQuestion.this, new GestureDetector.SimpleOnGestureListener() {
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
@@ -222,33 +219,33 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                 if (child != null && mGestureDetector.onTouchEvent(motionEvent)) {
                     Drawer.closeDrawers();
                     if (recyclerView.getChildPosition(child) == 1) {
-                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityRecentMeals.class);
+                        Intent i = new Intent(ActivitySingleQuestion.this, ActivityRecentMeals.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
-                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityCookbook.class);
+                        Intent i = new Intent(ActivitySingleQuestion.this, ActivityCookbook.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 3) {
-                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityFollowRecipes.class);
+                        Intent i = new Intent(ActivitySingleQuestion.this, ActivityFollowRecipes.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 4) {
-                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityLiked.class);
+                        Intent i = new Intent(ActivitySingleQuestion.this, ActivityLiked.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 5) {
-                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityForum.class);
+                        Intent i = new Intent(ActivitySingleQuestion.this, ActivityForum.class);
                         startActivity(i);
                         finish();
                     }
                     if (recyclerView.getChildPosition(child) == 6) {
                         SharedPreferences sp = PreferenceManager
-                                .getDefaultSharedPreferences(ActivitySingleRecipeFromAll.this);
+                                .getDefaultSharedPreferences(ActivitySingleQuestion.this);
 
                         current_user = "";
                         name = "";
@@ -260,7 +257,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                         edit.commit();
                         Log.d("Log out current_user:", current_user);
                         Log.d("Log out: ", name);
-                        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityLogin.class);
+                        Intent i = new Intent(ActivitySingleQuestion.this, ActivityLogin.class);
                         startActivity(i);
                         finish();
 
@@ -316,26 +313,19 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         new LoadComments().execute();
 
 
-        btnAdd = (Button) findViewById(R.id.btn_add);
-
-        btnAdd.setOnClickListener(this);
         // parsing the data from the shared preferences
-        recipe_id = sp.getString("recipe_id", "");
+        recipe_id = sp.getString("question_id", "");
 
-        String r_name_value = sp.getString("recipe_name", "");
+        String r_title = sp.getString("question_title", "");
         TextView recipe_name_view2 = (TextView) findViewById(R.id.recipe_name);
-        recipe_name_view2.setText(r_name_value);
-        getSupportActionBar().setTitle(r_name_value);
+        recipe_name_view2.setText(r_title);
+        getSupportActionBar().setTitle(r_title);
 
-        String ingredients_value = sp.getString("ingredients", "");
+        String text = sp.getString("text", "");
         TextView ingredients = (TextView) findViewById(R.id.ingredients);
-        ingredients.setText(ingredients_value);
+        ingredients.setText(text);
 
-        String instructions_value = sp.getString("instructions", "");
-        TextView instructions = (TextView) findViewById(R.id.instructions);
-        instructions.setText(instructions_value);
-
-        String recipe_image_url = sp.getString("recipe_image_url", "");
+        String recipe_image_url = sp.getString("question_image_url", "");
         creator_id = sp.getString("creator_id", "");
         String creator_username = sp.getString("creator_username", "");
         String creator_photo = sp.getString("creator_photo", "");
@@ -343,30 +333,13 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         TextView creator_name = (TextView) findViewById(R.id.creatorName);
         creator_name.setText(creator_username);
         creator_name.setOnClickListener(this);
-        TextView follow_text = (TextView) findViewById(R.id.followTop);
-
-        image_followed = (ImageView) findViewById(R.id.imageFollow);
-        image_followed.setOnClickListener(this);
 
 
         new DownloadImageTask((ImageView) findViewById(R.id.imageViewSingleRecipe))
                 .execute(recipe_image_url);
         new DownloadImageTask((ImageView) findViewById(R.id.creatorImage))
                 .execute(creator_photo);
-        if (user_id.equals(creator_id)) {
-            image_followed.setVisibility(View.GONE);
-            follow_text.setVisibility(View.GONE);
 
-        }
-
-        image_like = (ImageView) findViewById(R.id.image_like);
-        image_like.setOnClickListener(this);
-        if (bool_liked) {
-            image_like.setImageDrawable(getResources().getDrawable(R.drawable.heart_dish_o_64));
-        }
-        if (bool_followed) {
-            this.image_followed.setImageDrawable(getResources().getDrawable(R.drawable.follow_o_64));
-        }
         ImageView user_photo= (ImageView) findViewById(R.id.user_photo);
         user_photo.setImageBitmap(profileBitmap);
         TextView current_username = (TextView) findViewById(R.id.username);
@@ -375,8 +348,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         post_comment = (ImageView) findViewById(R.id.post_comment);
         post_comment.setOnClickListener(this);
         lv = (ListView) findViewById(R.id.comments_list);
-        InputMethodManager inputManager = (InputMethodManager)
-                getSystemService(Context.INPUT_METHOD_SERVICE);
+
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -407,7 +379,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
             Bitmap mIcon11 = null;
             try {
                 ;
-                InputStream in = new java.net.URL(urldisplay).openStream();
+                InputStream in = new URL(urldisplay).openStream();
                 mIcon11 = BitmapFactory.decodeStream(in);
             } catch (Exception e) {
                 Log.e("Error", e.toString());
@@ -424,22 +396,12 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
 
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_add:
-                new AddRecipe().execute();
-                break;
+
             case R.id.imageView1:
                 break;
-            case R.id.imageFollow:
-                new AddFollowUnfollow().execute();
-                break;
-            case R.id.followTop:
-                new AddFollowUnfollow().execute();
-                break;
-            case R.id.image_like:
-                new LikeUnlike().execute();
-                break;
             case R.id.post_comment:
-
+                InputMethodManager inputManager = (InputMethodManager)
+                        getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
                 new PostComment().execute();
@@ -457,7 +419,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            sDialog = new ProgressDialog(ActivitySingleRecipeFromAll.this);
+            sDialog = new ProgressDialog(ActivitySingleQuestion.this);
             sDialog.setMessage("Adding it to your cookbook...");
             sDialog.setIndeterminate(false);
             sDialog.setCancelable(true);
@@ -507,11 +469,11 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
             sDialog.dismiss();
             Log.d("current_user", "current_user" + current_user);
             if (file_url != null && current_user != "") {
-                Toast.makeText(ActivitySingleRecipeFromAll.this, R.string.opening_your_cookbook,
+                Toast.makeText(ActivitySingleQuestion.this, R.string.opening_your_cookbook,
                         Toast.LENGTH_SHORT).show();
             }
             Log.d("Starting new activity", "ActivityCookbook");
-            Intent i = new Intent(ActivitySingleRecipeFromAll.this,
+            Intent i = new Intent(ActivitySingleQuestion.this,
                     ActivityCookbook.class);
             finish();
             startActivity(i);
@@ -569,12 +531,12 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
             Log.d("current_user", "current_user" + current_user);
             if (file_url != null && current_user != "") {
                 if (bool_followed) {
-                    Toast.makeText(ActivitySingleRecipeFromAll.this, "Unfollowed",
+                    Toast.makeText(ActivitySingleQuestion.this, "Unfollowed",
                             Toast.LENGTH_SHORT).show();
                     image_followed.setImageDrawable(getResources().getDrawable(R.drawable.follow_s_64));
                     bool_followed = false;
                 } else {
-                    Toast.makeText(ActivitySingleRecipeFromAll.this, "Following",
+                    Toast.makeText(ActivitySingleQuestion.this, "Following",
                             Toast.LENGTH_SHORT).show();
                     image_followed.setImageDrawable(getResources().getDrawable(R.drawable.follow_o_64));
                     bool_followed = true;
@@ -635,12 +597,12 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
             Log.d("current_user", "current_user" + current_user);
             if (file_url != null && current_user != "") {
                 if (bool_liked) {
-                    Toast.makeText(ActivitySingleRecipeFromAll.this, "Unliked",
+                    Toast.makeText(ActivitySingleQuestion.this, "Unliked",
                             Toast.LENGTH_SHORT).show();
                     image_like.setImageDrawable(getResources().getDrawable(R.drawable.heart_dish_s_64));
                     bool_liked = false;
                 } else {
-                    Toast.makeText(ActivitySingleRecipeFromAll.this, "Liked",
+                    Toast.makeText(ActivitySingleQuestion.this, "Liked",
                             Toast.LENGTH_SHORT).show();
                     image_like.setImageDrawable(getResources().getDrawable(R.drawable.heart_dish_o_64));
                     bool_liked = true;
@@ -711,9 +673,9 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
                 comment_box.setFocusable(false);
                 comment_box.setFocusableInTouchMode(true);*/
                 mItems.clear();
-
-                Toast.makeText(ActivitySingleRecipeFromAll.this, "Posted",
+                Toast.makeText(ActivitySingleQuestion.this, "Posted",
                         Toast.LENGTH_SHORT).show();
+                lv.deferNotifyDataSetChanged();
                 new LoadComments().execute();
 
             }
@@ -788,14 +750,13 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
         protected void onPostExecute(String file_url) {
             // dismiss the dialog once product is added
             Log.d("current_user", "current_user" + current_user);
-            lv.deferNotifyDataSetChanged();
             updateCommentsList();
         }
 
     }
 
     private void updateCommentsList() {
-        lv.setAdapter(new ListViewCommentsAdapter(ActivitySingleRecipeFromAll.this, mItems));
+        lv.setAdapter(new ListViewCommentsAdapter(ActivitySingleQuestion.this, mItems));
         //setListAdapter(new ListViewCommentsAdapter(ActivitySingleRecipeFromAll.this, mItems));
         //getListView();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -835,7 +796,7 @@ public class ActivitySingleRecipeFromAll extends ActionBarActivity implements Vi
     @Override
     public void onBackPressed(){
         super.onBackPressed();
-        Intent i = new Intent(ActivitySingleRecipeFromAll.this, ActivityRecentMeals.class);
+        Intent i = new Intent(ActivitySingleQuestion.this, ActivityRecentMeals.class);
         startActivity(i);
         finish();
     }

@@ -84,15 +84,15 @@ public class ActivityRecentMeals extends ActionBarActivity {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connManager
                 .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        /*NetworkInfo networkInfo1 = connManager.
+        NetworkInfo networkInfo1 = connManager.
                 getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         if(networkInfo.isConnected() || networkInfo1.isConnected()){
             return true;
         }
 
         return false;
-*/
-        return networkInfo.isConnected();
+
+//        return networkInfo.isConnected();
     }
 
     private SwipeRefreshLayout swipeLayout;
@@ -102,6 +102,26 @@ public class ActivityRecentMeals extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // Swipe for refresh
+        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeLayout.setRefreshing(false);
+                        recreate();
+                    }
+                }, 4000);
+            }
+
+        });
+        swipeLayout.setColorScheme(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(ActivityRecentMeals.this);
         current_user = sp.getString("username", "");
@@ -124,18 +144,21 @@ public class ActivityRecentMeals extends ActionBarActivity {
         String imagePath = "";
         String coverPath = "";
         BitmapDrawable coverBitmap = null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 3;
+
         try {
             File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
 
             if (imgFile.exists()) {
                 Log.d("Download Image", "Profile Image - yes");
-                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(),options);
             }
 
             imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
             if (imgFile.exists()) {
                 Log.d("Download Image", "Cover Image - yes");
-                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(),options);
                 coverBitmap = new BitmapDrawable(getResources(), bitmap);
             }
 
@@ -269,26 +292,7 @@ public class ActivityRecentMeals extends ActionBarActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
 
-        // Swipe for refresh
-        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
-        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 
-            @Override
-            public void onRefresh() {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        swipeLayout.setRefreshing(false);
-                        recreate();
-                    }
-                }, 4000);
-            }
-
-        });
-        swipeLayout.setColorScheme(android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
         FragmentRecentMealsListView myFragment = (FragmentRecentMealsListView) getFragmentManager().findFragmentById(R.id.fragment1);
         final ListView fragmentListView = myFragment.getListView();
         fragmentListView.setOnScrollListener(new AbsListView.OnScrollListener() {
