@@ -1,5 +1,6 @@
 package polimi.dima.foodapp;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +25,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -82,24 +84,45 @@ public class ActivityForum extends ActionBarActivity {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connManager
                 .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        /*NetworkInfo networkInfo1 = connManager.
+        NetworkInfo networkInfo1 = connManager.
                 getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         if(networkInfo.isConnected() || networkInfo1.isConnected()){
             return true;
         }
 
         return false;
-*/
-        return networkInfo.isConnected();
+
+//        return networkInfo.isConnected();
     }
 
     private SwipeRefreshLayout swipeLayout;
 
+    boolean level_bool;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_forum);
+        // Swipe for refresh
+        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeLayout.setRefreshing(false);
+                        recreate();
+                    }
+                }, 4000);
+            }
+
+        });
+        swipeLayout.setColorScheme(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(ActivityForum.this);
         current_user = sp.getString("username", "");
@@ -107,7 +130,7 @@ public class ActivityForum extends ActionBarActivity {
         email = sp.getString("email", "");
         photo = sp.getString("photo", "");
         cover = sp.getString("cover", "");
-        SharedPreferences.Editor edit = sp.edit();
+        final SharedPreferences.Editor edit = sp.edit();
         edit.putBoolean("logout", false);
         edit.commit();
         Log.d("Username", "LogoutBool in SP: " + sp.getBoolean("logout", false));
@@ -122,18 +145,22 @@ public class ActivityForum extends ActionBarActivity {
         String imagePath = "";
         String coverPath = "";
         BitmapDrawable coverBitmap = null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 3;
+
         try {
             File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
 
             if (imgFile.exists()) {
                 Log.d("Download Image", "Profile Image - yes");
-                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+
+                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(),options);
             }
 
             imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
             if (imgFile.exists()) {
                 Log.d("Download Image", "Cover Image - yes");
-                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(),options);
                 coverBitmap = new BitmapDrawable(getResources(), bitmap);
             }
 
@@ -185,7 +212,10 @@ public class ActivityForum extends ActionBarActivity {
                     Drawer.closeDrawers();
                     //0 is the image on top
                     if (recyclerView.getChildPosition(child) == 1) {
-                        //Remain in Main
+                        Intent i = new Intent(ActivityForum.this, ActivityRecentMeals.class);
+                        startActivity(i);
+                        finish();
+
 
                     }
                     if (recyclerView.getChildPosition(child) == 2) {
@@ -267,27 +297,8 @@ public class ActivityForum extends ActionBarActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
 
-        // Swipe for refresh
-        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
-        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 
-            @Override
-            public void onRefresh() {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        swipeLayout.setRefreshing(false);
-                        recreate();
-                    }
-                }, 4000);
-            }
-
-        });
-        swipeLayout.setColorScheme(android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
-        FragmentRecentMealsListView myFragment = (FragmentRecentMealsListView) getFragmentManager().findFragmentById(R.id.fragment1);
+        final FragmentForumListView myFragment = (FragmentForumListView) getFragmentManager().findFragmentById(R.id.fragment1);
         final ListView fragmentListView = myFragment.getListView();
         fragmentListView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
@@ -310,7 +321,41 @@ public class ActivityForum extends ActionBarActivity {
                 swipeLayout.setEnabled(enable);
             }
         });
-        getSupportActionBar().setTitle(recent_meals);
+        getSupportActionBar().setTitle(forum);
+        final Dialog dialog_rec = new Dialog(ActivityForum.this);
+        dialog_rec.setTitle(getResources().getString(R.string.choose_level));
+        dialog_rec.setContentView(R.layout.custom_alert);
+
+        Button Button1 = (Button) dialog_rec.findViewById(R.id.button1);
+        Button1.setText(R.string.basic);
+        Button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                level_bool = false;
+                edit.putBoolean("level_bool", level_bool);
+                edit.commit();
+                myFragment.new LoadRecipes().execute();
+                dialog_rec.dismiss();
+            }
+        });
+
+        Button Button2 = (Button) dialog_rec.findViewById(R.id.button2);
+        Button2.setText(R.string.advanced);
+        Button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                level_bool = true;
+                edit.putBoolean("level_bool", level_bool);
+                edit.commit();
+                myFragment.new LoadRecipes().execute();
+                dialog_rec.dismiss();
+            }
+
+        });
+
+
+        dialog_rec.show();
+
 
         //Floating Action Button
         ActionButton actionButton = (ActionButton) findViewById(R.id.action_button);
@@ -322,7 +367,7 @@ public class ActivityForum extends ActionBarActivity {
 
         actionButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(ActivityForum.this, ActivityCreateRecipe.class);
+                Intent i = new Intent(ActivityForum.this, ActivityCreateQuestion.class);
                 startActivity(i);
                 finish();
             }
@@ -342,10 +387,12 @@ public class ActivityForum extends ActionBarActivity {
     }
     @Override
     public void onBackPressed(){
-        super.onBackPressed();
-        Intent i = new Intent(ActivityForum.this, ActivityRecentMeals.class);
-        startActivity(i);
-        finish();
+            if(backtoast!=null&&backtoast.getView().getWindowToken()!=null) {
+                finish();
+            } else {
+                backtoast = Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT);
+                backtoast.show();
+            }
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

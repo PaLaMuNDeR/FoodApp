@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/DrawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:elevation="7dp">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/fragmentSingle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fff">
+
+        <RelativeLayout
+            android:id="@+id/authorContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/creatorImage"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginLeft="1dp"
+                android:clickable="true"
+                android:src="@drawable/default_face" />
+
+            <TextView
+                android:id="@+id/creatorName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_toRightOf="@id/creatorImage"
+                android:clickable="true"
+                android:text="Creator Name"
+                android:textAppearance="@android:style/TextAppearance.Small" />
+
+
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/recipeContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/authorContainer"
+            android:layout_margin="2dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imageViewSingleRecipe"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:paddingLeft="5dp"
+                android:src="@drawable/ic_launcher" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/imageViewSingleRecipe"
+                android:layout_toRightOf="@+id/imageViewSingleRecipe"
+                android:background="@drawable/post_background_style"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/recipe_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:paddingBottom="2dip"
+                    android:paddingLeft="5dp"
+                    android:paddingTop="6dip"
+                    android:text="name"
+                    android:textColor="#333"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+
+
+                <TextView
+                    android:id="@+id/ingredients"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/recipe_name"
+                    android:paddingBottom="2dip"
+                    android:paddingLeft="8dp"
+                    android:text="description"
+                    android:textColor="#888"
+                    android:textSize="16sp"></TextView>
+
+            </RelativeLayout>
+        </RelativeLayout>
+
+
+
+        <RelativeLayout
+            android:id="@+id/commentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/recipeContainer">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/user_photo"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:src="@drawable/default_face" />
+
+            <TextView
+                android:id="@+id/username"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_toEndOf="@id/user_photo"
+                android:layout_toRightOf="@id/user_photo"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_centerInParent="true"
+                />
+
+            <EditText
+                android:id="@+id/comment_box"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/username"
+                android:layout_toLeftOf="@+id/post_comment"
+                android:layout_toRightOf="@+id/username"
+                android:layout_toStartOf="@+id/post_comment"
+                />
+
+            <ImageView
+                android:id="@+id/post_comment"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:clickable="true"
+                android:paddingRight="3dp"
+                android:src="@drawable/comment_64" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/commentContainer"
+            android:gravity="bottom">
+
+
+                <ListView
+                    android:id="@+id/comments_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawSelectorOnTop="false"
+                    android:scrollbars="none" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/RecyclerView"
+        android:layout_width="320dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:background="@color/primaryColor"
+        android:scrollbars="vertical" />
+
+</android.support.v4.widget.DrawerLayout>

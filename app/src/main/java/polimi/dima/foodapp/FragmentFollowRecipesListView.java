@@ -116,12 +116,13 @@ public class FragmentFollowRecipesListView extends ListFragment {
 
     public static Drawable drawableFromUrl(String url) throws IOException {
         Bitmap x;
-
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 3;
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.connect();
         InputStream input = connection.getInputStream();
 
-        x = BitmapFactory.decodeStream(input);
+        x = BitmapFactory.decodeStream(input,null,options);
         return new BitmapDrawable(x);
     }
 

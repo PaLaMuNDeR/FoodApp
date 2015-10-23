@@ -107,8 +107,9 @@ public class FragmentListLiked extends ListFragment {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.connect();
         InputStream input = connection.getInputStream();
-
-        x = BitmapFactory.decodeStream(input);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 3;
+        x = BitmapFactory.decodeStream(input,null,options);
         return new BitmapDrawable(x);
     }
 

@@ -362,6 +362,9 @@ public class ActivityRegister extends Activity implements OnClickListener {
 			if (file_url != null) {
 				Toast.makeText(ActivityRegister.this, file_url,
 						Toast.LENGTH_LONG).show();
+				Intent k = new Intent(ActivityRegister.this, ActivityLogin.class);
+				startActivity(k);
+				finish();
 			}
 
 		}

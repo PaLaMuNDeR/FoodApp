@@ -15,7 +15,7 @@
 
 
         <RelativeLayout
-            android:id="@+id/box"
+            android:id="@+id/recipeContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="2dp"
@@ -47,7 +47,7 @@
                     android:paddingTop="6dip"
                     android:text="poi_name"
                     android:textColor="#333"
-                    android:textSize="16sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
                 <TextView
                     android:id="@+id/ingredients_label"
@@ -58,7 +58,9 @@
                     android:paddingLeft="5dp"
                     android:text="@string/ingredients"
                     android:textColor="#5d5d5d"
-                    android:textStyle="bold" >
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    >
                 </TextView>
 
                 <TextView
@@ -67,9 +69,12 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/recipe_name"
                     android:paddingBottom="2dip"
+                    android:layout_toRightOf="@id/ingredients_label"
+                    android:layout_toEndOf="@id/ingredients_label"
                     android:paddingLeft="8dp"
                     android:text="description"
-                    android:textColor="#888" >
+                    android:textColor="#888"
+                    android:textSize="18sp" >
                 </TextView>
 
                 <TextView
@@ -81,7 +86,8 @@
                     android:paddingLeft="5dp"
                     android:text="@string/instructions"
                     android:textColor="#5d5d5d"
-                    android:textStyle="bold" >
+                    android:textStyle="bold"
+                    android:textSize="20sp">
                 </TextView>
 
                 <TextView
@@ -94,7 +100,8 @@
                     android:gravity="left"
                     android:text="instructions_value"
                     android:textColor="#acacac"
-                    android:textStyle="bold" >
+                    android:textStyle="bold"
+                    android:textSize="18sp">
                 </TextView>
 
 
@@ -107,7 +114,7 @@
         android:id="@+id/btn_edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/box"
+        android:layout_below="@+id/recipeContainer"
         android:layout_marginTop="14dp"
         android:text="@string/personalize"
         android:layout_alignParentEnd="true"

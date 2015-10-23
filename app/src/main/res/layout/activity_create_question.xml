@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/DrawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:elevation="7dp">
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragmentSingle"
+        android:background="#fff" >
+
+            <ScrollView
+                android:id="@+id/ScrollView"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+                    <ImageView
+                        android:id="@+id/btnCapturePicture"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="20dp"
+                        android:text="@string/btnTakePicture"
+                        android:src="@drawable/photo_camera_128"
+                        android:clickable="true"
+                        />
+
+
+                        <ImageButton
+                            android:id="@+id/recipe_image_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/app_name"
+                            android:clickable="true"
+                            android:layout_below="@+id/textViewMoto"
+                            android:layout_centerHorizontal="true"
+                            android:src="@drawable/image_archive_128" />
+                    <TextView
+                        android:id="@+id/create_recipe_name_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/question_title"
+                        android:layout_centerHorizontal="true"
+                        android:layout_below="@+id/recipe_image_button"
+                        />
+
+                    <EditText
+                        android:id="@+id/create_recipe_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:hint="@string/quetion_title_name"
+                        android:layout_below="@+id/create_recipe_name_label"
+                        android:layout_centerHorizontal="true" />
+
+                    <TextView
+                        android:id="@+id/create_recipe_ingredients_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/create_recipe_name"
+                        android:text="@string/text_label"
+                        android:layout_centerVertical="true"
+                        android:layout_centerHorizontal="true" />
+                    <EditText
+                        android:id="@+id/create_recipe_ingredients"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:ems="10"
+                        android:hint="@string/input_text"
+                        android:layout_below="@+id/create_recipe_ingredients_label"/>
+
+                    <CheckBox
+                        android:id="@+id/keepImageCheck"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/basic"
+                        android:layout_below="@+id/create_recipe_ingredients"
+                        android:layout_toLeftOf="@+id/create_recipe_ingredients_label"
+                        android:layout_toStartOf="@+id/create_recipe_ingredients_label"
+                        android:checked="true" />
+
+
+                    <Button
+                        android:id="@+id/btn_create"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/post"
+                        android:textColor="#333"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_below="@+id/keepImageCheck"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="30dp" />
+                    <CheckBox
+                        android:id="@+id/post_as_anonymous"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/post_as_anonymous"
+                        android:layout_below="@+id/btn_create"
+                        android:layout_toLeftOf="@+id/btn_create"
+                        android:layout_toStartOf="@+id/btn_create"
+                        android:checked="false" />
+
+                </RelativeLayout>
+            </ScrollView>
+
+
+
+
+</RelativeLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/RecyclerView"
+        android:layout_width="320dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:background="@color/primaryColor"
+        android:scrollbars="vertical"/>
+
+</android.support.v4.widget.DrawerLayout>

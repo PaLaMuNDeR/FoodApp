@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -60,6 +61,8 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
     // Progress Dialog
     private ProgressDialog sDialog;
     private EditText recipe_name, ingredients, instructions;//, age_value;
+    private CheckBox post_anonym;
+private Boolean anonym;
     private ImageButton recipe_image_button;
     private Button btnCreate;
 
@@ -351,7 +354,17 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
             // Put file name in Async Http Post Param which will used in Php web app
             image_params.put("filename", fileName);
         }
-
+        post_anonym = (CheckBox) findViewById(R.id.post_as_anonymous);
+        post_anonym.setOnClickListener(new View.OnClickListener() {  // checkbox listener
+            public void onClick(View v) {
+                // Perform action on clicks, depending on whether it is checked
+                if (((CheckBox) v).isChecked()) {
+                    anonym = true;
+                } else if (((CheckBox) v).isChecked() == false) {
+                    anonym = false;
+                }
+            }
+        });
     }
         /**
          * Checking device has camera hardware or not
@@ -451,7 +464,12 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
             String string_recipe_name = recipe_name.getText().toString();
             String string_ingredients = ingredients.getText().toString();
             String string_instructions = instructions.getText().toString();
+            String temp_user="";
+            if(anonym){
 
+                temp_user=current_user;
+                current_user="Anonymous";
+            }
             try {
                 // Building Parameters
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -460,7 +478,9 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
                 params.add(new BasicNameValuePair("ingredients", string_ingredients));
                 params.add(new BasicNameValuePair("instructions", string_instructions));
                 params.add(new BasicNameValuePair("image_url", uploaded_image_url));
-
+                if(anonym){
+                    current_user=temp_user;
+                }
                 Log.d("request!", "starting");
 
                 // Posting user data to script

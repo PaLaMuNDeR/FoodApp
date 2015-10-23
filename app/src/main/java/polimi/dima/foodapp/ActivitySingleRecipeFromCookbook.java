@@ -114,15 +114,16 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
         BitmapDrawable coverBitmap = null;
         try {
             File imgFile = new File("/sdcard/FoodApp/profile/user_photo.jpg");
-
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 3;
             if(imgFile.exists()){
                 Log.d("Download Image","Profile Image - yes");
-                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                profileBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(),options);
             }
             imgFile = new File("/sdcard/FoodApp/profile/cover_photo.jpg");
             if(imgFile.exists()){
                 Log.d("Download Image","Cover Image - yes");
-                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath(),options);
                 coverBitmap = new BitmapDrawable(getResources(), bitmap);
             }
 
@@ -333,6 +334,7 @@ public class ActivitySingleRecipeFromCookbook extends ActionBarActivity implemen
                 new DelRecipe().execute();
                 break;
             case R.id.btn_edit:
+
                 Intent i = new Intent(ActivitySingleRecipeFromCookbook.this,
                         ActivitySingleRecipeEdit.class);
                 finish();
