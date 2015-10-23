@@ -84,22 +84,10 @@ public class ActivityChiefs extends ActionBarActivity  {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connManager
                 .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        /*NetworkInfo networkInfo1 = connManager.
-                getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        if(networkInfo.isConnected() || networkInfo1.isConnected()){
-            return true;
-        }
 
-        return false;
-*/
         return networkInfo.isConnected();
     }
     private SwipeRefreshLayout swipeLayout;
-    static final String[] Android =
-            new String[] { "CupCake", "Donut", "Froyo", "GingerBread",
-                    "HoneyComb","Ice-Cream Sandwich","Jelly-Bean"};
-
-//TODO onBack to return to the big list
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

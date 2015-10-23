@@ -580,8 +580,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
                 camera_bool=true;
                 // successfully captured the image
                 // launching upload activity
-                //TODO remove it
-                //launchUploadActivity(true);
+
                 imgPath=fileUri.getPath();
                 SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ActivityCreateRecipe.this);
                 SharedPreferences.Editor edit = sp.edit();

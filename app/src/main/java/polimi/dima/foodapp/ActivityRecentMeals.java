@@ -1,5 +1,6 @@
 package polimi.dima.foodapp;
 
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -20,13 +21,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -51,9 +55,16 @@ public class ActivityRecentMeals extends ActionBarActivity {
     private GoogleApiClient mGoogleApiClient;
     ProgressDialog myPd_bar;
     private JSONArray mProfile = null;
-
+    FragmentRecentMealsListView myFragment=null;
     private Toast backtoast;
-
+    private final LayoutInflater mLayoutInflater = null;
+    private final int AUTOLOAD_THRESHOLD = 4;
+    public  int MAXIMUM_ITEMS = 52;
+    private View mFooterView;
+    private Handler mHandler;
+//    private boolean mIsLoading = false;
+    private boolean mMoreDataAvailable = true;
+    private boolean mWasLoading = false;
 
     //First We Declare Titles And Icons For Our Navigation Drawer List View
     //This Icons And Titles Are holded in an Array as you can see
@@ -101,6 +112,11 @@ public class ActivityRecentMeals extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // This has to be called before setContentView and you must use the
+// class in android.support.v4.view and NOT android.view
+
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
         setContentView(R.layout.activity_main);
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(ActivityRecentMeals.this);
@@ -263,6 +279,8 @@ public class ActivityRecentMeals extends ActionBarActivity {
 
         };
 
+
+
         // Drawer Toggle Object Made
         // Drawer.setDrawerListener(mDrawerToggle); // Drawer Listener set to the Drawer toggle
         Drawer.setDrawerListener(mDrawerToggle);
@@ -289,8 +307,12 @@ public class ActivityRecentMeals extends ActionBarActivity {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        FragmentRecentMealsListView myFragment = (FragmentRecentMealsListView) getFragmentManager().findFragmentById(R.id.fragment1);
+        myFragment = (FragmentRecentMealsListView) getFragmentManager().findFragmentById(R.id.fragment1);
         final ListView fragmentListView = myFragment.getListView();
+        mHandler = new Handler();
+        mFooterView = LayoutInflater.from(ActivityRecentMeals.this).inflate(R.layout.loading_layout, null);
+        fragmentListView.addFooterView(mFooterView, null, false);
+
         fragmentListView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
             @Override
@@ -310,8 +332,32 @@ public class ActivityRecentMeals extends ActionBarActivity {
                     enable = firstItemVisible && topOfFirstItemVisible;
                 }
                 swipeLayout.setEnabled(enable);
+
+//                if(firstVisibleItem+visibleItemCount == totalItemCount && totalItemCount!=0)
+//                {
+//                    if(myFragment.flag_loading == false)
+//                    {
+//                        if(myFragment.page_shown!=0) {
+//                            myFragment.flag_loading = true;
+//                            myFragment.new LoadNewRecipes().execute();
+//                            myFragment.list_adapt.notifyDataSetChanged();
+//                        }
+//                    }
+//                }
+                if (!myFragment.flag_loading && mMoreDataAvailable) {
+                    //MAXIMUM_ITEMS=myFragment.items_per_page;
+                    if (totalItemCount >= MAXIMUM_ITEMS || !myFragment.flag_load_more) {
+                        mMoreDataAvailable = false;
+                        fragmentListView.removeFooterView(mFooterView);
+                    } else if (totalItemCount>=AUTOLOAD_THRESHOLD && totalItemCount - AUTOLOAD_THRESHOLD <= firstVisibleItem + visibleItemCount) {
+                        myFragment.flag_loading=true;
+                        mHandler.postDelayed(mAddItemsRunnable, 1000);
+                    }
+                }
             }
         });
+
+
         getSupportActionBar().setTitle(recent_meals);
 
         //Floating Action Button
@@ -331,6 +377,32 @@ public class ActivityRecentMeals extends ActionBarActivity {
         });
 
     }
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (mWasLoading) {
+            mWasLoading = false;
+            //mIsLoading = true;
+            if (!myFragment.flag_loading) {
+                mHandler.postDelayed(mAddItemsRunnable, 1000);
+            }
+        }
+    }
+    @Override
+    public void onStop() {
+        super.onStop();
+        mHandler.removeCallbacks(mAddItemsRunnable);
+        //mWasLoading = mIsLoading;
+        //mIsLoading = false;
+    }
+    private Runnable mAddItemsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(myFragment.flag_load_more) {
+                myFragment.new LoadNewRecipes().execute();
+            }
+        }
+    };
 
     @Override
     public void onResume() {
@@ -342,15 +414,17 @@ public class ActivityRecentMeals extends ActionBarActivity {
                     Toast.LENGTH_LONG).show();
         }
     }
+
     @Override
-    public void onBackPressed(){
-            if(backtoast!=null&&backtoast.getView().getWindowToken()!=null) {
-                finish();
-            } else {
-                backtoast = Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT);
-                backtoast.show();
-            }
+    public void onBackPressed() {
+        if (backtoast != null && backtoast.getView().getWindowToken() != null) {
+            finish();
+        } else {
+            backtoast = Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT);
+            backtoast.show();
+        }
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
