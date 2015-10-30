@@ -55,14 +55,14 @@ public class ActivityRecentMeals extends ActionBarActivity {
     private GoogleApiClient mGoogleApiClient;
     ProgressDialog myPd_bar;
     private JSONArray mProfile = null;
-    FragmentRecentMealsListView myFragment=null;
+    FragmentRecentMealsListView myFragment = null;
     private Toast backtoast;
     private final LayoutInflater mLayoutInflater = null;
     private final int AUTOLOAD_THRESHOLD = 4;
-    public  int MAXIMUM_ITEMS = 52;
+    public int MAXIMUM_ITEMS = 52;
     private View mFooterView;
     private Handler mHandler;
-//    private boolean mIsLoading = false;
+    //    private boolean mIsLoading = false;
     private boolean mMoreDataAvailable = true;
     private boolean mWasLoading = false;
 
@@ -77,32 +77,16 @@ public class ActivityRecentMeals extends ActionBarActivity {
     DrawerLayout Drawer;                                  // Declaring DrawerLayout
     Bitmap profileBitmap;
     ActionBarDrawerToggle mDrawerToggle;                  // Declaring Action Bar Drawer Toggle
-    Context mContext;
 
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
-    private FragmentNavigationDrawer mFragmentNavigationDrawer;
 
     /**
      * Used to store the last screen title. For use in {@link # restoreActionBar()}.
      */
-
-    private CharSequence mTitle = "Recent Meals";
-
     public static Boolean isWifiAvailable(Context context) {
         ConnectivityManager connManager = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connManager
                 .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        /*NetworkInfo networkInfo1 = connManager.
-                getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        if(networkInfo.isConnected() || networkInfo1.isConnected()){
-            return true;
-        }
-
-        return false;
-*/
         return networkInfo.isConnected();
     }
 
@@ -113,7 +97,7 @@ public class ActivityRecentMeals extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // This has to be called before setContentView and you must use the
-// class in android.support.v4.view and NOT android.view
+        // class in android.support.v4.view and NOT android.view
 
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
@@ -280,7 +264,6 @@ public class ActivityRecentMeals extends ActionBarActivity {
         };
 
 
-
         // Drawer Toggle Object Made
         // Drawer.setDrawerListener(mDrawerToggle); // Drawer Listener set to the Drawer toggle
         Drawer.setDrawerListener(mDrawerToggle);
@@ -307,6 +290,8 @@ public class ActivityRecentMeals extends ActionBarActivity {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
+
+        //Fragment definitions
         myFragment = (FragmentRecentMealsListView) getFragmentManager().findFragmentById(R.id.fragment1);
         final ListView fragmentListView = myFragment.getListView();
         mHandler = new Handler();
@@ -332,25 +317,12 @@ public class ActivityRecentMeals extends ActionBarActivity {
                     enable = firstItemVisible && topOfFirstItemVisible;
                 }
                 swipeLayout.setEnabled(enable);
-
-//                if(firstVisibleItem+visibleItemCount == totalItemCount && totalItemCount!=0)
-//                {
-//                    if(myFragment.flag_loading == false)
-//                    {
-//                        if(myFragment.page_shown!=0) {
-//                            myFragment.flag_loading = true;
-//                            myFragment.new LoadNewRecipes().execute();
-//                            myFragment.list_adapt.notifyDataSetChanged();
-//                        }
-//                    }
-//                }
-                if (!myFragment.flag_loading && mMoreDataAvailable) {
-                    //MAXIMUM_ITEMS=myFragment.items_per_page;
+         if (!myFragment.flag_loading && mMoreDataAvailable) {
                     if (totalItemCount >= MAXIMUM_ITEMS || !myFragment.flag_load_more) {
                         mMoreDataAvailable = false;
                         fragmentListView.removeFooterView(mFooterView);
-                    } else if (totalItemCount>=AUTOLOAD_THRESHOLD && totalItemCount - AUTOLOAD_THRESHOLD <= firstVisibleItem + visibleItemCount) {
-                        myFragment.flag_loading=true;
+                    } else if (totalItemCount >= AUTOLOAD_THRESHOLD && totalItemCount - AUTOLOAD_THRESHOLD <= firstVisibleItem + visibleItemCount) {
+                        myFragment.flag_loading = true;
                         mHandler.postDelayed(mAddItemsRunnable, 1000);
                     }
                 }
@@ -377,6 +349,7 @@ public class ActivityRecentMeals extends ActionBarActivity {
         });
 
     }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -388,17 +361,17 @@ public class ActivityRecentMeals extends ActionBarActivity {
             }
         }
     }
+
     @Override
     public void onStop() {
         super.onStop();
         mHandler.removeCallbacks(mAddItemsRunnable);
-        //mWasLoading = mIsLoading;
-        //mIsLoading = false;
     }
+
     private Runnable mAddItemsRunnable = new Runnable() {
         @Override
         public void run() {
-            if(myFragment.flag_load_more) {
+            if (myFragment.flag_load_more) {
                 myFragment.new LoadNewRecipes().execute();
             }
         }
@@ -430,8 +403,6 @@ public class ActivityRecentMeals extends ActionBarActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }

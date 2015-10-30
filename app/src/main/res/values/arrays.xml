@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <string-array name="measurings">
+            <item>piece</item>
+            <item>cup</item>
+            <item>tbsp</item>
+            <item>mg</item>
+            <item>g</item>
+            <item>oz</item>
+            <item>floz</item>
+            <item>ml</item>
+            <item>L</item>
+            <item>L</item>
+        </string-array>
+</resources>

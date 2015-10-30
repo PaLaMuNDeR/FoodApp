@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/fragmentSingle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fff">
+           <Button
+                    android:id="@+id/add_ingredients"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/add_ingredients"
+                    android:textColor="#333"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/create_recipe_instructions_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/add_ingredients"
+                    android:text="@string/create_recipe_instructions_label" />
+
+                        <EditText
+                    android:id="@+id/create_recipe_instructions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/create_recipe_instructions_label"
+                    android:layout_toEndOf="@id/create_recipe_instructions_label"
+                    android:layout_toRightOf="@id/create_recipe_instructions_label"
+                    android:ems="10"
+                    android:hint="@string/create_recipe_instructions" />
+
+
+                <CheckBox
+                    android:id="@+id/post_recipe_as_anonymous"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/post_as_anonymous"
+                    android:layout_below="@+id/btn_create"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:checked="false" />
+                <Button
+                    android:id="@+id/btn_create"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/create_recipe_instructions"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="30dp"
+                    android:text="@string/create_and_add_to_cookbook"
+                    android:textColor="#333"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+</RelativeLayout>

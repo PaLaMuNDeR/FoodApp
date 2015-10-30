@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?><!-- the parent view - provides the gray listfragment background color -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@drawable/post_background_style"
+    android:gravity="center_vertical">
+
+    <!-- the innner view - provides the white rectangle -->
+    <RelativeLayout
+        android:id="@+id/itemSimple"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="#FFF">
+
+        <TextView
+            android:id="@+id/ingredient_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
+            android:clickable="true"
+            android:text="Ingredient"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />
+
+        <TextView
+            android:id="@+id/ingredient_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@id/ingredient_item"
+            android:layout_toRightOf="@id/ingredient_item"
+            android:textSize="16sp"
+            android:text="Amount"
+            android:layout_centerInParent="true"/>
+        <ImageView
+            android:id="@+id/more_item"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_more_vert_black_48dp"
+            android:clickable="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            />
+    </RelativeLayout>
+
+</RelativeLayout>

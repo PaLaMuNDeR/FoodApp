@@ -1,101 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragmentSingle"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#fff">
 
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/DrawerLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:elevation="7dp">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/fragmentSingle"
+    <EditText
+        android:id="@+id/ingredient_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:ems="10"
+        android:hint="@string/ingredient" />
+
+    <NumberPicker
+        android:id="@+id/numberPicker1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/ingredient_name" />
+
+    <NumberPicker
+        android:id="@+id/numberPicker2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ingredient_name"
+        android:layout_toRightOf="@id/numberPicker1"
+        android:layout_toEndOf="@id/numberPicker1"
+        android:layout_marginLeft="5dp"
+        android:layout_marginStart="5dp"/>
+
+    <NumberPicker
+        android:id="@+id/numberPicker3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btn_create"
+        android:layout_toRightOf="@id/numberPicker2"
+        android:layout_toEndOf="@id/numberPicker2"
+        android:layout_below="@+id/ingredient_name"
+        android:layout_marginLeft="5dp"
+        android:layout_marginStart="5dp"/>
+
+    <Button
+        android:id="@+id/btn_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/numberPicker1"
+        android:text="@string/add"
+        android:textColor="#333"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <ListView
+        android:id="@+id/ingredientsListViewEditable"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#fff">
-
-        <ScrollView
-            android:id="@+id/ScrollView"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/btn_add"
+        android:layout_marginTop="23dp" />
 
 
-                <EditText
-                    android:id="@+id/create_recipe_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/btn_all_categories"
-                    android:layout_centerHorizontal="true"
-
-                    android:ems="10"
-                    android:hint="@string/ingredient"
-                />
-
-                <requestFocus
-                    android:layout_alignParentTop="true"
-                    android:layout_centerHorizontal="true" />
-
-
-            </RelativeLayout>
-        </ScrollView>
-
-        <Button
-            android:id="@+id/btn_create"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/add"
-            android:textColor="#333"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
-
-        <NumberPicker
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/numberPicker"
-            android:layout_above="@+id/btn_create"
-            android:layout_toRightOf="@+id/btn_create"
-            android:layout_toEndOf="@+id/btn_create" />
-
-        <NumberPicker
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/numberPicker2"
-            android:layout_above="@+id/btn_create"
-            android:layout_centerHorizontal="true" />
-
-        <NumberPicker
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/numberPicker3"
-            android:layout_above="@+id/btn_create"
-            android:layout_toLeftOf="@+id/btn_create"
-            android:layout_toStartOf="@+id/btn_create" />
-
-        <ListView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/listView"
-            android:layout_below="@+id/btn_create"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="15dp"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="23dp" />
-
-
-    </RelativeLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/RecyclerView"
-        android:layout_width="320dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="left"
-        android:background="@color/primaryColor"
-        android:scrollbars="vertical" />
-
-</android.support.v4.widget.DrawerLayout>
+</RelativeLayout>

@@ -1,7 +1,10 @@
 package polimi.dima.foodapp;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -14,6 +17,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -22,14 +26,20 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
@@ -49,7 +59,6 @@ import java.util.Locale;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-import com.software.shell.fab.ActionButton;
 
 /**
  * Created by Marti on 19/06/2015.
@@ -60,11 +69,12 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
     // Progress Dialog
     private ProgressDialog sDialog;
-    private EditText recipe_name, ingredients, instructions;//, age_value;
+    private EditText recipe_name, instructions;
     private CheckBox post_anonym;
-private Boolean anonym;
+    private Boolean anonym;
     private ImageButton recipe_image_button;
     private Button btnCreate;
+    private Button addIngredients;
 
     // File upload url (replace the ip with your server address)
     public static final String FILE_UPLOAD_URL = "http://expox-milano.com/foodapp/fileUpload.php";
@@ -74,7 +84,8 @@ private Boolean anonym;
     // Progress Dialog
     private ProgressDialog pDialog;
     private ProgressDialog qDialog;
-
+    //    FragmentIngredients fragmentIngredients = null;
+    FragmentIngredients fragmentIngredients = null;
 
     // Drawer Layout
     RecyclerView mRecyclerView;                           // Declaring RecyclerView
@@ -114,6 +125,19 @@ private Boolean anonym;
     RequestParams image_params = new RequestParams();
     String imgPath, fileName;
     Bitmap bitmap;
+    private BroadcastReceiver localBroadcastReceiver;
+    //LinearLayout listHeaderView;
+    //LinearLayout listFooterView;
+
+    public List<ListViewItem> getmItems() {
+        return mItems;
+    }
+
+    public void setmItems(List<ListViewItem> mItems) {
+        this.mItems = mItems;
+    }
+
+    public List<ListViewItem> mItems;        // ListView items list
 
 
     //for uploading from camera
@@ -129,7 +153,18 @@ private Boolean anonym;
     private Uri fileUri; // file url to store image
 
     private ImageView btnCapturePicture;
-    boolean camera_bool=false;
+    boolean camera_bool = false;
+    FragmentIngredients dFragment = null;
+
+    public ListView getIngredientsList() {
+        return ingredientsList;
+    }
+
+    public void setIngredientsList(ListView ingredientsList) {
+        this.ingredientsList = ingredientsList;
+    }
+
+    ListView ingredientsList = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -268,6 +303,7 @@ private Boolean anonym;
             }
         });
 
+        //Fragment with the ingredients
 
         // Creating a layout Manager
         mLayoutManager = new LinearLayoutManager(this);
@@ -304,22 +340,81 @@ private Boolean anonym;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
 
-        current_user = post_username;
-        // parsing the data from the shared preferences
 
+        current_user = post_username;
+
+        //Layout inflaters for the header and footer of the ListView of ingredients
+        LayoutInflater inflater = getLayoutInflater();
+//        listFooterView = (LinearLayout)inflater.inflate(
+//                R.layout.activity_create_recipe_footer, null);
+
+
+
+//        listHeaderView = (LinearLayout)inflater.inflate(
+//                R.layout.activity_create_recipe_header, null);
+
+        // parsing the data from the shared preferences
+        localBroadcastReceiver = new LocalBroadcastReceiver();
+
+//        recipe_image_button = (ImageButton) listHeaderView.findViewById(R.id.recipe_image_button);
+//        recipe_name = (EditText) listHeaderView.findViewById(R.id.create_recipe_name);
         recipe_image_button = (ImageButton) findViewById(R.id.recipe_image_button);
         recipe_name = (EditText) findViewById(R.id.create_recipe_name);
-        ingredients = (EditText) findViewById(R.id.create_recipe_ingredients);
+        ingredientsList = (ListView) findViewById(R.id.ingredientsListViewEditable);
+
+//        ingredientsList.addHeaderView(listHeaderView);
+//        ingredientsList.addFooterView(listFooterView);
+
+
+        boolean edit_flag = sp.getBoolean("edit_ingredient", false);
+        boolean delete_flag = sp.getBoolean("delete_ingredient", false);
+        int ingredient_number = sp.getInt("ingredient_number", 0);
+
+
+        ingredientsList.setDivider(null);
+        if (mItems != null) {
+            ingredientsList.setAdapter(new ListViewIngredientsAdapter(ActivityCreateRecipe.this, mItems));
+        }
+
+        if (edit_flag) {
+            if (mItems != null) {
+                mItems.remove(ingredient_number);
+            }
+            ingredientsList.setAdapter(new ListViewIngredientsAdapter(ActivityCreateRecipe.this, mItems)) ;
+            dFragment = new FragmentIngredients();
+            dFragment.setmItems(mItems);
+            dFragment.show(getSupportFragmentManager(), "start fragment");
+        }
+        if (delete_flag) {
+            if (mItems != null) {
+                mItems.remove(ingredient_number);
+            }
+            ingredientsList.removeViewAt(ingredient_number);
+            ingredientsList.setAdapter(new ListViewIngredientsAdapter(ActivityCreateRecipe.this, mItems)) ;
+            dFragment = new FragmentIngredients();
+            dFragment.setmItems(mItems);
+            dFragment.show(getSupportFragmentManager(), "start fragment");
+        }
+
+
+
+
         instructions = (EditText) findViewById(R.id.create_recipe_instructions);
+//        instructions = (EditText) listHeaderView.findViewById(R.id.create_recipe_instructions);
 
         btnCreate = (Button) findViewById(R.id.btn_create);
+//        btnCreate = (Button) listFooterView.findViewById(R.id.btn_create);
         btnCreate.setOnClickListener(this);
+        addIngredients = (Button) findViewById(R.id.add_ingredients);
+//        addIngredients = (Button) listFooterView.findViewById(R.id.add_ingredients);
+        addIngredients.setOnClickListener(this);
         prgDialog = new ProgressDialog(this);
         recipe_image_button.setOnClickListener(this);
         recipe_image_button.setImageDrawable(getResources().getDrawable(R.drawable.image_archive_128));
 
         //for taking image from camera
         btnCapturePicture = (ImageView) findViewById(R.id.btnCapturePicture);
+//        btnCapturePicture = (ImageView) listHeaderView.findViewById(R.id.btnCapturePicture);
 
         /**
          * Capture image button click event
@@ -335,8 +430,8 @@ private Boolean anonym;
         }
         //This check is needed when the app is returning from the Camera activity.
         //We set here the image on the button to be the one from the camera.
-        camera_bool = sp.getBoolean("camera_bool",false);
-        if(camera_bool) {
+        camera_bool = sp.getBoolean("camera_bool", false);
+        if (camera_bool) {
             imgPath = sp.getString("imgPath", imgPath);
             // bimatp factory
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -354,21 +449,58 @@ private Boolean anonym;
             // Put file name in Async Http Post Param which will used in Php web app
             image_params.put("filename", fileName);
         }
-        post_anonym = (CheckBox) findViewById(R.id.post_as_anonymous);
+        post_anonym = (CheckBox) findViewById(R.id.post_recipe_as_anonymous);
+//        post_anonym = (CheckBox) listFooterView.findViewById(R.id.post_recipe_as_anonymous);
         post_anonym.setOnClickListener(new View.OnClickListener() {  // checkbox listener
             public void onClick(View v) {
                 // Perform action on clicks, depending on whether it is checked
                 if (((CheckBox) v).isChecked()) {
                     anonym = true;
-                } else if (((CheckBox) v).isChecked() == false) {
+                } else if (!((CheckBox) v).isChecked()) {
                     anonym = false;
                 }
             }
         });
+
     }
-        /**
-         * Checking device has camera hardware or not
-         * */
+
+    private class LocalBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // safety check
+            if (intent == null || intent.getAction() == null) {
+                return;
+            }
+
+            if (intent.getAction().equals("SOME_ACTION")) {
+                mItems = dFragment.getmItems();
+                ingredientsList.setAdapter(new ListViewIngredientsAdapter(ActivityCreateRecipe.this, mItems)) ;
+                        }
+            justifyListViewHeightBasedOnChildren(ingredientsList);
+
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                localBroadcastReceiver,
+                new IntentFilter("SOME_ACTION"));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(
+                localBroadcastReceiver);
+    }
+
+    /**
+     * Checking device has camera hardware or not
+     */
     private boolean isDeviceSupportCamera() {
         if (getApplicationContext().getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_CAMERA)) {
@@ -380,7 +512,6 @@ private Boolean anonym;
         }
 
     }
-
 
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -434,6 +565,13 @@ private Boolean anonym;
             case R.id.btnCapturePicture:
                 captureImage();
                 break;
+            case R.id.add_ingredients:
+                dFragment = new FragmentIngredients();
+                if(mItems!=null) {
+                    dFragment.setmItems(mItems);
+                }
+                dFragment.show(getSupportFragmentManager(), "start fragment");
+                break;
             default:
                 break;
         }
@@ -446,6 +584,9 @@ private Boolean anonym;
          */
 
         Boolean bool_success = false;
+        String string_recipe_name;
+        String string_ingredients;
+        String string_instructions;
 
         @Override
         protected void onPreExecute() {
@@ -455,20 +596,20 @@ private Boolean anonym;
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(true);
             pDialog.show();
+            String string_recipe_name = recipe_name.getText().toString();
+            String string_instructions = instructions.getText().toString();
         }
 
         @Override
         protected String doInBackground(String... args) {
             // Checks for success tag
             int success;
-            String string_recipe_name = recipe_name.getText().toString();
-            String string_ingredients = ingredients.getText().toString();
-            String string_instructions = instructions.getText().toString();
-            String temp_user="";
-            if(anonym){
 
-                temp_user=current_user;
-                current_user="Anonymous";
+            String temp_user = "";
+            if (anonym) {
+
+                temp_user = current_user;
+                current_user = "Anonymous";
             }
             try {
                 // Building Parameters
@@ -478,8 +619,8 @@ private Boolean anonym;
                 params.add(new BasicNameValuePair("ingredients", string_ingredients));
                 params.add(new BasicNameValuePair("instructions", string_instructions));
                 params.add(new BasicNameValuePair("image_url", uploaded_image_url));
-                if(anonym){
-                    current_user=temp_user;
+                if (anonym) {
+                    current_user = temp_user;
                 }
                 Log.d("request!", "starting");
 
@@ -518,13 +659,13 @@ private Boolean anonym;
             pDialog.dismiss();
             if (file_url != null) {
                 if (bool_success) {
-                    imgPath=null;
-                    fileName=null;
+                    imgPath = null;
+                    fileName = null;
                     image_params.remove("image");
                     image_params.remove("filename");
                     SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ActivityCreateRecipe.this);
                     SharedPreferences.Editor edit = sp.edit();
-                    edit.putBoolean("camera_bool",false);
+                    edit.putBoolean("camera_bool", false);
                     edit.putString("imgPath", "");
                     edit.commit();
                     recipe_image_button.setImageDrawable(getResources().getDrawable(R.drawable.image_archive_128));
@@ -546,6 +687,7 @@ private Boolean anonym;
         // Start the Intent
         startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
     }
+
     // When Image is selected from Gallery
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -553,12 +695,11 @@ private Boolean anonym;
         try {
             // When an Image is picked
             if (requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK
-            && null != data)
-            {
+                    && null != data) {
                 // Get the Image from data
 
                 Uri selectedImage = data.getData();
-                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
                 // Get the cursor
                 Cursor cursor = getContentResolver().query(selectedImage,
@@ -570,7 +711,8 @@ private Boolean anonym;
                 imgPath = cursor.getString(columnIndex);
                 cursor.close();
 
-                    ImageButton imgView = (ImageButton) findViewById(R.id.recipe_image_button);
+                ImageButton imgView = (ImageButton) findViewById(R.id.recipe_image_button);
+//                ImageButton imgView = (ImageButton) listHeaderView.findViewById(R.id.recipe_image_button);
                 // Set the Image in ImageView
                 // bimatp factory
                 BitmapFactory.Options options = new BitmapFactory.Options();
@@ -588,26 +730,27 @@ private Boolean anonym;
                 image_params.put("filename", fileName);
 
             }
-            } catch (Exception e) {
+        } catch (Exception e) {
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
-            .show();
-            }
+                    .show();
+        }
 
         //for image form camera
         // if the result is capturing Image
         if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                camera_bool=true;
+                camera_bool = true;
                 // successfully captured the image
                 // launching upload activity
 
-                imgPath=fileUri.getPath();
+                imgPath = fileUri.getPath();
                 SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ActivityCreateRecipe.this);
                 SharedPreferences.Editor edit = sp.edit();
-                edit.putBoolean("camera_bool",camera_bool);
-                edit.putString("imgPath",imgPath);
+                edit.putBoolean("camera_bool", camera_bool);
+                edit.putString("imgPath", imgPath);
                 edit.commit();
                 ImageButton imgView = (ImageButton) findViewById(R.id.recipe_image_button);
+//                ImageButton imgView = (ImageButton) listHeaderView.findViewById(R.id.recipe_image_button);
                 // Set the Image in ImageView
                 // bimatp factory
                 BitmapFactory.Options options = new BitmapFactory.Options();
@@ -645,10 +788,10 @@ private Boolean anonym;
         }
 
 
-        }
+    }
 
-        // When Upload button is clicked
-            public void uploadImage(View v) {
+    // When Upload button is clicked
+    public void uploadImage(View v) {
         // When Image is selected from Gallery
         if (imgPath != null && !imgPath.isEmpty()) {
             prgDialog.setMessage("Adding salt and pepper...");
@@ -656,23 +799,25 @@ private Boolean anonym;
             // Convert image to String using Base64
             encodeImagetoString();
             // When Image is not selected from Gallery
-            } else {
+        } else {
             Toast.makeText(
                     getApplicationContext(),
                     "You must select image from gallery before you try to upload",
                     Toast.LENGTH_LONG).show();
-            }
         }
+    }
 
-            // AsyncTask - To convert Image to String
-            public void encodeImagetoString() {
+    // AsyncTask - To convert Image to String
+    public void encodeImagetoString() {
         new AsyncTask<Void, Void, String>() {
 
-                    protected void onPreExecute() {
+            protected void onPreExecute() {
 
-                };
+            }
 
-                    @Override
+            ;
+
+            @Override
             protected String doInBackground(Void... params) {
                 BitmapFactory.Options options = null;
                 options = new BitmapFactory.Options();
@@ -686,28 +831,27 @@ private Boolean anonym;
                 // Encode Image to String
                 encodedString = Base64.encodeToString(byte_arr, 0);
                 return "";
-                }
+            }
 
-                    @Override
+            @Override
             protected void onPostExecute(String msg) {
                 prgDialog.setMessage("Tasting...");
                 // Put converted Image string into Async Http Post param
                 image_params.put("image", encodedString);
                 // Trigger Image upload
-               triggerImageUpload();
-                }
-            }.execute(null, null, null);
-        }
+                triggerImageUpload();
+            }
+        }.execute(null, null, null);
+    }
 
-          void triggerImageUpload(){
-            makeHTTPCall();
+    void triggerImageUpload() {
+        makeHTTPCall();
 
-        }
+    }
 
 
-
-            // Make Http call to upload Image to Php server
-            public void makeHTTPCall() {
+    // Make Http call to upload Image to Php server
+    public void makeHTTPCall() {
         AsyncHttpClient client = new AsyncHttpClient();
         // Don't forget to change the IP address to your LAN address. Port no as well.
         client.post(UPLOAD_IMAGE_URL,
@@ -753,7 +897,7 @@ private Boolean anonym;
                         }
                     }
                 });
-        }
+    }
 
     /**
      * Launching camera app to capture image
@@ -768,6 +912,7 @@ private Boolean anonym;
         // start the image capture Intent
         startActivityForResult(intent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
     }
+
     /**
      * Here we store the file url as it will be null after returning from camera
      * app
@@ -838,19 +983,8 @@ private Boolean anonym;
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
         super.onBackPressed();
         Intent i = new Intent(ActivityCreateRecipe.this, ActivityRecentMeals.class);
         startActivity(i);
@@ -864,6 +998,26 @@ private Boolean anonym;
         // Dismiss the progress bar when application is closed
         if (prgDialog != null) {
             prgDialog.dismiss();
-            }
         }
+    }
+    public void justifyListViewHeightBasedOnChildren (ListView listView) {
+
+        ListAdapter adapter = listView.getAdapter();
+
+        if (adapter == null) {
+            return;
+        }
+        ViewGroup vg = listView;
+        int totalHeight = 0;
+        for (int i = 0; i < adapter.getCount(); i++) {
+            View listItem = adapter.getView(i, null, vg);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams par = listView.getLayoutParams();
+        par.height = totalHeight + (listView.getDividerHeight() * (adapter.getCount() - 1));
+        listView.setLayoutParams(par);
+        listView.requestLayout();
+    }
 }

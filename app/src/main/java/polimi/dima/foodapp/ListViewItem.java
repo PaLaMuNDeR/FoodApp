@@ -43,4 +43,13 @@ public class ListViewItem {
         this.title=null;
         this.description=text;
     }
+    //For generating view of ingredient
+    public ListViewItem(String ingredient, String amount){
+        this.id=null;
+        this.creator_name = null;
+        this.creator_photo = null;
+        this.icon=null;
+        this.title=ingredient;
+        this.description=amount;
+    }
 }

@@ -45,7 +45,8 @@
     <string name="create_recipe_instructions_label">Instructions:</string>
     <string name="create_recipe_instructions">Input the instructions here</string>
     <string name="btnTakePicture">Capture Image</string>
-        <string name="btnUploadToServer">Upload to Server</string>
+        
+    <string name="btnUploadToServer">Upload to Server</string>
     <string name="keep_image">Keep Image</string>
     <string name="follow">Follow</string>
     <string name="followed_chiefs">Followed Chiefs</string>
@@ -65,9 +66,14 @@
     <string name="basic">Basic Question</string>
     <string name="post">Post</string>
     <string name="post_as_anonymous">Post as anonymous</string>
-    <string name="no">Number</string>
+    <string name="no">No</string>
     <string name="Likes">Likes</string>
     <string name="advanced">Advanced</string>
     <string name="choose_level">Choose Level</string>
+    <string name="add_ingredients">Add ingredients</string>
+    <string name="pieces">pieces</string>
+    <string name="cups">cups</string>
+    <string name="edit">Edit</string>
+    <string name="edit_question">Do you want to edit?</string>
 
 </resources>
