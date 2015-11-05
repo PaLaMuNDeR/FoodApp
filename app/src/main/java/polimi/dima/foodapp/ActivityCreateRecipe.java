@@ -1,8 +1,10 @@
 package polimi.dima.foodapp;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -31,6 +33,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -170,7 +173,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_recipe);
-        SharedPreferences sp = PreferenceManager
+        final SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(ActivityCreateRecipe.this);
         String post_username = sp.getString("username", "");
         String post_name = sp.getString("recipe_name_view", "");
@@ -349,7 +352,6 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 //                R.layout.activity_create_recipe_footer, null);
 
 
-
 //        listHeaderView = (LinearLayout)inflater.inflate(
 //                R.layout.activity_create_recipe_header, null);
 
@@ -361,42 +363,79 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
         recipe_image_button = (ImageButton) findViewById(R.id.recipe_image_button);
         recipe_name = (EditText) findViewById(R.id.create_recipe_name);
         ingredientsList = (ListView) findViewById(R.id.ingredientsListViewEditable);
-
-//        ingredientsList.addHeaderView(listHeaderView);
-//        ingredientsList.addFooterView(listFooterView);
-
+        final ListViewIngredientsAdapter listViewIngredientsAdapter = new ListViewIngredientsAdapter(ActivityCreateRecipe.this, mItems);
 
         boolean edit_flag = sp.getBoolean("edit_ingredient", false);
         boolean delete_flag = sp.getBoolean("delete_ingredient", false);
-        int ingredient_number = sp.getInt("ingredient_number", 0);
+        Integer ingredient_number = sp.getInt("ingredient_number", 0);
 
 
         ingredientsList.setDivider(null);
         if (mItems != null) {
-            ingredientsList.setAdapter(new ListViewIngredientsAdapter(ActivityCreateRecipe.this, mItems));
+            ingredientsList.setAdapter(listViewIngredientsAdapter);
         }
+        ingredientsList.setOnItemClickListener((new AdapterView.OnItemClickListener() {  // checkbox listener
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View v, int position,
+                                    long arg3) {
+                final Integer item_no = position;
+                AlertDialog.Builder builder = new AlertDialog.Builder(ActivityCreateRecipe.this);
+                builder
+                        .setTitle(ActivityCreateRecipe.this.getResources().getString(R.string.edit))
+                        .setMessage(ActivityCreateRecipe.this.getResources().getString(R.string.edit_question))
+                        .setIcon(R.drawable.ic_launcher)
+                        .setNegativeButton(R.string.edit, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
 
-        if (edit_flag) {
-            if (mItems != null) {
-                mItems.remove(ingredient_number);
+                                ListViewItem edit_item = mItems.get(item_no);
+                                SharedPreferences.Editor edit = sp.edit();
+
+                                edit.putInt("ingredient_number", item_no);
+                                edit.putBoolean("edit_ingredient", true);
+                                edit.commit();
+                                dFragment = new FragmentIngredients();
+                                dFragment.setmItems(mItems);
+                                dFragment.show(getSupportFragmentManager(), "start fragment");
+                            }
+                        })
+                        .setNeutralButton(R.string.delete, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                ListViewItem edit_item = mItems.get(item_no);
+
+                                mItems.remove(edit_item);
+//                                listViewIngredientsAdapter.notifyDataSetChanged();
+                                dFragment = new FragmentIngredients();
+                                dFragment.setmItems(mItems);
+                                dFragment.show(getSupportFragmentManager(), "start fragment");
+                                dFragment.dismiss();
+                            }
+                        })
+                        .setPositiveButton(R.string.no, null)
+                                //Do nothing on no
+                        .show();
             }
-            ingredientsList.setAdapter(new ListViewIngredientsAdapter(ActivityCreateRecipe.this, mItems)) ;
-            dFragment = new FragmentIngredients();
-            dFragment.setmItems(mItems);
-            dFragment.show(getSupportFragmentManager(), "start fragment");
         }
-        if (delete_flag) {
-            if (mItems != null) {
-                mItems.remove(ingredient_number);
-            }
-            ingredientsList.removeViewAt(ingredient_number);
-            ingredientsList.setAdapter(new ListViewIngredientsAdapter(ActivityCreateRecipe.this, mItems)) ;
-            dFragment = new FragmentIngredients();
-            dFragment.setmItems(mItems);
-            dFragment.show(getSupportFragmentManager(), "start fragment");
-        }
-
-
+        ));
+//        if (edit_flag) {
+//            if (mItems != null) {
+//                mItems.remove(ingredient_number);
+//            }
+//            ingredientsList.setAdapter(listViewIngredientsAdapter);
+//            dFragment = new FragmentIngredients();
+//            dFragment.setmItems(mItems);
+//            dFragment.show(getSupportFragmentManager(), "start fragment");
+//        }
+//        if (delete_flag) {
+//            if (mItems != null) {
+//                mItems.remove(ingredient_number);
+//            }
+//            ingredientsList.removeViewAt(ingredient_number);
+//            ingredientsList.setAdapter(listViewIngredientsAdapter)
+//            new ListViewIngredientsAdapter(ActivityCreateRecipe.this, mItems));
+//            dFragment = new FragmentIngredients();
+//            dFragment.setmItems(mItems);
+//            dFragment.show(getSupportFragmentManager(), "start fragment");
+//        }
 
 
         instructions = (EditText) findViewById(R.id.create_recipe_instructions);
@@ -475,8 +514,8 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
 
             if (intent.getAction().equals("SOME_ACTION")) {
                 mItems = dFragment.getmItems();
-                ingredientsList.setAdapter(new ListViewIngredientsAdapter(ActivityCreateRecipe.this, mItems)) ;
-                        }
+                ingredientsList.setAdapter(new ListViewIngredientsAdapter(ActivityCreateRecipe.this, mItems));
+            }
             justifyListViewHeightBasedOnChildren(ingredientsList);
 
         }
@@ -567,7 +606,7 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
                 break;
             case R.id.add_ingredients:
                 dFragment = new FragmentIngredients();
-                if(mItems!=null) {
+                if (mItems != null) {
                     dFragment.setmItems(mItems);
                 }
                 dFragment.show(getSupportFragmentManager(), "start fragment");
@@ -1000,7 +1039,8 @@ public class ActivityCreateRecipe extends ActionBarActivity implements View.OnCl
             prgDialog.dismiss();
         }
     }
-    public void justifyListViewHeightBasedOnChildren (ListView listView) {
+
+    public void justifyListViewHeightBasedOnChildren(ListView listView) {
 
         ListAdapter adapter = listView.getAdapter();
 

@@ -1,8 +1,10 @@
 package polimi.dima.foodapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ListFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -19,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -106,32 +109,31 @@ public class FragmentIngredients extends DialogFragment {
     NumberPicker numberPicker_1 = null;
     NumberPicker numberPicker_2 = null;
     NumberPicker measurePicker = null;
-    Button btn_add = null;
+    ImageButton btn_add = null;
+    ImageButton btn_close = null;
     ListView ingredientsList = null;
     String[] number_picker_2_values = null;
     String[] measurings = null;
+
+    boolean edit_flag = false;
+    boolean delete_flag = false;
+    Integer edit_number = 0;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         final View rootView = inflater.inflate(R.layout.fragment_ingredients, container,
                 false);
-        getDialog().setTitle(getResources().getString(R.string.add_ingredients));
-        // Do something else
-
-        // initialize the items list
-
-        // Resources resources = getResources();
-        // getActivity().setContentView(R.layout.fragment_ingredients);
-        // initialize and set the list adapter
-        // setListAdapter(new ListViewAdapter(getActivity(), mItems));
-
+//        getDialog().setTitle(getResources().getString(R.string.add_ingredients));
+        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         ingredients_edit_text = (EditText) rootView.findViewById(R.id.ingredient_name);
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(rootView.getContext());
         final SharedPreferences.Editor edit = sp.edit();
-        boolean edit_flag = sp.getBoolean("edit_ingredient", false);
-        boolean delete_flag = sp.getBoolean("delete_ingredient", false);
+        edit_flag = sp.getBoolean("edit_ingredient", false);
+        delete_flag = sp.getBoolean("delete_ingredient", false);
+        edit_number = sp.getInt("ingredient_number", 0);
+
         int ingredient_number = sp.getInt("ingredient_number", 0);
 
 
@@ -139,24 +141,9 @@ public class FragmentIngredients extends DialogFragment {
         numberPicker_2 = (NumberPicker) rootView.findViewById(R.id.numberPicker2);
         measurePicker = (NumberPicker) rootView.findViewById(R.id.numberPicker3);
         ingredientsList = (ListView) rootView.findViewById(R.id.ingredientsListViewEditable);
+        final ListViewIngredientsAdapter listViewIngredientsAdapter = new ListViewIngredientsAdapter(rootView.getContext(), mItems);
 
-        if (edit_flag) {
-            ingredients_edit_text.setText(sp.getString("ingredient_name", ""));
-            if (mItems != null) {
-                mItems.remove(ingredient_number);
-            }
-            ingredientsList.setAdapter(new ListViewIngredientsAdapter(rootView.getContext(), mItems));            edit.putBoolean("edit_ingredient", false);
-            edit.commit();
-        }
-        if (delete_flag) {
-            if (mItems != null) {
-                mItems.remove(ingredient_number);
-            }
-            ingredientsList.setAdapter(new ListViewIngredientsAdapter(rootView.getContext(), mItems));
-            edit.putBoolean("delete_ingredient", false);
-            edit.commit();
-        }
-
+        ListViewItem edit_item = null;
 
 
         numberPicker_1.setMinValue(0);
@@ -172,7 +159,7 @@ public class FragmentIngredients extends DialogFragment {
         measurePicker.setMaxValue(measurings.length - 1);
         measurePicker.setDisplayedValues(measurings);
 
-        btn_add = (Button) rootView.findViewById(R.id.btn_add);
+        btn_add = (ImageButton) rootView.findViewById(R.id.btn_add);
         btn_add.setOnClickListener((new View.OnClickListener() {  // checkbox listener
             public void onClick(View v) {
                 // Perform action on clicks, depending on whether it is checked
@@ -204,10 +191,14 @@ public class FragmentIngredients extends DialogFragment {
 
                 mItems.add(new ListViewItem(ingredient, amount));
 
-                ingredientsList.setAdapter(new ListViewIngredientsAdapter(rootView.getContext(), mItems));
+                ingredientsList.setAdapter(listViewIngredientsAdapter);
+//                new ListViewIngredientsAdapter(rootView.getContext(), mItems));
 
 //                ingredientsList.setAdapter(new ListViewSimpleAdapter(rootView.getContext(), mItems));
-
+                ingredients_edit_text.setText("");
+                numberPicker_1.setValue(0);
+                numberPicker_2.setValue(0);
+                measurePicker.setValue(0);
             }
         }
 
@@ -215,14 +206,66 @@ public class FragmentIngredients extends DialogFragment {
 
         ingredientsList = (ListView) rootView.findViewById(R.id.ingredientsListViewEditable);
         ingredientsList.setDivider(null);
-        ingredientsList.setAdapter(new ListViewIngredientsAdapter(rootView.getContext(), mItems));
+        ingredientsList.setAdapter(listViewIngredientsAdapter);
+        ingredientsList.setOnItemClickListener((new AdapterView.OnItemClickListener() {  // checkbox listener
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View v, int position,
+                                    long arg3) {
+                final Integer item_no = position;
+                AlertDialog.Builder builder = new AlertDialog.Builder(rootView.getContext());
+                builder
+                        .setTitle(rootView.getContext().getResources().getString(R.string.edit))
+                        .setMessage(rootView.getContext().getResources().getString(R.string.edit_question))
+                        .setIcon(R.drawable.ic_launcher)
+                        .setNegativeButton(R.string.edit, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
 
+                                ListViewItem edit_item = mItems.get(item_no);
+                                ingredients_edit_text.setText(edit_item.title);
+
+                                mItems.remove(edit_item);
+                                ingredientsList.setAdapter(listViewIngredientsAdapter);
+                            }
+                        })
+                        .setNeutralButton(R.string.delete, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                ListViewItem edit_item = mItems.get(item_no);
+                                mItems.remove(edit_item);
+                                listViewIngredientsAdapter.notifyDataSetChanged();
+                            }
+                        })
+                        .setPositiveButton(R.string.no, null)
+                                //Do nothing on no
+                        .show();
+            }
+        }
+        ));
+        if (edit_flag && mItems != null && mItems.size() > 0) {
+            Integer item_no = sp.getInt("ingredient_number", 0);
+            edit_item = mItems.get(item_no);
+            ingredients_edit_text.setText(edit_item.title);
+            mItems.remove(edit_item);
+
+            ingredientsList.setAdapter(listViewIngredientsAdapter);
+            edit.putBoolean("edit_ingredient", false);
+            edit.commit();
+        }
+
+        btn_close = (ImageButton) rootView.findViewById(R.id.btn_close);
+        btn_close.setOnClickListener((new View.OnClickListener() {  // checkbox listener
+            public void onClick(View v) {
+                getDialog().dismiss();
+            }
+        }
+        ));
         return rootView;
     }
 
-    public interface editItemsDialogListener{
+    public interface editItemsDialogListener {
         void onFinishEditDIalog(String input);
     }
+
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();

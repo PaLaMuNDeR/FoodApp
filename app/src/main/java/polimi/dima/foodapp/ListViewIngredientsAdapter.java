@@ -1,10 +1,14 @@
 package polimi.dima.foodapp;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,13 +28,14 @@ import java.util.List;
  */
 public class ListViewIngredientsAdapter extends ArrayAdapter<ListViewItem> {
     private int ingredient_number = 0;
+
     public ListViewIngredientsAdapter(Context context, List<ListViewItem> items) {
         super(context, R.layout.listview_ingredient_item, items);
     }
+
     /**
      * The view holder design pattern prevents using findViewById()
      * repeatedly in the getView() method of the adapter.
-     *
      */
     private static class ViewHolder {
         TextView title;
@@ -38,12 +43,13 @@ public class ListViewIngredientsAdapter extends ArrayAdapter<ListViewItem> {
         ImageView moreItem;
 
     }
+
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, final ViewGroup parent) {
         final ViewHolder viewHolder;
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
         final SharedPreferences.Editor edit = sp.edit();
-        if(convertView == null) {
+        if (convertView == null) {
             // inflate the GridView item layout
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.listview_ingredient_item, parent, false);
@@ -64,10 +70,11 @@ public class ListViewIngredientsAdapter extends ArrayAdapter<ListViewItem> {
         final ListViewItem item = getItem(position);
         viewHolder.title.setText(item.title);
         viewHolder.description.setText(item.description);
-        viewHolder.moreItem.setOnClickListener(
+
+       /* viewHolder.moreItem.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                    public void onClick(final View v) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                         builder
                                 .setTitle(getContext().getResources().getString(R.string.edit))
@@ -79,6 +86,10 @@ public class ListViewIngredientsAdapter extends ArrayAdapter<ListViewItem> {
                                         edit.putInt("ingredient_number", getPosition(item));
                                         edit.putBoolean("edit_ingredient", true);
                                         edit.commit();
+//                                        FragmentIngredients dFragment = new FragmentIngredients();
+//                                        final Context context = parent.getContext();
+//                                        dFragment.show(((FragmentActivity) context).getSupportFragmentManager(), "start");
+
                                     }
                                 })
                                 .setNeutralButton(R.string.delete, new DialogInterface.OnClickListener() {
@@ -95,7 +106,7 @@ public class ListViewIngredientsAdapter extends ArrayAdapter<ListViewItem> {
                         //   listItems.remove(index.intValue());
                         //  notifyDataSetChanged();
                     }
-                });
+                });*/
         return convertView;
     }
 
